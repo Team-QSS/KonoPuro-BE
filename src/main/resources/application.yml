@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: KonoPuro
+
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: true
+    open-in-view: false
+    show-sql: false
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 128MB
+
+  freemarker:
+    cache: false
+  thymeleaf:
+    cache: false
+
+#logging:
+#  level:
+#    root: debug
+
+server:
+  port: ${RUN_PORT}
+  error:
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: off
+    include-message: never
+
+security:
+  key: ${SECURITY}
+  access: 172800
