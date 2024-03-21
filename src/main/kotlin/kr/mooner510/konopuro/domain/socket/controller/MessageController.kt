@@ -1,16 +1,18 @@
 package kr.mooner510.konopuro.domain.socket.controller
 
-import kr.mooner510.konopuro.domain.socket.data.RawChat
-import kr.mooner510.konopuro.domain.socket.exception.RoomNotFoundException
 import kr.mooner510.konopuro.domain.socket.game.GameManager
-import kr.mooner510.konopuro.global.security.data.entity.User
-import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class MessageController(
     private val gameManager: GameManager
 ) {
+    @GetMapping("/asdf")
+    fun test(): String {
+        return "asdf"
+    }
+
 //    @MessageMapping("/game")
 //    fun sendMessage(
 //        @Payload message: RawChat,

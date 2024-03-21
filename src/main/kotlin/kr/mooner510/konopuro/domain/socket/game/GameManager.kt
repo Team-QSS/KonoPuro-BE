@@ -10,6 +10,7 @@ import java.util.Queue
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.concurrent.thread
 
 @Component
 class GameManager(
@@ -19,7 +20,9 @@ class GameManager(
     private val queue: Queue<UUID> = ConcurrentLinkedQueue()
 
     init {
-        schedule()
+        thread {
+            schedule()
+        }
     }
 
     fun matching(user: User) {
@@ -39,7 +42,7 @@ class GameManager(
         launch {
             while (true) {
                 delay(5000L)
-                println("matching queue ${LocalDateTime.now()}")
+//                println("matching queue ${LocalDateTime.now().withNano(0)}")
                 if (queue.size >= 2) {
                     val first = queue.poll()
                     val second = queue.poll()

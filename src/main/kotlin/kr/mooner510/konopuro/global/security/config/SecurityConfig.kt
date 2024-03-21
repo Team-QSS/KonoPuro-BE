@@ -40,24 +40,24 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 
-                it.requestMatchers("/ws/chat/**").permitAll()
+//                it.requestMatchers("/ws/chat/**").permitAll()
 
-                it.requestMatchers(HttpMethod.DELETE, "/api/test").permitAll()
-                it.requestMatchers(HttpMethod.GET, "/api/test/push").permitAll()
+//                it.requestMatchers(HttpMethod.DELETE, "/api/test").permitAll()
+//                it.requestMatchers(HttpMethod.GET, "/api/test/push").permitAll()
+//
+//                it.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
+////                it.requestMatchers(HttpMethod.GET, "/error").permitAll()
+//
+//                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-in", "/api/auth/id", "/api/auth/password").permitAll()
+////                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-up").permitAll()
+//
+//                it.requestMatchers(HttpMethod.GET, "/api/chat").authenticated()
+//                it.requestMatchers(HttpMethod.POST, "/api/chat/file").authenticated()
+//                it.requestMatchers(HttpMethod.POST, "/api/chat/room").authenticated()
+//                it.requestMatchers(HttpMethod.GET, "/api/chat/room/club").authenticated()
+//                it.requestMatchers(HttpMethod.GET, "/api/chat/room/user").authenticated()
 
-                it.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
-//                it.requestMatchers(HttpMethod.GET, "/error").permitAll()
-
-                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-in", "/api/auth/id", "/api/auth/password").permitAll()
-//                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-up").permitAll()
-
-                it.requestMatchers(HttpMethod.GET, "/api/chat").authenticated()
-                it.requestMatchers(HttpMethod.POST, "/api/chat/file").authenticated()
-                it.requestMatchers(HttpMethod.POST, "/api/chat/room").authenticated()
-                it.requestMatchers(HttpMethod.GET, "/api/chat/room/club").authenticated()
-                it.requestMatchers(HttpMethod.GET, "/api/chat/room/user").authenticated()
-
-                it.anyRequest().denyAll()
+                it.anyRequest().permitAll()
             }
             .with(FilterConfiguration(tokenProvider, objectMapper), Customizer.withDefaults())
             .build()

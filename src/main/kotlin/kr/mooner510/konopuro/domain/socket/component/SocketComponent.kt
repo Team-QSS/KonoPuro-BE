@@ -1,11 +1,6 @@
 package kr.mooner510.konopuro.domain.socket.component
 
-import com.corundumstudio.socketio.AckRequest
-import com.corundumstudio.socketio.AuthTokenListener
-import com.corundumstudio.socketio.AuthTokenResult
-import com.corundumstudio.socketio.SocketIOClient
-import com.corundumstudio.socketio.SocketIONamespace
-import com.corundumstudio.socketio.SocketIOServer
+import com.corundumstudio.socketio.*
 import com.corundumstudio.socketio.listener.ConnectListener
 import com.corundumstudio.socketio.listener.DataListener
 import com.corundumstudio.socketio.listener.DisconnectListener
@@ -22,31 +17,42 @@ class SocketComponent(
     private var namespace: SocketIONamespace? = null
 
     init {
-        this.namespace = server.addNamespace("/socket")
+        this.namespace = server.addNamespace("/socket-io")
         namespace?.let {
             it.addConnectListener(onConnected())
             it.addDisconnectListener(onDisconnected())
             it.addAuthTokenListener(onAuthToken())
+            server.addEventInterceptor { namespaceClient, s, anies, ackRequest ->
+                println("Event Listen($s): ${namespaceClient.sessionId}")
+            }
             it.addEventListener("chat", RawChat::class.java, onChatReceived())
         }
     }
 
     private fun onConnected(): ConnectListener {
         return ConnectListener { client: SocketIOClient ->
+            val authorization = client.handshakeData.httpHeaders.get("Authorization", "")
+            if (authorization.isBlank()) {
+                println("Auth: $authorization")
+                client.disconnect()
+                return@ConnectListener
+            }
             val handshakeData = client.handshakeData
-            log.trace("Client[{}] - Connected to chat module through '{}'", client.sessionId.toString(), handshakeData.url)
+            println("Client[${client.sessionId}] - Connected to chat module through '${handshakeData.url}'")
         }
     }
 
     private fun onDisconnected(): DisconnectListener {
         return DisconnectListener { client: SocketIOClient ->
-            log.trace("Client[{}] - Disconnected from chat module.", client.sessionId.toString())
+            val authorization = client.handshakeData.httpHeaders.get("Authorization", "")
+            if (authorization.isBlank()) return@DisconnectListener
+            println("Client[${client.sessionId}] - Disconnected from chat module.")
         }
     }
 
     private fun onChatReceived(): DataListener<RawChat> {
         return DataListener<RawChat> { client: SocketIOClient, data: RawChat, ackSender: AckRequest? ->
-            log.trace("Client[{}] - Received chat message '{}'", client.sessionId.toString(), data)
+            println("Client[${client.sessionId}] - Received chat message '${data}'")
             namespace!!.broadcastOperations.sendEvent("chat", data)
         }
     }

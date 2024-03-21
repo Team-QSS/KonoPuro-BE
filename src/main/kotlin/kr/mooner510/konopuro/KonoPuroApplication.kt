@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import java.net.Inet4Address
 
 
 @SpringBootApplication
@@ -12,9 +13,12 @@ class KonoPuroApplication {
     @Bean
     fun socketIOServer(): SocketIOServer {
         val config = Configuration()
-        config.hostname = "localhost"
+        config.hostname = Inet4Address.getLocalHost().hostAddress
         config.port = 11092
-        return SocketIOServer(config)
+        val server = SocketIOServer(config)
+        server.start()
+        println("Server ON in host: ${Inet4Address.getLocalHost().hostAddress}")
+        return server
     }
 }
 

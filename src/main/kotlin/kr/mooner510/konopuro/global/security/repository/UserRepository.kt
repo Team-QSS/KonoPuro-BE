@@ -15,7 +15,4 @@ interface UserRepository : JpaRepository<User, UUID> {
 
 
     fun findByIdIn(ids: Collection<UUID>): List<User>
-
-
-    fun findByClubOwner(clubOwner: UUID): Optional<User>
 }
