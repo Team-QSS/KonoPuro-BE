@@ -1,13 +1,10 @@
 package kr.mooner510.konopuro.domain.socket.controller
 
-import kr.mooner510.konopuro.domain.socket.game.GameManager
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class MessageController(
-    private val gameManager: GameManager
-) {
+class MessageController {
     @GetMapping("/asdf")
     fun test(): String {
         return "asdf"

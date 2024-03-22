@@ -4,17 +4,21 @@ import com.corundumstudio.socketio.*
 import com.corundumstudio.socketio.listener.ConnectListener
 import com.corundumstudio.socketio.listener.DataListener
 import com.corundumstudio.socketio.listener.DisconnectListener
-import kr.mooner510.konopuro.domain.socket.data.RawChat
-import org.slf4j.LoggerFactory
+import kr.mooner510.konopuro.domain.socket.data.RawData
+import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 
 @Component
 class SocketComponent(
     server: SocketIOServer
 ) {
-    private val log = LoggerFactory.getLogger(SocketComponent::class.java)
-
     private var namespace: SocketIONamespace? = null
+
+    @Bean
+    fun nameSpace(): SocketIONamespace {
+        return namespace!!
+    }
+
 
     init {
         this.namespace = server.addNamespace("/socket-io")
@@ -25,7 +29,7 @@ class SocketComponent(
             server.addEventInterceptor { namespaceClient, s, anies, ackRequest ->
                 println("Event Listen($s): ${namespaceClient.sessionId}")
             }
-            it.addEventListener("chat", RawChat::class.java, onChatReceived())
+            it.addEventListener("chat", RawData::class.java, onChatReceived())
         }
     }
 
@@ -50,8 +54,8 @@ class SocketComponent(
         }
     }
 
-    private fun onChatReceived(): DataListener<RawChat> {
-        return DataListener<RawChat> { client: SocketIOClient, data: RawChat, ackSender: AckRequest? ->
+    private fun onChatReceived(): DataListener<RawData> {
+        return DataListener<RawData> { client: SocketIOClient, data: RawData, ackSender: AckRequest? ->
             println("Client[${client.sessionId}] - Received chat message '${data}'")
             namespace!!.broadcastOperations.sendEvent("chat", data)
         }

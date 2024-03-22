@@ -14,7 +14,9 @@ enum class ErrorCode(
     INVALID_TOKEN("만료된 토큰입니다.", HttpStatus.FORBIDDEN),
     INVALID_UUID("%1은(는) 알 수 없는 UUID입니다.", HttpStatus.BAD_REQUEST),
 
-    ROOM_NOT_FOUND("룸을 찾지 못했습니다.", HttpStatus.NOT_FOUND)
+    ROOM_NOT_FOUND("방을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    DECK_NOT_FOUND("덱을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    CLIENT_NOT_FOUND("클라이언트를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     ;
 
     fun parse(vararg data: Any): String {

@@ -1,6 +1,6 @@
 package kr.mooner510.konopuro.domain.socket.data
 
-data class RawChat(
+data class RawData(
     var protocol: Int,
     var data: String
 ) {
@@ -10,7 +10,7 @@ data class RawChat(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as RawChat
+        other as RawData
 
         if (protocol != other.protocol) return false
         if (!data.contentEquals(other.data)) return false
