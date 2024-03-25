@@ -10,6 +10,7 @@ import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest
 import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
+import kr.mooner510.konopuro.domain.game.exception.CardNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
@@ -39,7 +40,8 @@ class CardController(
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) id: Long?
     ) {
-        val cardData: Optional<CardData> = id?.let { cardDataRepository.findById(id) } ?: name?.let { cardDataRepository.findByTitleStartsWith(it) }
+        val cardData: Optional<CardData> =
+            id?.let { cardDataRepository.findById(id) } ?: name?.let { cardDataRepository.findByTitleStartsWith(it) } ?: throw CardNotFoundException()
 
         val tiers = tierRepository.findAllById(listOf())
     }
