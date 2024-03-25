@@ -13,7 +13,7 @@ class KonoPuroApplication {
     @Bean
     fun socketIOServer(): SocketIOServer {
         val config = Configuration()
-        config.hostname = Inet4Address.getLocalHost().hostAddress
+//        config.hostname = Inet4Address.getLocalHost().hostAddress
         config.port = 11092
         val server = SocketIOServer(config)
         server.start()
