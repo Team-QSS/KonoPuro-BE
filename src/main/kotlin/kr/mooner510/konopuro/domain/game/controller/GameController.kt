@@ -27,17 +27,4 @@ class GameController(
         namespace.broadcastOperations.sendEvent("chat", RawData(0, ""))
         return "Success Sent"
     }
-
-//    @MessageMapping
-//    fun sendMessage(
-//        @Payload message: RawChat,
-//        @AuthenticationPrincipal user: User
-//    ) {
-//        println(user.userName)
-//
-//        val room = gameManager.getRoomByPlayer(user.id) ?: throw RoomNotFoundException()
-//        user.client?.let {
-//            server.getClient(it).sendEvent("", message)
-//        }
-//    }
 }
