@@ -6,12 +6,12 @@ import java.util.*
 
 @Entity
 @Table(name = "gatcha_log")
-class GatchaData(
+class GatchaLog(
     @Column(nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     val userId: UUID,
 
-    @Column(nullable = false, updatable = false, columnDefinition = "BINARY(16)")
-    val cardDataId: UUID,
+    @Column(nullable = false, updatable = false)
+    val cardDataId: Long,
 
     @Column(nullable = false, updatable = false)
     val tier: Int,

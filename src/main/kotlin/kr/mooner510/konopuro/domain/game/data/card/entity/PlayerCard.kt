@@ -11,7 +11,7 @@ import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 import java.util.*
 
 @Entity
-@Table(name = "card")
+@Table(name = "playercard")
 class PlayerCard(
     @Column(nullable = false, updatable = false)
     val cardDataId: Long,

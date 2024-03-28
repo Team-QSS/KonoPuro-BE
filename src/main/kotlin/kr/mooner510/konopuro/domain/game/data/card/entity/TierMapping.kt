@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntityCreateOnly
 
 @Entity
-@Table(name = "tier")
+@Table(name = "tier_mapping")
 class TierMapping(
     @Column(nullable = false, updatable = false)
     val tierId: Long,

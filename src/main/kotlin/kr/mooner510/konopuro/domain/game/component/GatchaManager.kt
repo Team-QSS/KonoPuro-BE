@@ -8,13 +8,11 @@ import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.Gatcha
+import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaLog
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.exception.TierNotFoundException
-import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
-import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
-import kr.mooner510.konopuro.domain.game.repository.TierMappingRepository
-import kr.mooner510.konopuro.domain.game.repository.TierRepository
+import kr.mooner510.konopuro.domain.game.repository.*
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -25,7 +23,8 @@ class GatchaManager(
     private val tierRepository: TierRepository,
     private val cardDataRepository: CardDataRepository,
     private val passiveRepository: PassiveRepository,
-    private val tierMappingRepository: TierMappingRepository
+    private val tierMappingRepository: TierMappingRepository,
+    private val playerCardRepository: PlayerCardRepository, private val gatchaLogRepository: GatchaLogRepository
 ) {
     companion object {
         private var cardDataMap: HashMap<Long, CardData> = HashMap()
@@ -111,7 +110,7 @@ class GatchaManager(
         stack.stack4++
         stack.stack3++
 
-        val playerCard = gatcha.gatchaOnce(stack)
+        val playerCard = playerCardRepository.save(gatcha.gatchaOnce(stack))
 
         val cardData = cardDataRepository.findByIdOrNull(playerCard.cardDataId) ?: throw CardDataNotFoundException()
 
@@ -119,6 +118,8 @@ class GatchaManager(
             listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird)
         )
         val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
+
+        gatchaLogRepository.save(GatchaLog(stack.userId, cardData.id, playerCard.getTier()))
 
         return PlayerCardResponse(
             cardData.title,

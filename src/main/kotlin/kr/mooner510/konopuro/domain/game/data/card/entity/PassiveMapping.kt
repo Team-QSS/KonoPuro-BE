@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntityCreateOnly
 
 @Entity
-@Table(name = "tier")
+@Table(name = "passive_mapping")
 class PassiveMapping(
     @Column(nullable = false, updatable = false)
     val passiveId: Long,
