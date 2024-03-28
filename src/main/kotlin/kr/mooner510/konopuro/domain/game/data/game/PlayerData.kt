@@ -2,8 +2,7 @@ package kr.mooner510.konopuro.domain.game.data.game
 
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
-import java.util.LinkedList
-import java.util.UUID
+import java.util.*
 
 data class PlayerData(
     val id: UUID,

@@ -4,10 +4,9 @@ import com.corundumstudio.socketio.BroadcastOperations
 import com.corundumstudio.socketio.ClientOperations
 import com.corundumstudio.socketio.SocketIONamespace
 import kr.mooner510.konopuro.domain.game.component.GameRoom
-import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.util.*
 
 @Component
 class MessageManager(

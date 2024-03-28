@@ -1,7 +1,7 @@
 package kr.mooner510.konopuro.domain.game.data.deck.entity
 
 import jakarta.persistence.*
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "deck_card")

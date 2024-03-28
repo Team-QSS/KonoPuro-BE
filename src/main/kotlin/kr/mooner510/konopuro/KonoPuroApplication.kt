@@ -5,7 +5,6 @@ import com.corundumstudio.socketio.SocketIOServer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import java.net.Inet4Address
 
 
 @SpringBootApplication

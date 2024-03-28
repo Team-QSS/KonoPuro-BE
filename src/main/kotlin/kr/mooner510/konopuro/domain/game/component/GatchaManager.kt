@@ -1,6 +1,9 @@
 package kr.mooner510.konopuro.domain.game.component
 
-import kr.mooner510.konopuro.domain.game.data.card.entity.*
+import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
+import kr.mooner510.konopuro.domain.game.data.card.entity.Passive
+import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerCard
+import kr.mooner510.konopuro.domain.game.data.card.entity.Tier
 import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
@@ -8,12 +11,14 @@ import kr.mooner510.konopuro.domain.game.data.gatcha.entity.Gatcha
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.exception.TierNotFoundException
-import kr.mooner510.konopuro.domain.game.repository.*
+import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
+import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
+import kr.mooner510.konopuro.domain.game.repository.TierMappingRepository
+import kr.mooner510.konopuro.domain.game.repository.TierRepository
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
-import kotlin.collections.HashMap
 
 @Component
 class GatchaManager(

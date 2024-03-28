@@ -1,7 +1,7 @@
 package kr.mooner510.konopuro.domain.game.component
 
 import com.corundumstudio.socketio.BroadcastOperations
-import java.util.UUID
+import java.util.*
 
 data class GameRoom(
     val id: UUID,

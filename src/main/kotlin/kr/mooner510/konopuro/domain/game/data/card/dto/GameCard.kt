@@ -2,8 +2,8 @@ package kr.mooner510.konopuro.domain.game.data.card.dto
 
 import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
 import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerCard
-import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
+import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import java.util.*
 
 data class GameCard(

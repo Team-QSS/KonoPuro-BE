@@ -1,10 +1,8 @@
 package kr.mooner510.konopuro.domain.game.data.card.entity
 
 import jakarta.persistence.*
-import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
-import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
-import kr.mooner510.konopuro.domain.game.repository.TierRepository
+import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 
 @Entity
