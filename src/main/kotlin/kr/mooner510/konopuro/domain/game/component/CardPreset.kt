@@ -9,6 +9,7 @@ import kr.mooner510.konopuro.domain.game.data.card.request.PassiveRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.TierRequest
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
 import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
 import kr.mooner510.konopuro.domain.game.repository.TierRepository
@@ -90,7 +91,10 @@ class CardPreset(
                 )
             )
         ).map {
-            cardController.createCardData(it)
+            try {
+                cardController.createCardData(it)
+            } catch (_: CardAlreadyExistsException) {
+            }
         }
     }
 

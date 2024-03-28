@@ -6,4 +6,7 @@ import java.util.*
 
 interface CardDataRepository : CrudRepository<CardData, Long> {
     fun findByTitleStartsWith(title: String): Optional<CardData>
+
+
+    fun existsByTitle(title: String): Boolean
 }
