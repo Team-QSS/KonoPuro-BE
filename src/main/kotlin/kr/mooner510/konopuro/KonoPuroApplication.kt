@@ -17,7 +17,7 @@ class KonoPuroApplication {
         config.port = 11092
         val server = SocketIOServer(config)
         server.start()
-        println("Server ON in host: ${Inet4Address.getLocalHost().hostAddress}")
+        println("\n\t\tSocket Server ON\n")
         return server
     }
 }

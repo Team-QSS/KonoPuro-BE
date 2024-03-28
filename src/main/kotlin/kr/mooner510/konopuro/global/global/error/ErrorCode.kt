@@ -13,11 +13,16 @@ enum class ErrorCode(
     LOGIN_FAILED("아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
     INVALID_TOKEN("만료된 토큰입니다.", HttpStatus.FORBIDDEN),
     INVALID_UUID("%1은(는) 알 수 없는 UUID입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_PARAMETER("올바른 파라미터로 작성되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
     ROOM_NOT_FOUND("방을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     DECK_NOT_FOUND("덱을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     CLIENT_NOT_FOUND("클라이언트를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     CARD_NOT_FOUND("카드를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    CARD_DATA_NOT_FOUND("카드 데이터를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    GATCHA_NOT_FOUND("가챠를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    TIER_NOT_FOUND("티어를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    PASSIVE_NOT_FOUND("패시브를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     ;
 
     fun parse(vararg data: Any): String {

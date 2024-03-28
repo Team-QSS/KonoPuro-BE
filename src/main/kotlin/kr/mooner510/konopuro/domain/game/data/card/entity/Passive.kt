@@ -9,10 +9,10 @@ import java.util.*
 @Table(name = "passive")
 class Passive(
     @Column(nullable = false)
-    val title: String,
+    var title: String,
 
     @Column(nullable = false, length = 1023)
-    val description: String,
+    var description: String,
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
