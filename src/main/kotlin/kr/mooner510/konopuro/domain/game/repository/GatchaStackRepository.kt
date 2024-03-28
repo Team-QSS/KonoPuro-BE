@@ -5,4 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface GatchaStackRepository : CrudRepository<GatchaStack, UUID> {
+
+
+    fun findByUserId(userId: UUID): Optional<GatchaStack>
 }

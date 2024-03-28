@@ -9,7 +9,6 @@ data class PlayerCardResponse(
     val cardGroups: List<MajorType>,
     val tier: Int,
     val type: CardType,
-    val defaultPassives: List<PassiveResponse>,
     val passives: List<PassiveResponse>,
-    val tiers: List<TierResponse>
+    val tiers: List<TierResponse>,
 )

@@ -1,4 +1,4 @@
-package kr.mooner510.konopuro.domain.game.component
+package kr.mooner510.konopuro.domain.game._preset
 
 import kr.mooner510.konopuro.domain.game.controller.CardController
 import kr.mooner510.konopuro.domain.game.data.card.entity.Passive

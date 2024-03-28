@@ -35,6 +35,7 @@ class GatchaManager(
         fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerCard {
             val id: Long
             val random = Math.random()
+            println("4 Tier: ${.005 + stack.additionChance4()}, 3 Tier: ${.045 + stack.additionChance4() + stack.additionChance3()}")
             val tier = when {
                 random < .005 + stack.additionChance4() -> {
                     id = cardMajorMap[this.mainMajor]?.random() ?: cardDataMap.keys.random()
@@ -55,9 +56,9 @@ class GatchaManager(
             }
             return PlayerCard(
                 id,
-                cardTierMapping[id]?.get(1)?.random()?.id,
-                if (tier >= 3) cardTierMapping[id]?.get(2)?.random()?.id else null,
-                if (tier >= 4) cardTierMapping[id]?.get(3)?.random()?.id else null
+                cardTierMapping[id]?.get(0)?.random()?.id,
+                if (tier >= 3) cardPassiveMapping[id]?.random()?.id else null,
+                if (tier >= 4) cardTierMapping[id]?.get(1)?.random()?.id else null
             )
         }
     }
@@ -82,11 +83,14 @@ class GatchaManager(
                 majorMap[it]?.add(cardData.id)
             }
             cardDataMap[cardData.id] = cardData
-            val tierTopList = mutableListOf<List<Tier>>()
-            for (tier in 1..4) {
-                tierTopList.add(tierRepository.findAllById(tierMappingRepository.findByCardDataId(cardData.id).map { it.tierId }).toList())
-            }
-            cardTierMapping[cardData.id] = tierTopList
+            cardTierMapping[cardData.id] = mutableListOf(
+                tierRepository.findAllById(
+                    tierMappingRepository.findByCardDataIdAndTier(cardData.id, 2).map { it.tierId }
+                ).toList(),
+                tierRepository.findAllById(
+                    tierMappingRepository.findByCardDataIdAndTier(cardData.id, 4).map { it.tierId }
+                ).toList()
+            )
             cardPassiveMapping[cardData.id] =
                 passiveRepository.findAllById(listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird)).toList()
         }
@@ -114,9 +118,6 @@ class GatchaManager(
 
         val cardData = cardDataRepository.findByIdOrNull(playerCard.cardDataId) ?: throw CardDataNotFoundException()
 
-        val defaultPassives = passiveRepository.findAllById(
-            listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird)
-        )
         val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
 
         gatchaLogRepository.save(GatchaLog(stack.userId, cardData.id, playerCard.getTier()))
@@ -127,7 +128,6 @@ class GatchaManager(
             cardData.groupSet().toList(),
             playerCard.getTier(),
             cardData.type,
-            defaultPassives.map { PassiveResponse(it.id, it.title, it.description) },
             passives.map { PassiveResponse(it.id, it.title, it.description) },
             tiers.map { TierResponse(it.id, it.title, it.description, it.time) }
         )

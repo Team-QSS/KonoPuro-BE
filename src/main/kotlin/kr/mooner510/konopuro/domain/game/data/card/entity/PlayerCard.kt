@@ -38,8 +38,27 @@ class PlayerCard(
 
     fun split(cardData: CardData, passiveRepository: PassiveRepository, tierRepository: TierRepository): Pair<List<Passive>, List<Tier>> {
         val (passives, tiers) = when (cardData.type) {
-            CardType.Student -> listOfNotNull(tierThird) to listOfNotNull(tierSecond, tierForth)
-            else -> listOfNotNull(tierSecond, tierThird, tierForth) to emptyList()
+            CardType.Student ->
+                listOfNotNull(
+                    cardData.passiveFirst,
+                    cardData.passiveSecond,
+                    cardData.passiveThird,
+                    tierThird
+                ) to listOfNotNull(
+                    cardData.startTier,
+                    tierSecond,
+                    tierForth
+                )
+
+            else ->
+                listOfNotNull(
+                    cardData.passiveFirst,
+                    cardData.passiveSecond,
+                    cardData.passiveThird,
+                    tierSecond,
+                    tierThird,
+                    tierForth
+                ) to emptyList()
         }
         return passiveRepository.findAllById(passives).toList() to tierRepository.findAllById(tiers).toList()
     }

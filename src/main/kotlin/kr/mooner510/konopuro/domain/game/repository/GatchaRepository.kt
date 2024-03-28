@@ -5,4 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface GatchaRepository : CrudRepository<Gatcha, UUID> {
+
+
+    fun existsByTitle(title: String): Boolean
 }

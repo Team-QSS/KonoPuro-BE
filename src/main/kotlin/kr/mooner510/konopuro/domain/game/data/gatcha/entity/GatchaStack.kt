@@ -24,5 +24,5 @@ class GatchaStack(
 ) : BaseEntity() {
     fun additionChance4(): Double = max(0.0, min(1.0, (stack4 - 65) / 40.0))
 
-    fun additionChance3(): Double = if (stack3 == 9) .21 else 1.0
+    fun additionChance3(): Double = if (stack3 >= 10) 1.0 else if (stack3 >= 9) .21 else 0.0
 }

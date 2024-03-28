@@ -5,4 +5,6 @@ import org.springframework.data.repository.CrudRepository
 
 interface TierMappingRepository : CrudRepository<TierMapping, Long> {
     fun findByCardDataId(cardDataId: Long): List<TierMapping>
+
+    fun findByCardDataIdAndTier(cardDataId: Long, tier: Int): List<TierMapping>
 }
