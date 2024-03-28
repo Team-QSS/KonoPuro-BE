@@ -5,5 +5,6 @@ import java.time.LocalDateTime
 data class GatchaLogResponse(
     val cardName: String,
     val tier: Int,
+    val stack: Int?,
     val dateTime: LocalDateTime
 )

@@ -79,23 +79,27 @@ class GatchaController(
 
     @GetMapping("/log")
     fun gatchaLog(
-        @AuthenticationPrincipal user: User
+        @AuthenticationPrincipal user: User,
+        @RequestParam(required = false) tier: String?
     ): GatchaLogDataResponse {
         val stack = gatchaStackRepository.findByUserId(user.id).getOrNull() ?: return GatchaLogDataResponse(0, 0, 0, emptyList())
 
         val map = hashMapOf<Long, String>()
 
         var cardData: CardData?
-        val gatchaLogResponses = gatchaLogRepository.findByUserId(user.id).mapNotNull { log ->
-            map[log.cardDataId]?.let {
-                return@mapNotNull GatchaLogResponse(it, log.tier, log.createdAt)
-            }
-            cardData = cardDataRepository.findByIdOrNull(log.cardDataId)
-            cardData?.let {
-                map[log.cardDataId] = it.title
-                return@mapNotNull GatchaLogResponse(it.title, log.tier, log.createdAt)
-            }
-        }
+        val gatchaLogResponses =
+            (tier?.let { gatchaLogRepository.findByUserIdAndTierIn(user.id, tier.split(",").map { it.toInt() }) }
+                ?: gatchaLogRepository.findByUserId(user.id))
+                .mapNotNull { log ->
+                    map[log.cardDataId]?.let {
+                        return@mapNotNull GatchaLogResponse(it, log.tier, log.stack, log.createdAt)
+                    }
+                    cardData = cardDataRepository.findByIdOrNull(log.cardDataId)
+                    cardData?.let {
+                        map[log.cardDataId] = it.title
+                        return@mapNotNull GatchaLogResponse(it.title, log.tier, log.stack, log.createdAt)
+                    }
+                }
         return GatchaLogDataResponse(
             gatchaLogResponses.size,
             stack.stack3,

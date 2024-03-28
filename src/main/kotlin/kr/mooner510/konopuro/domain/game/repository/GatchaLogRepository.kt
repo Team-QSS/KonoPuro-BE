@@ -8,4 +8,7 @@ interface GatchaLogRepository : CrudRepository<GatchaLog, Long> {
 
 
     fun findByUserId(userId: UUID): List<GatchaLog>
+
+
+    fun findByUserIdAndTierIn(userId: UUID, tier: Collection<Int>): List<GatchaLog>
 }

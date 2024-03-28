@@ -116,13 +116,22 @@ class GatchaManager(
         stack.stack4++
         stack.stack3++
 
+        val stack4 = stack.stack4
+        val stack3 = stack.stack3
         val playerCard = playerCardRepository.save(gatcha.gatchaOnce(stack))
 
         val cardData = cardDataRepository.findByIdOrNull(playerCard.cardDataId) ?: throw CardDataNotFoundException()
 
         val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
 
-        gatchaLogRepository.save(GatchaLog(stack.userId, cardData.id, playerCard.getTier()))
+        gatchaLogRepository.save(
+            GatchaLog(
+                stack.userId,
+                cardData.id,
+                playerCard.getTier(),
+                if (playerCard.getTier() == 3) stack3 else if (playerCard.getTier() == 4) stack4 else null,
+            )
+        )
 
         return PlayerCardResponse(
             cardData.title,

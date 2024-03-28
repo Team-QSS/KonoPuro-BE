@@ -15,6 +15,9 @@ class GatchaLog(
 
     @Column(nullable = false, updatable = false)
     val tier: Int,
+
+    @Column(nullable = true, updatable = false)
+    val stack: Int?,
 ) : BaseEntityCreateOnly() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
