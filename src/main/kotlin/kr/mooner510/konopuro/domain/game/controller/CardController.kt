@@ -66,7 +66,7 @@ class CardController(
             )
         }
 
-        val tier4 = req.tier2.map {
+        val tier4 = req.tier4.map {
             tierRepository.save(
                 Tier(
                     it.title,

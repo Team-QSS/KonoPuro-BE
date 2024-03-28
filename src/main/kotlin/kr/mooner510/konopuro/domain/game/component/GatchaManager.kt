@@ -94,12 +94,7 @@ class GatchaManager(
                 ).toList()
             )
             cardPassiveMapping[cardData.id] =
-                passiveRepository.findAllById(
-                    listOfNotNull(
-                        cardData.passiveFirst,
-                        cardData.passiveSecond,
-                        cardData.passiveThird
-                    ) + passiveMappingRepository.findByCardDataId(cardData.id).map { it.passiveId }).toList()
+                passiveRepository.findAllById(passiveMappingRepository.findByCardDataId(cardData.id).map { it.passiveId }).toList()
         }
         majorMap.forEach { (key, value) ->
             cardMajorMap[key] = value
