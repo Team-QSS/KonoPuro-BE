@@ -37,15 +37,15 @@ class GatchaManager(
         fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerCard {
             val id: Long
             val random = Math.random()
-            println("4 Tier: ${.005 + stack.additionChance4()}, 3 Tier: ${.04 + stack.additionChance3()}")
+            println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
             val tier = when {
-                random < .005 + stack.additionChance4() -> {
+                random < stack.chance4() -> {
                     id = cardMajorMap[this.mainMajor]?.random() ?: cardDataMap.keys.random()
                     stack.stack4 = 0
                     4
                 }
 
-                random < .045 + stack.additionChance4() + stack.additionChance3() -> {
+                random < stack.chance4() + stack.chance3() -> {
                     id = cardMajorMap[this.mainMajor]?.random() ?: cardDataMap.keys.random()
                     stack.stack3 = 0
                     3
