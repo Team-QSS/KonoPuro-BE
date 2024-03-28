@@ -1,7 +1,6 @@
 package kr.mooner510.konopuro.domain.game.component
 
 import kr.mooner510.konopuro.domain.game.controller.CardController
-import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
 import kr.mooner510.konopuro.domain.game.data.card.entity.Passive
 import kr.mooner510.konopuro.domain.game.data.card.entity.Tier
 import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest

@@ -8,7 +8,6 @@ import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
 import kr.mooner510.konopuro.domain.game.exception.CardNotFoundException
-import kr.mooner510.konopuro.domain.game.exception.PassiveNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*
 import kr.mooner510.konopuro.global.security.exception.InvalidParameterException
 import org.springframework.data.repository.findByIdOrNull
@@ -56,7 +55,7 @@ class CardController(
         @RequestBody req: CreateCardRequest
     ): CardDataResponse {
         if (cardDataRepository.existsByTitle(req.title)) throw CardAlreadyExistsException()
-        
+
         val tier2 = req.tier2.map {
             tierRepository.save(
                 Tier(
