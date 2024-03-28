@@ -8,10 +8,11 @@ import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.annotations.SQLRestriction
+import java.time.LocalDateTime
 import java.util.*
 
 @SQLRestriction(value = "is_deleted = false")
-@SQLDelete(sql = "UPDATE user SET is_deleted = true where id = ?")
+@SQLDelete(sql = "UPDATE gatcha SET is_deleted = true where id = ?")
 @Entity
 @Table(name = "gatcha")
 class Gatcha(
@@ -20,6 +21,12 @@ class Gatcha(
 
     @Column(nullable = false)
     val mainMajor: MajorType,
+
+    @Column(nullable = false)
+    val startAt: LocalDateTime,
+
+    @Column(nullable = false)
+    val endAt: LocalDateTime,
 ) : BaseEntity() {
     @Id
     @Column(columnDefinition = "BINARY(16)")
