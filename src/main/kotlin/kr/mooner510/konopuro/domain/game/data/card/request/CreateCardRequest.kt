@@ -10,6 +10,7 @@ data class CreateCardRequest(
     val type: CardType,
     val startTierId: Long,
     val defaultPassives: List<PassiveRequest>,
-    val additionPassive: PassiveRequest,
-    val tiers: List<List<TierRequest>>
+    val tier2: List<TierRequest>,
+    val additionPassive: List<PassiveRequest>,
+    val tier4: List<TierRequest>,
 )

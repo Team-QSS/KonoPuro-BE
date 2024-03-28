@@ -13,7 +13,6 @@ import kr.mooner510.konopuro.global.security.exception.InvalidParameterException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
-import kotlin.math.pow
 
 @RestController
 @RequestMapping("/api/card")
@@ -36,8 +35,7 @@ class CardController(
 
         val tiers = tierMappingRepository.findByCardDataId(cardData.id).groupBy({ it.tier }, { tierRepository.findByIdOrNull(it.tierId) })
         val passives = passiveRepository.findAllById(listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird))
-        val passive = passiveMappingRepository.findByCardDataId(cardData.id).getOrNull()?.let { passiveRepository.findByIdOrNull(it.passiveId) }
-            ?: throw PassiveNotFoundException()
+        val passive = passiveMappingRepository.findByCardDataId(cardData.id).mapNotNull { passiveRepository.findByIdOrNull(it.passiveId) }
 
         return CardDataResponse(
             cardData.title,
@@ -45,9 +43,8 @@ class CardController(
             cardData.groupSet().toList(),
             cardData.type,
             passives.map { PassiveResponse(it.id, it.title, it.description) },
-            tiers[1]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
             tiers[2]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
-            PassiveResponse(passive.id, passive.title, passive.description),
+            passive.map { PassiveResponse(it.id, it.title, it.description) },
             tiers[4]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
         )
     }
@@ -57,16 +54,24 @@ class CardController(
     fun createCardData(
         @RequestBody req: CreateCardRequest
     ): CardDataResponse {
-        val tiers = req.tiers.map { tierRequests ->
-            tierRequests.map {
-                tierRepository.save(
-                    Tier(
-                        it.title,
-                        it.description,
-                        it.time
-                    )
+        val tier2 = req.tier2.map {
+            tierRepository.save(
+                Tier(
+                    it.title,
+                    it.description,
+                    it.time
                 )
-            }
+            )
+        }
+
+        val tier4 = req.tier2.map {
+            tierRepository.save(
+                Tier(
+                    it.title,
+                    it.description,
+                    it.time
+                )
+            )
         }
 
         val defaultPassives = req.defaultPassives.map {
@@ -78,7 +83,9 @@ class CardController(
             )
         }
 
-        val passive = passiveRepository.save(Passive(req.additionPassive.title, req.additionPassive.description))
+        val additionPassives = req.additionPassive.map {
+            passiveRepository.save(Passive(it.title, it.description))
+        }
 
         val cardData = cardDataRepository.save(
             CardData(
@@ -93,12 +100,9 @@ class CardController(
             )
         )
 
-        tiers.mapIndexed { idx, tierList ->
-            tierList.map {
-                tierMappingRepository.save(TierMapping(it.id, cardData.id, (idx + 1) * 2))
-            }
-        }
-        passiveMappingRepository.save(PassiveMapping(passive.id, cardData.id))
+        tier2.map { tierMappingRepository.save(TierMapping(it.id, cardData.id, 2)) }
+        tier4.map { tierMappingRepository.save(TierMapping(it.id, cardData.id, 4)) }
+        additionPassives.map { passiveMappingRepository.save(PassiveMapping(it.id, cardData.id)) }
 
         return CardDataResponse(
             cardData.title,
@@ -106,10 +110,9 @@ class CardController(
             cardData.groupSet().toList(),
             cardData.type,
             defaultPassives.map { PassiveResponse(it.id, it.title, it.description) },
-            tiers[0].map { TierResponse(it.id, it.title, it.description, it.time) },
-            tiers[1].map { TierResponse(it.id, it.title, it.description, it.time) },
-            PassiveResponse(passive.id, passive.title, passive.description),
-            tiers[2].map { TierResponse(it.id, it.title, it.description, it.time) },
+            tier2.map { TierResponse(it.id, it.title, it.description, it.time) },
+            additionPassives.map { PassiveResponse(it.id, it.title, it.description) },
+            tier4.map { TierResponse(it.id, it.title, it.description, it.time) },
         )
     }
 }

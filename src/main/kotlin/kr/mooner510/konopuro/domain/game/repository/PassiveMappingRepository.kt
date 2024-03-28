@@ -7,5 +7,5 @@ import java.util.*
 interface PassiveMappingRepository : CrudRepository<PassiveMapping, Long> {
 
 
-    fun findByCardDataId(cardDataId: Long): Optional<PassiveMapping>
+    fun findByCardDataId(cardDataId: Long): List<PassiveMapping>
 }

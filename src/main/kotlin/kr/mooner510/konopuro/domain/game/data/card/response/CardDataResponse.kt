@@ -9,8 +9,7 @@ data class CardDataResponse(
     val cardGroups: List<MajorType>,
     val type: CardType,
     val defaultPassives: List<PassiveResponse>,
-    val tier1: List<TierResponse>,
     val tier2: List<TierResponse>,
-    val additionPassive: PassiveResponse,
+    val additionPassive: List<PassiveResponse>,
     val tier4: List<TierResponse>
 )

@@ -9,5 +9,11 @@ enum class MajorType {
     IOS,
     Embedded,
     DevOps,
-    Design
+    Design;
+
+    companion object {
+        fun majorGroup(vararg majors: MajorType): Long {
+            return majors.sumOf { 1L shl it.ordinal }
+        }
+    }
 }
