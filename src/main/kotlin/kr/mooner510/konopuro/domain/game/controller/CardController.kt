@@ -84,7 +84,7 @@ class CardController(
             CardData(
                 req.title,
                 req.description,
-                req.cardGroups.sumOf { 2.0.pow(it.ordinal) }.toLong(),
+                req.cardGroups.sumOf { 1L shl it.ordinal },
                 req.type,
                 req.startTierId,
                 defaultPassives[0].id,

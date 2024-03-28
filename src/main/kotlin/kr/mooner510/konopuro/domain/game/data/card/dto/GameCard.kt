@@ -12,7 +12,7 @@ data class GameCard(
     val description: String,
     val groups: Set<MajorType>,
     val type: CardType,
-    val startTier: Long,
+    val startTier: Long?,
     val passiveFirst: Long,
     val passiveSecond: Long?,
     val passiveThird: Long?,

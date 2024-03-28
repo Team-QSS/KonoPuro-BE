@@ -37,16 +37,8 @@ class CardData(
     val id: Long = 0
 
     fun groupSet(): Set<MajorType> {
-        val set = hashSetOf<MajorType>()
-        var group = cardGroup
-        var idx = 0
-        while (group > 0) {
-            if (group % 2 == 1L) {
-                set.add(MajorType.entries[idx])
-            }
-            group /= 2L
-            idx++
-        }
-        return set
+        return MajorType.entries.filter {
+            cardGroup and (1L shl it.ordinal) > 0
+        }.toSet()
     }
 }
