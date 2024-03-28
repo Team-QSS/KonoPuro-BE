@@ -24,7 +24,9 @@ class GatchaManager(
     private val cardDataRepository: CardDataRepository,
     private val passiveRepository: PassiveRepository,
     private val tierMappingRepository: TierMappingRepository,
-    private val playerCardRepository: PlayerCardRepository, private val gatchaLogRepository: GatchaLogRepository
+    private val playerCardRepository: PlayerCardRepository,
+    private val gatchaLogRepository: GatchaLogRepository,
+    private val passiveMappingRepository: PassiveMappingRepository
 ) {
     companion object {
         private var cardDataMap: HashMap<Long, CardData> = HashMap()
@@ -92,7 +94,12 @@ class GatchaManager(
                 ).toList()
             )
             cardPassiveMapping[cardData.id] =
-                passiveRepository.findAllById(listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird)).toList()
+                passiveRepository.findAllById(
+                    listOfNotNull(
+                        cardData.passiveFirst,
+                        cardData.passiveSecond,
+                        cardData.passiveThird
+                    ) + passiveMappingRepository.findByCardDataId(cardData.id).map { it.passiveId }).toList()
         }
         majorMap.forEach { (key, value) ->
             cardMajorMap[key] = value
