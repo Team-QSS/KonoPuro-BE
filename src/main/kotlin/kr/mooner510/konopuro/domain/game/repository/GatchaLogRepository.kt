@@ -11,4 +11,7 @@ interface GatchaLogRepository : CrudRepository<GatchaLog, Long> {
 
 
     fun findByUserIdAndTierIn(userId: UUID, tier: Collection<Int>): List<GatchaLog>
+
+
+    fun countByUserId(userId: UUID): Long
 }

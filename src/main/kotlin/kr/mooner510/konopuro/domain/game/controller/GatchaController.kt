@@ -83,7 +83,11 @@ class GatchaController(
         @AuthenticationPrincipal user: User,
         @RequestParam(required = false) tier: String?
     ): GatchaLogDataResponse {
-        val stack = gatchaStackRepository.findByUserId(user.id).getOrNull() ?: return GatchaLogDataResponse(0, 0, 0, emptyList())
+        val stack = gatchaStackRepository.findByUserId(user.id).getOrNull() ?: return GatchaLogDataResponse(
+            0, 0, 0, 0, false,
+            full4 = false,
+            data = emptyList()
+        )
 
         val map = hashMapOf<Long, String>()
 
@@ -102,9 +106,12 @@ class GatchaController(
                     }
                 }
         return GatchaLogDataResponse(
+            gatchaLogRepository.countByUserId(user.id),
             gatchaLogResponses.size,
             stack.stack3,
             stack.stack4,
+            stack.full3,
+            stack.full4,
             gatchaLogResponses
         )
     }

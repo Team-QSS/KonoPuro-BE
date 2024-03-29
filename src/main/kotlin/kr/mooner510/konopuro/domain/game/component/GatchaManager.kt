@@ -41,26 +41,31 @@ class GatchaManager(
         fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerCard {
             val id: Long
             val random = Math.random()
-            println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
+            val majorTypes = cardMajorMap.keys.filter { it != this.mainMajor }
             val tier = when {
                 random < stack.chance4() -> {
-                    val major = if (stack.full4 || Math.random() < 0.5) this.mainMajor else MajorType.entries.random()
+                    val major = if (stack.full4 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
                     stack.full4 = major != this.mainMajor
-                    id = cardMajorMap[major]?.random() ?: cardDataMap.keys.random()
+                    id = cardMajorMap[major]?.random()
+                        ?: cardDataMap.keys.random()
+                    println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 4 Tier! $random")
                     stack.stack4 = 0
                     4
                 }
 
                 random < stack.chance4() + stack.chance3() -> {
-                    val major = if (stack.full3 || Math.random() < 0.5) this.mainMajor else MajorType.entries.random()
+                    val major = if (stack.full3 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
                     stack.full3 = major != this.mainMajor
-                    id = cardMajorMap[major]?.random() ?: cardDataMap.keys.random()
+                    id = cardMajorMap[major]?.random()
+                        ?: cardDataMap.keys.random()
+                    println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 3 Tier! $random")
                     stack.stack3 = 0
                     3
                 }
 
                 else -> {
                     id = cardDataMap.keys.random()
+                    println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
                     2
                 }
             }
@@ -75,9 +80,19 @@ class GatchaManager(
 
     init {
         update()
+        println("=========")
+        cardMajorMap.forEach { (key, value) ->
+            println("$key: $value")
+        }
+        println("=========")
+        cardDataMap.forEach { (key, value) ->
+            println("$key: ${value.title}")
+        }
+        println("=========")
     }
 
     final fun update() {
+        Runtime.getRuntime().gc()
         cardMajorMap = EnumMap(MajorType::class.java)
         val majorMap = EnumMap<MajorType, MutableList<Long>>(MajorType::class.java)
         MajorType.entries.forEach {
@@ -89,8 +104,8 @@ class GatchaManager(
 
         val cardDataList = cardDataRepository.findAll()
         cardDataList.forEach { cardData ->
-            cardData.groupSet().forEach {
-                majorMap[it]?.add(cardData.id)
+            cardData.groupSet().forEach { major ->
+                majorMap[major]?.add(cardData.id)
             }
             cardDataMap[cardData.id] = cardData
             cardTierMapping[cardData.id] = mutableListOf(
@@ -105,10 +120,8 @@ class GatchaManager(
                 passiveRepository.findAllById(passiveMappingRepository.findByCardDataId(cardData.id).map { it.passiveId }).toList()
         }
         majorMap.forEach { (key, value) ->
-            cardMajorMap[key] = value
+            if (value.isNotEmpty()) cardMajorMap[key] = value
         }
-
-        Runtime.getRuntime().gc()
     }
 
     fun HashMap<Long, Tier>.append(key: Long): Tier {
