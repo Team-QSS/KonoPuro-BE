@@ -60,7 +60,7 @@ class GatchaController(
         @RequestParam gatchaId: UUID
     ): PlayerCardResponse {
         val gatcha = gatchaRepository.findByIdOrNull(gatchaId) ?: throw GatchaNotFoundException()
-        val stack = gatchaStackRepository.findByIdOrNull(user.id) ?: gatchaStackRepository.save(GatchaStack(user.id, 0, 0))
+        val stack = gatchaStackRepository.findByIdOrNull(user.id) ?: gatchaStackRepository.save(GatchaStack(user.id, 0, false, 0, false))
 
         return gatchaManager.gatcha(gatcha, stack)
     }
@@ -72,7 +72,7 @@ class GatchaController(
         @RequestParam gatchaId: UUID
     ): PlayerCardResponses {
         val gatcha = gatchaRepository.findByIdOrNull(gatchaId) ?: throw GatchaNotFoundException()
-        val stack = gatchaStackRepository.findByIdOrNull(user.id) ?: gatchaStackRepository.save(GatchaStack(user.id, 0, 0))
+        val stack = gatchaStackRepository.findByIdOrNull(user.id) ?: gatchaStackRepository.save(GatchaStack(user.id, 0, false, 0, false))
 
         return PlayerCardResponses(Array(10) { it }.map { gatchaManager.gatcha(gatcha, stack) }.toList())
     }

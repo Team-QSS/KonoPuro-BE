@@ -18,7 +18,13 @@ class GatchaStack(
     var stack4: Int,
 
     @Column(nullable = false)
+    var full4: Boolean,
+
+    @Column(nullable = false)
     var stack3: Int,
+
+    @Column(nullable = false)
+    var full3: Boolean,
 ) : BaseEntity() {
     fun chance4(): Double = if (stack4 <= 65) .006 else (stack4 - 65) / 35.0
 

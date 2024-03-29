@@ -40,13 +40,17 @@ class GatchaManager(
             println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
             val tier = when {
                 random < stack.chance4() -> {
-                    id = cardMajorMap[this.mainMajor]?.random() ?: cardDataMap.keys.random()
+                    val major = if (stack.full4 || Math.random() < 0.5) this.mainMajor else MajorType.entries.random()
+                    stack.full4 = major != this.mainMajor
+                    id = cardMajorMap[major]?.random() ?: cardDataMap.keys.random()
                     stack.stack4 = 0
                     4
                 }
 
                 random < stack.chance4() + stack.chance3() -> {
-                    id = cardMajorMap[this.mainMajor]?.random() ?: cardDataMap.keys.random()
+                    val major = if (stack.full3 || Math.random() < 0.5) this.mainMajor else MajorType.entries.random()
+                    stack.full3 = major != this.mainMajor
+                    id = cardMajorMap[major]?.random() ?: cardDataMap.keys.random()
                     stack.stack3 = 0
                     3
                 }
