@@ -6,6 +6,7 @@ import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.PassiveRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.TierRequest
 import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponse
+import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponses
 import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
@@ -25,16 +26,7 @@ class CardController(
     private val tierMappingRepository: TierMappingRepository,
     private val passiveMappingRepository: PassiveMappingRepository
 ) {
-    @GetMapping
-    fun getCardData(
-        @RequestParam(required = false) name: String?,
-        @RequestParam(required = false) id: Long?
-    ): CardDataResponse {
-        val cardData: CardData = (id?.let { cardDataRepository.findById(id) }
-            ?: name?.let { cardDataRepository.findByTitleStartsWith(it) }
-            ?: throw InvalidParameterException()).getOrNull()
-            ?: throw CardNotFoundException()
-
+    fun parseCardData(cardData: CardData): CardDataResponse {
         val tiers = tierMappingRepository.findByCardDataId(cardData.id).groupBy({ it.tier }, { tierRepository.findByIdOrNull(it.tierId) })
         val passives = passiveRepository.findAllById(listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird))
         val passive = passiveMappingRepository.findByCardDataId(cardData.id).mapNotNull { passiveRepository.findByIdOrNull(it.passiveId) }
@@ -49,6 +41,23 @@ class CardController(
             passive.map { PassiveResponse(it.id, it.title, it.description) },
             tiers[4]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
         )
+    }
+
+    @GetMapping
+    fun getCardData(
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) id: Long?
+    ): CardDataResponse {
+        val cardData: CardData = (id?.let { cardDataRepository.findById(id) }
+            ?: name?.let { cardDataRepository.findByTitleStartsWith(it) }
+            ?: throw InvalidParameterException()).getOrNull()
+            ?: throw CardNotFoundException()
+        return parseCardData(cardData)
+    }
+
+    @GetMapping("/all")
+    fun getAllCardData(): CardDataResponses {
+        return CardDataResponses(cardDataRepository.findAll().map { parseCardData(it) })
     }
 
     @PostMapping

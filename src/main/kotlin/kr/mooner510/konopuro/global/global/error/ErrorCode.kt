@@ -23,8 +23,9 @@ enum class ErrorCode(
     GATCHA_NOT_FOUND("가챠를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     TIER_NOT_FOUND("티어를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     PASSIVE_NOT_FOUND("패시브를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
-    
+
     CARD_ALREADY_EXISTS("해당 카드가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
+    GATCHA_EXPIRED_EXCEPTION("해당 가챠는 시작하지 않았거나 끝났습니다.", HttpStatus.BAD_REQUEST),
     ;
 
     fun parse(vararg data: Any): String {

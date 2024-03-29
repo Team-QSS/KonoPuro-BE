@@ -18,8 +18,7 @@ import kotlin.properties.Delegates
 
 @Component
 class CardPreset(
-    private val cardDataRepository: CardDataRepository,
-    private val tierRepository: TierRepository,
+    tierRepository: TierRepository,
     private val passiveRepository: PassiveRepository,
     private val cardController: CardController
 
@@ -145,7 +144,7 @@ class CardPreset(
             CreateCardRequest(
                 "철수",
                 "",
-                listOf(MajorType.FrontEnd),
+                listOf(MajorType.Backend),
                 CardType.Student,
                 cardController.createTier(
                     TierRequest(

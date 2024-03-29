@@ -46,6 +46,7 @@ class GatchaController(
                 GatchaResponse(
                     it.id,
                     it.title,
+                    it.mainMajor,
                     it.startAt,
                     it.endAt
                 )

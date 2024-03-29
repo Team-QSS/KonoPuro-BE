@@ -13,15 +13,41 @@ class GatchaPreset(
 
 ) {
     init {
-        if (!gatchaRepository.existsByTitle("Test Gatcha")) {
-            gatchaRepository.save(
-                Gatcha(
-                    "Test Gatcha",
-                    MajorType.Design,
-                    LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
-                    LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
-                )
-            )
+        listOf(
+            Gatcha(
+                "Frontend Gatcha",
+                MajorType.FrontEnd,
+                LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
+            ),
+            Gatcha(
+                "Backend Gatcha",
+                MajorType.Backend,
+                LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
+            ),
+            Gatcha(
+                "iOS Gatcha",
+                MajorType.IOS,
+                LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
+            ),
+            Gatcha(
+                "Android Gatcha",
+                MajorType.Android,
+                LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
+            ),
+            Gatcha(
+                "Design Gatcha",
+                MajorType.Design,
+                LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(14).withHour(12).withMinute(0).withSecond(0).withNano(0)
+            ),
+        ).forEach {
+            if (!gatchaRepository.existsByTitle(it.title)) {
+                gatchaRepository.save(it)
+            }
         }
     }
 }

@@ -11,11 +11,15 @@ import kr.mooner510.konopuro.domain.game.data.gatcha.entity.Gatcha
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaLog
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.game.exception.GatchaExpiredException
 import kr.mooner510.konopuro.domain.game.exception.TierNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
+import org.springframework.cglib.core.Local
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Component
@@ -117,6 +121,9 @@ class GatchaManager(
     }
 
     fun gatcha(gatcha: Gatcha, stack: GatchaStack): PlayerCardResponse {
+        val now = LocalDateTime.now()
+        if (now !in gatcha.startAt..gatcha.endAt) throw GatchaExpiredException()
+
         stack.stack4++
         stack.stack3++
 
