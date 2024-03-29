@@ -4,9 +4,13 @@ import jakarta.persistence.*
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 
 @Entity
-@Table(name = "passive")
+@Table(
+    name = "passive", indexes = [
+        Index(name = "idx_passive_title", columnList = "title", unique = true)
+    ]
+)
 class Passive(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     var title: String,
 
     @Column(nullable = false, length = 1023)

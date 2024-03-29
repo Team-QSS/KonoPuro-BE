@@ -3,6 +3,8 @@ package kr.mooner510.konopuro.domain.game.controller
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.domain.game.data.card.entity.*
 import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest
+import kr.mooner510.konopuro.domain.game.data.card.request.PassiveRequest
+import kr.mooner510.konopuro.domain.game.data.card.request.TierRequest
 import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
@@ -115,6 +117,48 @@ class CardController(
             tier2.map { TierResponse(it.id, it.title, it.description, it.time) },
             additionPassives.map { PassiveResponse(it.id, it.title, it.description) },
             tier4.map { TierResponse(it.id, it.title, it.description, it.time) },
+        )
+    }
+
+    @PostMapping("/passive")
+    fun createPassive(
+        @RequestBody req: PassiveRequest
+    ): PassiveResponse {
+        passiveRepository.findByTitle(req.title).getOrNull()?.let {
+            return PassiveResponse(
+                it.id,
+                it.title,
+                it.description
+            )
+        }
+
+        val passive = passiveRepository.save(Passive(req.title, req.description))
+        return PassiveResponse(
+            passive.id,
+            passive.title,
+            passive.description
+        )
+    }
+
+    @PostMapping("/tier")
+    fun createTier(
+        @RequestBody req: TierRequest
+    ): TierResponse {
+        tierRepository.findByTitle(req.title).getOrNull()?.let {
+            return TierResponse(
+                it.id,
+                it.title,
+                it.description,
+                it.time
+            )
+        }
+
+        val tier = tierRepository.save(Tier(req.title, req.description, req.time))
+        return TierResponse(
+            tier.id,
+            tier.title,
+            tier.description,
+            tier.time
         )
     }
 }

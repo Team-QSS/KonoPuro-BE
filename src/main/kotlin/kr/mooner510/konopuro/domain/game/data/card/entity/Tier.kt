@@ -4,9 +4,13 @@ import jakarta.persistence.*
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 
 @Entity
-@Table(name = "tier")
+@Table(
+    name = "tier", indexes = [
+        Index(name = "idx_tier_title_unq", columnList = "title", unique = true)
+    ]
+)
 class Tier(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     var title: String,
 
     @Column(nullable = false, length = 1023)

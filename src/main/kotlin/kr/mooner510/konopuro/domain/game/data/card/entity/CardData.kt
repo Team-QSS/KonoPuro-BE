@@ -6,9 +6,13 @@ import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
 
 @Entity
-@Table(name = "card_data")
+@Table(
+    name = "card_data", indexes = [
+        Index(name = "idx_carddata_title", columnList = "title", unique = true)
+    ]
+)
 class CardData(
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val title: String,
 
     @Column(nullable = false, length = 1023)
