@@ -5,4 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import java.util.*
 
 interface PlayerCardRepository : CrudRepository<PlayerCard, UUID> {
+
+
+    fun findByUserId(userId: UUID): List<PlayerCard>
 }

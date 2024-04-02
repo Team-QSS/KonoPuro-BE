@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
-import kr.mooner510.konopuro.domain.game.data.game.GamePreset
+import kr.mooner510.konopuro.domain.game._preset.GamePreset
 import kr.mooner510.konopuro.domain.game.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
 import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
@@ -35,10 +35,12 @@ class GameManager(
     private val messageManager: MessageManager,
     private val userRepository: UserRepository,
 ) {
-    private val playerMap: MutableMap<UUID, PlayerData> = ConcurrentHashMap()
-    private val rooms: MutableMap<UUID, GameRoom> = ConcurrentHashMap()
-    private val userRoom: MutableMap<UUID, UUID> = ConcurrentHashMap()
-    private val queue: Queue<UUID> = ConcurrentLinkedQueue()
+    companion object {
+        private val playerMap: MutableMap<UUID, PlayerData> = ConcurrentHashMap()
+        private val rooms: MutableMap<UUID, GameRoom> = ConcurrentHashMap()
+        private val userRoom: MutableMap<UUID, UUID> = ConcurrentHashMap()
+        private val queue: Queue<UUID> = ConcurrentLinkedQueue()
+    }
 
     init {
         thread {

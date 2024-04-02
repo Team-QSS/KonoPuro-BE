@@ -3,7 +3,9 @@ package kr.mooner510.konopuro.domain.socket.message
 import com.corundumstudio.socketio.BroadcastOperations
 import com.corundumstudio.socketio.ClientOperations
 import com.corundumstudio.socketio.SocketIONamespace
+import com.corundumstudio.socketio.listener.DataListener
 import kr.mooner510.konopuro.domain.game.component.GameRoom
+import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import org.springframework.stereotype.Component
 import java.util.*
@@ -21,6 +23,16 @@ class MessageManager(
     }
 
     fun getRoom(roomId: UUID): BroadcastOperations = namespace.getRoomOperations(roomId.toString())
+
+    fun listen(roomId: UUID) {
+        namespace.addEventListener(roomId.toString(), RawData::class.java) { ioClient, data, ackRequest ->
+
+        }
+    }
+
+    private fun listen() {
+
+    }
 
     fun <T : RawProtocol> send(operations: ClientOperations, rawData: T) = operations.sendEvent("msg", rawData)
 

@@ -13,6 +13,9 @@ import java.util.*
 @Entity
 @Table(name = "playercard")
 class PlayerCard(
+    @Column(nullable = false, columnDefinition = "BINARY(16)")
+    val userId: UUID,
+
     @Column(nullable = false, updatable = false)
     val cardDataId: Long,
 

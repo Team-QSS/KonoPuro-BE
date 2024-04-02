@@ -14,6 +14,7 @@ import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.exception.GatchaExpiredException
 import kr.mooner510.konopuro.domain.game.exception.TierNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*
+import kr.mooner510.konopuro.domain.game.utils.PassiveTierUtils.toResponse
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
 import org.springframework.cglib.core.Local
 import org.springframework.data.repository.findByIdOrNull
@@ -70,6 +71,7 @@ class GatchaManager(
                 }
             }
             return PlayerCard(
+                stack.userId,
                 id,
                 cardTierMapping[id]?.get(0)?.random()?.id,
                 if (tier >= 3) cardPassiveMapping[id]?.random()?.id else null,
@@ -163,8 +165,8 @@ class GatchaManager(
             cardData.groupSet().toList(),
             playerCard.getTier(),
             cardData.type,
-            passives.map { PassiveResponse(it.id, it.title, it.description) },
-            tiers.map { TierResponse(it.id, it.title, it.description, it.time) }
+            passives.toResponse(),
+            tiers.toResponse()
         )
     }
 }

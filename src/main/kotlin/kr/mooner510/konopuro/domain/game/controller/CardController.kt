@@ -12,6 +12,7 @@ import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
 import kr.mooner510.konopuro.domain.game.exception.CardNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*
+import kr.mooner510.konopuro.domain.game.utils.PassiveTierUtils.toResponse
 import kr.mooner510.konopuro.global.security.exception.InvalidParameterException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
@@ -36,9 +37,9 @@ class CardController(
             cardData.description,
             cardData.groupSet().toList(),
             cardData.type,
-            passives.map { PassiveResponse(it.id, it.title, it.description) },
+            passives.toResponse(),
             tiers[2]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
-            passive.map { PassiveResponse(it.id, it.title, it.description) },
+            passive.toResponse(),
             tiers[4]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
         )
     }
@@ -122,10 +123,10 @@ class CardController(
             cardData.description,
             cardData.groupSet().toList(),
             cardData.type,
-            defaultPassives.map { PassiveResponse(it.id, it.title, it.description) },
-            tier2.map { TierResponse(it.id, it.title, it.description, it.time) },
-            additionPassives.map { PassiveResponse(it.id, it.title, it.description) },
-            tier4.map { TierResponse(it.id, it.title, it.description, it.time) },
+            defaultPassives.toResponse(),
+            tier2.toResponse(),
+            additionPassives.toResponse(),
+            tier4.toResponse(),
         )
     }
 

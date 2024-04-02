@@ -1,4 +1,4 @@
-package kr.mooner510.konopuro.domain.game.data.game
+package kr.mooner510.konopuro.domain.game._preset
 
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 
