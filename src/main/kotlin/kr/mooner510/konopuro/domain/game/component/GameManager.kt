@@ -13,8 +13,8 @@ import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
 import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
-import kr.mooner510.konopuro.domain.socket.data.protocol.RoomMatchFailedEvent
-import kr.mooner510.konopuro.domain.socket.data.protocol.RoomMatchedEvent
+import kr.mooner510.konopuro.domain.socket.data.Protocol
+import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.exception.RoomNotFoundException
 import kr.mooner510.konopuro.domain.socket.exception.UserClientNotFoundException
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
@@ -99,7 +99,7 @@ class GameManager(
 
                         startGame(gameRoom)
                     } catch (e: GlobalError) {
-                        messageManager.send(firstUser.client, RoomMatchFailedEvent(e.message!!))
+                        messageManager.send(firstUser.client, RawProtocol(Protocol.Match.ROOM_MATCH_FAILED, e.message!!))
                     }
                 }
             }
@@ -147,7 +147,7 @@ class GameManager(
             )
         }
 
-        messageManager.send(room, RoomMatchedEvent(room.id))
+        messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id))
     }
 
     fun endGame(room: GameRoom) {

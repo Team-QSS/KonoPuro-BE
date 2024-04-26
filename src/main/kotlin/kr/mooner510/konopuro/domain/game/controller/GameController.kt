@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 
 @RestController
 @RequestMapping("/api/game")
@@ -24,7 +25,7 @@ class GameController(
     @GetMapping("/message")
     fun message(): String {
         println("Send")
-        namespace.broadcastOperations.sendEvent("chat", RawData(0, ""))
+        namespace.broadcastOperations.sendEvent("chat", RawData(0, UUID.randomUUID(), ""))
         return "Success Sent"
     }
 }
