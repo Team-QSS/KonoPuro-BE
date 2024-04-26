@@ -1,18 +1,21 @@
 package kr.mooner510.konopuro.domain.game.component
 
+import jakarta.transaction.Transactional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game._preset.GamePreset
-import kr.mooner510.konopuro.domain.game.data.game.PlayerData
+import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
+import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
 import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import kr.mooner510.konopuro.domain.socket.data.protocol.RoomMatchFailedEvent
 import kr.mooner510.konopuro.domain.socket.data.protocol.RoomMatchedEvent
+import kr.mooner510.konopuro.domain.socket.exception.RoomNotFoundException
 import kr.mooner510.konopuro.domain.socket.exception.UserClientNotFoundException
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
 import kr.mooner510.konopuro.global.global.error.data.GlobalError
@@ -36,9 +39,9 @@ class GameManager(
     private val userRepository: UserRepository,
 ) {
     companion object {
-        private val playerMap: MutableMap<UUID, PlayerData> = ConcurrentHashMap()
-        private val rooms: MutableMap<UUID, GameRoom> = ConcurrentHashMap()
-        private val userRoom: MutableMap<UUID, UUID> = ConcurrentHashMap()
+        private val playerMap: ConcurrentHashMap<UUID, PlayerData> = ConcurrentHashMap()
+        private val rooms: ConcurrentHashMap<UUID, GameRoom> = ConcurrentHashMap()
+        private val userRoom: ConcurrentHashMap<UUID, UUID> = ConcurrentHashMap()
         private val queue: Queue<UUID> = ConcurrentLinkedQueue()
     }
 
@@ -52,12 +55,12 @@ class GameManager(
         queue.offer(user.id)
     }
 
-    fun getRoom(id: UUID): GameRoom? {
-        return rooms[id]
+    fun getRoom(id: UUID): GameRoom {
+        return rooms[id] ?: throw RoomNotFoundException()
     }
 
-    fun getRoomByPlayer(userId: UUID): GameRoom? {
-        return userRoom[userId]?.let { rooms[it] }
+    fun getRoomByPlayer(userId: UUID): GameRoom {
+        return userRoom[userId]?.let { rooms[it] } ?: throw RoomNotFoundException()
     }
 
     fun removeRoom(id: UUID): GameRoom? {
@@ -86,7 +89,10 @@ class GameManager(
                         messageManager.joinRoom(firstUser.client!!, roomId)
                         messageManager.joinRoom(secondUser.client!!, roomId)
 
-                        val gameRoom = GameRoom(roomId, first, second, firstUser.client!!, secondUser.client!!, messageManager.getRoom(roomId), null)
+                        val gameRoom = GameRoom(
+                            roomId,
+                            (firstUser.id to firstUser.client!!) to (secondUser.id to secondUser.client!!)
+                        )
                         rooms[roomId] = gameRoom
                         userRoom[first] = roomId
                         userRoom[second] = roomId
@@ -97,6 +103,22 @@ class GameManager(
                     }
                 }
             }
+        }
+    }
+
+    @Transactional
+    fun reconnect(userId: UUID, clientId: UUID) {
+        val room = getRoomByPlayer(userId)
+        if (room.firstPlayer.id == userId) {
+            messageManager.leaveRoom(room.firstPlayer.client, room.id)
+            room.firstPlayer.client = clientId
+            userRepository.findByIdOrNull(userId)?.let { it.client = clientId }
+            messageManager.joinRoom(clientId, room.id)
+        } else {
+            messageManager.leaveRoom(room.secondPlayer.client, room.id)
+            room.secondPlayer.client = clientId
+            userRepository.findByIdOrNull(userId)?.let { it.client = clientId }
+            messageManager.joinRoom(clientId, room.id)
         }
     }
 
@@ -120,7 +142,8 @@ class GameManager(
                 mutableListOf(),
                 mutableMapOf(),
                 mutableMapOf(),
-                GamePreset.stage[0]
+                GamePreset.stage[0],
+                false
             )
         }
 

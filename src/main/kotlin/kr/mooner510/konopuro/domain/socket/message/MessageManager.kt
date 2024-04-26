@@ -3,8 +3,7 @@ package kr.mooner510.konopuro.domain.socket.message
 import com.corundumstudio.socketio.BroadcastOperations
 import com.corundumstudio.socketio.ClientOperations
 import com.corundumstudio.socketio.SocketIONamespace
-import com.corundumstudio.socketio.listener.DataListener
-import kr.mooner510.konopuro.domain.game.component.GameRoom
+import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import org.springframework.stereotype.Component
@@ -24,27 +23,27 @@ class MessageManager(
 
     fun getRoom(roomId: UUID): BroadcastOperations = namespace.getRoomOperations(roomId.toString())
 
-    fun listen(roomId: UUID) {
-        namespace.addEventListener(roomId.toString(), RawData::class.java) { ioClient, data, ackRequest ->
-
+    fun registerDelegate(room: GameRoom) {
+        namespace.addEventListener(room.id.toString(), RawData::class.java) { client, data, _ ->
+            room.event(client to this, data)
         }
     }
 
-    private fun listen() {
-
+    fun removeDelegate(roomId: UUID) {
+        namespace.removeAllListeners(roomId.toString())
     }
 
     fun <T : RawProtocol> send(operations: ClientOperations, rawData: T) = operations.sendEvent("msg", rawData)
 
     fun <T : RawProtocol> send(operations: ClientOperations, key: String, rawData: T) = operations.sendEvent(key, rawData)
 
-    fun <T : RawProtocol> sendRoom(roomId: UUID, rawData: T) = send(namespace.getRoomOperations(roomId.toString()), rawData)
+    fun <T : RawProtocol> sendRoom(roomId: UUID, rawData: T) = send(getRoom(roomId), rawData)
 
-    fun <T : RawProtocol> sendRoom(roomId: UUID, key: String, rawData: T) = send(namespace.getRoomOperations(roomId.toString()), key, rawData)
+    fun <T : RawProtocol> sendRoom(roomId: UUID, key: String, rawData: T) = send(getRoom(roomId), key, rawData)
 
-    fun <T : RawProtocol> send(room: GameRoom, rawData: T) = send(room.operations, rawData)
+    fun <T : RawProtocol> send(room: GameRoom, rawData: T) = sendRoom(room.id, rawData)
 
-    fun <T : RawProtocol> send(room: GameRoom, key: String, rawData: T) = send(room.operations, key, rawData)
+    fun <T : RawProtocol> send(room: GameRoom, key: String, rawData: T) = sendRoom(room.id, key, rawData)
 
     fun <T : RawProtocol> send(clientId: UUID?, rawData: T) = clientId?.let { send(namespace.getClient(clientId), rawData) }
 

@@ -26,7 +26,7 @@ class GatchaStack(
     @Column(nullable = false)
     var full3: Boolean,
 ) : BaseEntity() {
-    fun chance4(): Double = if (stack4 <= 75) .006 else (stack4 - 75) / 25.0
+    fun chance4(): Double = if (stack4 <= 65) .006 else .006 + (stack4 - 65) / 15
 
-    fun chance3(): Double = if (stack3 >= 10) 1.0 else if (stack3 >= 9) .35 else 0.04
+    fun chance3(): Double = if (stack3 >= 10) 1.0 else if (stack3 >= 9) .35 else .04
 }
