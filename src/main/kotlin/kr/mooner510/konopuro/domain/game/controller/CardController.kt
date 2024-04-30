@@ -1,5 +1,8 @@
 package kr.mooner510.konopuro.domain.game.controller
 
+import io.swagger.v3.oas.annotations.Hidden
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.domain.game.data.card.entity.*
 import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest
@@ -18,6 +21,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
 
+@Tag(name = "Card", description = "카드 API")
 @RestController
 @RequestMapping("/api/card")
 class CardController(
@@ -44,6 +48,7 @@ class CardController(
         )
     }
 
+    @Operation(summary = "카드 데이터 조회", description = "내가 가지고 있든 말든 카드 정보를 조회합니다")
     @GetMapping
     fun getCardData(
         @RequestParam(required = false) name: String?,
@@ -56,11 +61,13 @@ class CardController(
         return parseCardData(cardData)
     }
 
+    @Operation(summary = "모든 카드 데이터 조회", description = "내가 가지고 있든 말든 모든 카드 정보를 조회합니다")
     @GetMapping("/all")
     fun getAllCardData(): CardDataResponses {
         return CardDataResponses(cardDataRepository.findAll().map { parseCardData(it) })
     }
 
+    @Hidden
     @PostMapping
     @Transactional
     fun createCardData(
@@ -130,6 +137,7 @@ class CardController(
         )
     }
 
+    @Hidden
     @PostMapping("/passive")
     fun createPassive(
         @RequestBody req: PassiveRequest
@@ -150,6 +158,7 @@ class CardController(
         )
     }
 
+    @Hidden
     @PostMapping("/tier")
     fun createTier(
         @RequestBody req: TierRequest

@@ -1,5 +1,7 @@
 package kr.mooner510.konopuro.domain.game.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.domain.game.component.GatchaManager
 import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
@@ -23,6 +25,7 @@ import java.util.*
 import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrNull
 
+@Tag(name = "Gatcha", description = "가챠 API")
 @RestController
 @RequestMapping("/api/gatcha")
 class GatchaController(
@@ -32,6 +35,7 @@ class GatchaController(
     private val cardDataRepository: CardDataRepository,
 ) {
 
+    @Operation(summary = "가챠 새로고침", description = "그냥 새로고침임 달라지는게 있을 지는 몰루?")
     @PostMapping
     fun updateGatcha() {
         thread {
@@ -39,6 +43,7 @@ class GatchaController(
         }
     }
 
+    @Operation(summary = "가챠 배너 목록 조회", description = "가챠할 수 있는 배너 목록을 반환합니다.")
     @GetMapping("/list")
     fun gatchaList(): GatchaResponses {
         return GatchaResponses(
@@ -54,6 +59,7 @@ class GatchaController(
         )
     }
 
+    @Operation(summary = "가챠 1뽑", description = "가챠 베너 ID를 주면 해당 가챠를 1뽑 진행한 결과를 보여줍니다.")
     @GetMapping("/once")
     @Transactional
     fun gatchaOnce(
@@ -66,6 +72,7 @@ class GatchaController(
         return gatchaManager.gatcha(gatcha, stack)
     }
 
+    @Operation(summary = "가챠 10뽑", description = "가챠 베너 ID를 주면 해당 가챠를 10뽑 진행한 결과를 보여줍니다.")
     @GetMapping("/multi")
     @Transactional
     fun gatchaMulti(
@@ -78,6 +85,7 @@ class GatchaController(
         return PlayerCardResponses(Array(10) { it }.map { gatchaManager.gatcha(gatcha, stack) }.toList())
     }
 
+    @Operation(summary = "가챠 기록 조회", description = "모든 가챠 기록을 조회합니다. 배너 구분은 없습니다.")
     @GetMapping("/log")
     fun gatchaLog(
         @AuthenticationPrincipal user: User,

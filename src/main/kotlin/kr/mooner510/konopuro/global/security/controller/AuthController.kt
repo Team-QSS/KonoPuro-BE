@@ -1,5 +1,6 @@
 package kr.mooner510.konopuro.global.security.controller
 
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.data.dto.TokenResponse
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import kotlin.jvm.optionals.getOrNull
 
+@Tag(name = "Auth", description = "인증 및 계정 API")
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(

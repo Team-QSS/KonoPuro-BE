@@ -1,5 +1,7 @@
 package kr.mooner510.konopuro.domain.game.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import kr.mooner510.konopuro.domain.game.data.card.entity.*
 import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
@@ -12,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
 
+@Tag(name = "Inventory", description = "인벤 API")
 @RestController
 @RequestMapping("/api/inventory")
 class InventoryController(
@@ -20,6 +23,7 @@ class InventoryController(
     private val passiveRepository: PassiveRepository,
     private val tierRepository: TierRepository
 ) {
+    @Operation(summary = "소지한 카드 조회", description = "내가 가챠로 뽑아 얻은 카드를 전부 조회합니다. 한 마디로 내가 가지고 있는 카드를 전부 조회합니다.")
     @GetMapping
     fun getCards(
         @AuthenticationPrincipal user: User
