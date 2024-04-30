@@ -17,6 +17,7 @@ enum class ErrorCode(
 
     ROOM_NOT_FOUND("방을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     DECK_NOT_FOUND("덱을 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    DECK_IS_FULL("덱이 가득 찼습니다.", HttpStatus.BAD_REQUEST),
     CLIENT_NOT_FOUND("클라이언트를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     CARD_NOT_FOUND("카드를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     CARD_DATA_NOT_FOUND("카드 데이터를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
