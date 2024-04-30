@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -39,6 +40,27 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 
+                it.requestMatchers(HttpMethod.POST, "/api/auth/id").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/auth/password").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/auth/sign-up").permitAll()
+
+                it.requestMatchers(HttpMethod.POST, "/api/game/match").authenticated()
+                it.requestMatchers(HttpMethod.POST, "/api/game/message").hasRole("ADMIN")
+
+                it.requestMatchers(HttpMethod.GET, "/api/card").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/card").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.GET, "/api/card/all").permitAll()
+                it.requestMatchers(HttpMethod.POST, "/api/card/passive").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.POST, "/api/card/tier").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.POST, "/api/gatcha").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.GET, "/api/gatcha/list").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/gatcha/log").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/api/gatcha/multi").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/api/gatcha/once").authenticated()
+
+                it.requestMatchers(HttpMethod.GET, "/api/inventory").authenticated()
+
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
 //                it.requestMatchers(HttpMethod.DELETE, "/api/test").permitAll()
@@ -56,7 +78,7 @@ class SecurityConfig(
 //                it.requestMatchers(HttpMethod.GET, "/api/chat/room/club").authenticated()
 //                it.requestMatchers(HttpMethod.GET, "/api/chat/room/user").authenticated()
 
-                it.anyRequest().permitAll()
+                it.anyRequest().denyAll()
             }
             .with(FilterConfiguration(tokenProvider, objectMapper), Customizer.withDefaults())
             .build()
