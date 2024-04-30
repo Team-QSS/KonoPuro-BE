@@ -1,5 +1,6 @@
 package kr.mooner510.konopuro.global.security.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.global.security.component.TokenProvider
@@ -15,6 +16,7 @@ import kr.mooner510.konopuro.global.security.exception.UserNotFoundException
 import kr.mooner510.konopuro.global.security.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -28,6 +30,7 @@ class AuthController(
     private val userRepository: UserRepository,
     private val tokenProvider: TokenProvider,
 ) {
+    @Operation(summary = "로그인", description = "설명 없어도 뭐 하면 되는지 알지?")
     @PostMapping("/sign-in")
     fun signIn(@RequestBody req: SignInRequest): TokenResponse {
         val user = userRepository.findByLoginId(req.id).getOrNull() ?: throw LoginFailedException()
@@ -38,7 +41,8 @@ class AuthController(
         throw LoginFailedException()
     }
 
-    @PostMapping("/id")
+    @Operation(summary = "아이디 변경", description = "설명 없어도 뭐 하면 되는지 알지?")
+    @PutMapping("/id")
     @Transactional
     fun changeId(
         @RequestBody req: IdChangeRequest
@@ -49,7 +53,8 @@ class AuthController(
         userData.loginId = req.id
     }
 
-    @PostMapping("/password")
+    @Operation(summary = "비밀번호 변경", description = "설명 없어도 뭐 하면 되는지 알지?")
+    @PutMapping("/password")
     @Transactional
     fun changePassword(
         @RequestBody req: PasswordChangeRequest
@@ -59,6 +64,7 @@ class AuthController(
         userData.password = passwordEncoder.encode(req.newPassword)
     }
 
+    @Operation(summary = "회원가입", description = "설명 없어도 뭐 하면 되는지 알지?")
     @PostMapping("/sign-up")
     fun signUp(@RequestBody req: SignUpRequest) {
         if (userRepository.existsByLoginId(req.id)) return
