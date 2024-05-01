@@ -126,7 +126,7 @@ class GameManager(
         room.forEach { (player, client) ->
             val deckCards = activeDeckRepository.findByIdOrNull(player)?.let { activeDeck ->
                 deckCardRepository.findByDeckId(activeDeck.deckId).mapNotNull {
-                    val playerCard = playerCardRepository.findByIdOrNull(it.playerCardId) ?: return@mapNotNull null
+                    val playerCard = playerCardRepository.findByIdOrNull(it.cardId) ?: return@mapNotNull null
                     val cardData = cardDataRepository.findByIdOrNull(playerCard.cardDataId) ?: return@mapNotNull null
                     GameCard.new(playerCard, cardData)
                 }

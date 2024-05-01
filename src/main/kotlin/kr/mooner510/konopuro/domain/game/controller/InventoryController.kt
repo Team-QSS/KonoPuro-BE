@@ -51,7 +51,7 @@ class InventoryController(
                 }
                 val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
                 PlayerCardResponse(
-                    cardData.id,
+                    playerCard.id,
                     cardData.title,
                     cardData.description,
                     cardData.groupSet().toList(),

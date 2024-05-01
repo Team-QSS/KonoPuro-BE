@@ -160,6 +160,7 @@ class GatchaManager(
         )
 
         return PlayerCardResponse(
+            playerCard.id,
             cardData.title,
             cardData.description,
             cardData.groupSet().toList(),
