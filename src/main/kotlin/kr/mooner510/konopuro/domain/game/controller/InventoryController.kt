@@ -64,6 +64,7 @@ class InventoryController(
         )
     }
 
+    @Operation(summary = "장착한 덱 조회", description = "없으면 새로운 텅 빈 defalut 덱 생성 후 반환")
     @GetMapping("/active")
     fun getActiveDeck(
         @AuthenticationPrincipal user: User
@@ -79,6 +80,7 @@ class InventoryController(
         return DeckResponse(activeDeck.deckId, deckCardList.map { it.cardId })
     }
 
+    @Operation(summary = "특정 덱에 카드 추가", description = "")
     @PostMapping("/add")
     fun addDeckCard(
         @AuthenticationPrincipal user: User,
@@ -89,6 +91,7 @@ class InventoryController(
         deckCardRepository.save(DeckCard(deckId, cardId))
     }
 
+    @Operation(summary = "특정 덱에 카드 삭제", description = "")
     @DeleteMapping("/remove")
     fun removeDeckCard(
         @AuthenticationPrincipal user: User,
