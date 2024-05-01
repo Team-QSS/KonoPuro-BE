@@ -8,8 +8,7 @@ import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
 import kr.mooner510.konopuro.domain.game.data.deck.entity.ActiveDeck
 import kr.mooner510.konopuro.domain.game.data.deck.entity.Deck
 import kr.mooner510.konopuro.domain.game.data.deck.entity.DeckCard
-import kr.mooner510.konopuro.domain.game.data.deck.request.DeckCardRequest
-import kr.mooner510.konopuro.domain.game.data.deck.request.DeckCardRequests
+import kr.mooner510.konopuro.domain.game.data.deck.request.ApplyDeckRequest
 import kr.mooner510.konopuro.domain.game.data.deck.response.DeckResponse
 import kr.mooner510.konopuro.domain.game.exception.FullDeckException
 import kr.mooner510.konopuro.domain.game.repository.*
@@ -79,45 +78,13 @@ class InventoryController(
         return DeckResponse(activeDeck.deckId, deckCardList.map { it.cardId })
     }
 
-    @Operation(summary = "특정 덱에 카드 추가", description = "")
-    @PostMapping("/add")
-    fun addDeckCard(
+    @Operation(summary = "수정한 덱 정보 적용", description = "")
+    @PostMapping("/apply")
+    fun applyDeck(
         @AuthenticationPrincipal user: User,
-        @RequestBody req: DeckCardRequest
+        @RequestBody req: ApplyDeckRequest
     ) {
-        if(deckCardRepository.countByDeckId(req.deckId) >= 25) throw FullDeckException()
-        deckCardRepository.save(DeckCard(req.deckId, req.cardId))
-    }
-
-    @Operation(summary = "특정 덱에 카드 여러 개 추가", description = "")
-    @PostMapping("/add-multi")
-    fun addDeckCardMulti(
-        @AuthenticationPrincipal user: User,
-        @RequestBody req: DeckCardRequests
-    ) {
-        for (deckCard in req.data) {
-            if(deckCardRepository.countByDeckId(deckCard.deckId) >= 25) continue
-            deckCardRepository.save(DeckCard(deckCard.deckId, deckCard.cardId))
-        }
-    }
-
-    @Operation(summary = "특정 덱에 카드 삭제", description = "")
-    @DeleteMapping("/remove")
-    fun removeDeckCard(
-        @AuthenticationPrincipal user: User,
-        @RequestBody req: DeckCardRequest
-    ) {
-        deckCardRepository.deleteByCardIdAndDeckId(req.deckId, req.cardId)
-    }
-
-    @Operation(summary = "특정 덱에 카드 여러 개 삭제", description = "")
-    @PostMapping("/remove-multi")
-    fun removeDeckCardMulti(
-        @AuthenticationPrincipal user: User,
-        @RequestBody req: DeckCardRequests
-    ) {
-        for (deckCard in req.data) {
-            deckCardRepository.deleteByCardIdAndDeckId(deckCard.deckId, deckCard.cardId)
-        }
+        deckCardRepository.saveAll(req.addition.map { DeckCard(req.activeDeckId, it) })
+        deckCardRepository.deleteAll(req.deletion.map { DeckCard(req.activeDeckId, it) })
     }
 }

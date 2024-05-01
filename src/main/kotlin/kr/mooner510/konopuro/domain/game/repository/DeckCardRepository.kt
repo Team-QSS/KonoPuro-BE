@@ -9,9 +9,4 @@ interface DeckCardRepository : CrudRepository<DeckCard, UUID> {
 
     fun findByDeckId(deckId: UUID): List<DeckCard>
 
-
-    fun deleteByCardIdAndDeckId(cardId: UUID, deckId: UUID)
-
-
-    fun countByDeckId(deckId: UUID): Long
 }
