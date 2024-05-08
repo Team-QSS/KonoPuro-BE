@@ -43,13 +43,13 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/error").permitAll()
 
-                it.requestMatchers(HttpMethod.POST, "/api/auth/id").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/auth/password").permitAll()
+                it.requestMatchers(HttpMethod.PUT, "/api/auth/id").permitAll()
+                it.requestMatchers(HttpMethod.PUT, "/api/auth/password").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/auth/sign-up").permitAll()
 
                 it.requestMatchers(HttpMethod.POST, "/api/game/match").authenticated()
-                it.requestMatchers(HttpMethod.POST, "/api/game/message").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.GET, "/api/game/message").hasRole("ADMIN")
 
                 it.requestMatchers(HttpMethod.GET, "/api/card").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/card").hasRole("ADMIN")
@@ -63,6 +63,8 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/gatcha/once").authenticated()
 
                 it.requestMatchers(HttpMethod.GET, "/api/inventory").authenticated()
+                it.requestMatchers(HttpMethod.GET, "/api/inventory/active").authenticated()
+                it.requestMatchers(HttpMethod.POST, "/api/inventory/apply").authenticated()
 
 //                it.requestMatchers("/ws/chat/**").permitAll()
 

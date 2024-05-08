@@ -26,7 +26,6 @@ class SeedManager(
         private var updated: HashSet<UUID> = HashSet()
     }
 
-
     init {
         thread {
             schedule()
