@@ -31,16 +31,14 @@ class CardController(
     private val tierMappingRepository: TierMappingRepository,
     private val passiveMappingRepository: PassiveMappingRepository
 ) {
-    fun parseCardData(cardData: CardData): CardDataResponse {
-        val tiers = tierMappingRepository.findByCardDataId(cardData.id).groupBy({ it.tier }, { tierRepository.findByIdOrNull(it.tierId) })
-        val passives = passiveRepository.findAllById(listOfNotNull(cardData.passiveFirst, cardData.passiveSecond, cardData.passiveThird))
-        val passive = passiveMappingRepository.findByCardDataId(cardData.id).mapNotNull { passiveRepository.findByIdOrNull(it.passiveId) }
+    fun parseCardData(studentCardData: StudentCardData): CardDataResponse {
+        val tiers = tierMappingRepository.findByCardDataId(studentCardData.id).groupBy({ it.tier }, { tierRepository.findByIdOrNull(it.tierId) })
+        val passives = listOfNotNull(studentCardData.passiveFirst, studentCardData.passiveSecond, studentCardData.passiveThird)
+        val passive = passiveMappingRepository.findByCardDataId(studentCardData.id).mapNotNull { passiveRepository.findByIdOrNull(it.passiveId) }
 
         return CardDataResponse(
-            cardData.title,
-            cardData.description,
-            cardData.groupSet().toList(),
-            cardData.type,
+            studentCardData.groupSet().toList(),
+            studentCardData.type,
             passives.toResponse(),
             tiers[2]?.mapNotNull { tier -> tier?.let { TierResponse(it.id, it.title, it.description, it.time) } } ?: emptyList(),
             passive.toResponse(),
@@ -54,11 +52,11 @@ class CardController(
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) id: Long?
     ): CardDataResponse {
-        val cardData: CardData = (id?.let { cardDataRepository.findById(id) }
+        val studentCardData: StudentCardData = (id?.let { cardDataRepository.findById(id) }
             ?: name?.let { cardDataRepository.findByTitleStartsWith(it) }
             ?: throw InvalidParameterException()).getOrNull()
             ?: throw CardNotFoundException()
-        return parseCardData(cardData)
+        return parseCardData(studentCardData)
     }
 
     @Operation(summary = "모든 카드 데이터 조회", description = "내가 가지고 있든 말든 모든 카드 정보를 조회합니다")
@@ -108,8 +106,8 @@ class CardController(
             passiveRepository.save(Passive(it.title, it.description))
         }
 
-        val cardData = cardDataRepository.save(
-            CardData(
+        val studentCardData = cardDataRepository.save(
+            StudentCardData(
                 req.title,
                 req.description,
                 req.cardGroups.sumOf { 1L shl it.ordinal },
@@ -121,15 +119,15 @@ class CardController(
             )
         )
 
-        tier2.map { tierMappingRepository.save(TierMapping(it.id, cardData.id, 2)) }
-        tier4.map { tierMappingRepository.save(TierMapping(it.id, cardData.id, 4)) }
-        additionPassives.map { passiveMappingRepository.save(PassiveMapping(it.id, cardData.id)) }
+        tier2.map { tierMappingRepository.save(TierMapping(it.id, studentCardData.id, 2)) }
+        tier4.map { tierMappingRepository.save(TierMapping(it.id, studentCardData.id, 4)) }
+        additionPassives.map { passiveMappingRepository.save(PassiveMapping(it.id, studentCardData.id)) }
 
         return CardDataResponse(
-            cardData.title,
-            cardData.description,
-            cardData.groupSet().toList(),
-            cardData.type,
+            studentCardData.title,
+            studentCardData.description,
+            studentCardData.groupSet().toList(),
+            studentCardData.type,
             defaultPassives.toResponse(),
             tier2.toResponse(),
             additionPassives.toResponse(),

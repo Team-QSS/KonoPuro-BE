@@ -1,12 +1,11 @@
 package kr.mooner510.konopuro.domain.game.component
 
-import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
+import kr.mooner510.konopuro.domain.game._preset.StudentCardType
+import kr.mooner510.konopuro.domain.game.data.card.entity.StudentCardData
 import kr.mooner510.konopuro.domain.game.data.card.entity.Passive
-import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerCard
+import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.entity.Tier
-import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
-import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.Gatcha
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaLog
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
@@ -16,10 +15,8 @@ import kr.mooner510.konopuro.domain.game.exception.TierNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*
 import kr.mooner510.konopuro.domain.game.utils.PassiveTierUtils.toResponse
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
-import org.springframework.cglib.core.Local
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,13 +31,13 @@ class GatchaManager(
     private val passiveMappingRepository: PassiveMappingRepository
 ) {
     companion object {
-        private var cardDataMap: HashMap<Long, CardData> = HashMap()
-        private var cardMajorMap: EnumMap<MajorType, List<Long>> = EnumMap(MajorType::class.java)
-        private var cardPassiveMapping: HashMap<Long, List<Passive>> = HashMap()
-        private var cardTierMapping: HashMap<Long, List<List<Tier>>> = HashMap()
+        private val studentCardDataMap: HashMap<Long, StudentCardData> = HashMap()
+        private val cardMajorMap: EnumMap<MajorType, List<StudentCardType>> = EnumMap(MajorType::class.java)
+//        private var cardPassiveMapping: HashMap<Long, List<Passive>> = HashMap()
+//        private var cardTierMapping: HashMap<Long, List<List<Tier>>> = HashMap()
 
-        fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerCard {
-            val id: Long
+        fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerStudentCard {
+            val id: StudentCardType
             val random = Math.random()
             val majorTypes = cardMajorMap.keys.filter { it != this.mainMajor }
             val tier = when {
@@ -48,7 +45,7 @@ class GatchaManager(
                     val major = if (stack.full4 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
                     stack.full4 = major != this.mainMajor
                     id = cardMajorMap[major]?.random()
-                        ?: cardDataMap.keys.random()
+                        ?: studentCardDataMap.keys.random()
                     println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 4 Tier! $random")
                     stack.stack4 = 0
                     4
@@ -58,19 +55,19 @@ class GatchaManager(
                     val major = if (stack.full3 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
                     stack.full3 = major != this.mainMajor
                     id = cardMajorMap[major]?.random()
-                        ?: cardDataMap.keys.random()
+                        ?: studentCardDataMap.keys.random()
                     println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 3 Tier! $random")
                     stack.stack3 = 0
                     3
                 }
 
                 else -> {
-                    id = cardDataMap.keys.random()
+                    id = studentCardDataMap.keys.random()
                     println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
                     2
                 }
             }
-            return PlayerCard(
+            return PlayerStudentCard(
                 stack.userId,
                 id,
                 cardTierMapping[id]?.get(0)?.random()?.id,
@@ -87,7 +84,7 @@ class GatchaManager(
             println("$key: $value")
         }
         println("=========")
-        cardDataMap.forEach { (key, value) ->
+        studentCardDataMap.forEach { (key, value) ->
             println("$key: ${value.title}")
         }
         println("=========")
@@ -101,7 +98,7 @@ class GatchaManager(
             majorMap[it] = mutableListOf()
         }
         cardPassiveMapping = HashMap()
-        cardDataMap = HashMap()
+        studentCardDataMap = HashMap()
         cardTierMapping = HashMap()
 
         val cardDataList = cardDataRepository.findAll()
@@ -109,7 +106,7 @@ class GatchaManager(
             cardData.groupSet().forEach { major ->
                 majorMap[major]?.add(cardData.id)
             }
-            cardDataMap[cardData.id] = cardData
+            studentCardDataMap[cardData.id] = cardData
             cardTierMapping[cardData.id] = mutableListOf(
                 tierRepository.findAllById(
                     tierMappingRepository.findByCardDataIdAndTier(cardData.id, 2).map { it.tierId }

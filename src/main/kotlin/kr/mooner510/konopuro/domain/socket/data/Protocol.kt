@@ -10,19 +10,54 @@ object Protocol {
     object Game {
         object Client {
             const val GAME_READY = 100
+
+            /**
+             * 덱에서 카드 추가
+             */
             const val ADD_CARD = 101
-            const val USE_CARD = 102
-            const val USE_ABILITY = 103
-            const val SLEEP = 104
+
+            /**
+             * 상대가 카드 추가
+             */
+            const val ADD_CARD_OTHER = 102
+
+            /**
+             * 카드 사용
+             */
+            const val USE_CARD = 103
+
+            /**
+             * 카드 능력 사용
+             */
+            const val USE_ABILITY = 104
+
+            /**
+             * 수면
+             */
+            const val SLEEP = 105
         }
 
         object Server {
-            const val GAME_END = 150
-            const val SUCCESS_CARD = 151
-            const val SUCCESS_ABILITY = 152
-            const val NEW_DAY = 153
-            const val SLEEP = 154
-            const val DATA_UPDATE = 155
+            const val GAME_END = 200
+            const val SUCCESS_CARD = 201
+            const val SUCCESS_ABILITY = 202
+            const val NEW_DAY = 203
+            const val SLEEP = 204
+
+            /**
+             * 덱에서 서버가 카드 추가
+             */
+            const val NEW_CARD = 205
+
+            /**
+             * 패 업데이트
+             */
+            const val HELD_UPDATE = 206
+
+            /**
+             * 필드 업데이트
+             */
+            const val FIELD_UPDATE = 207
         }
     }
 }

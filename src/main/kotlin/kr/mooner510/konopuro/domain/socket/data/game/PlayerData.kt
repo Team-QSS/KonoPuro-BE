@@ -1,5 +1,7 @@
 package kr.mooner510.konopuro.domain.socket.data.game
 
+import kr.mooner510.konopuro.domain.game._preset.PassiveType
+import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import java.util.*
@@ -16,4 +18,6 @@ data class PlayerData(
     val issue: MutableMap<MajorType, MutableList<Int>>,
     val goal: Map<MajorType, Int>,
     var isSleep: Boolean,
+    val passives: EnumSet<PassiveType>,
+    val tiers: EnumSet<TierType>,
 )

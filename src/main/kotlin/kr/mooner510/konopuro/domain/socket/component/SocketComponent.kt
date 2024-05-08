@@ -4,13 +4,14 @@ import com.corundumstudio.socketio.*
 import com.corundumstudio.socketio.listener.ConnectListener
 import com.corundumstudio.socketio.listener.DataListener
 import com.corundumstudio.socketio.listener.DisconnectListener
+import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.domain.socket.data.RawData
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 
 @Component
 class SocketComponent(
-    server: SocketIOServer
+    server: SocketIOServer,
 ) {
     private var namespace: SocketIONamespace? = null
 

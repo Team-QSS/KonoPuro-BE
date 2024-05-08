@@ -7,6 +7,8 @@ import kotlinx.coroutines.runBlocking
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game._preset.GamePreset
+import kr.mooner510.konopuro.domain.game._preset.PassiveType
+import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
@@ -132,18 +134,28 @@ class GameManager(
                 }
             } ?: emptyList()
 
+            val students = deckCards.filter { it.type == CardType.Student }.toMutableList()
+            val decks = LinkedList(deckCards.filter { it.type != CardType.Student }.shuffled())
+            val passiveSet = EnumSet.noneOf(PassiveType::class.java)
+            val tierSet = EnumSet.noneOf(TierType::class.java)
+            students.forEach {
+                passiveSet.addAll(it.passives)
+                tierSet.addAll(it.tiers)
+            }
             playerMap[player] = PlayerData(
                 player,
                 client,
-                deckCards.filter { it.type == CardType.Student }.toMutableList(),
-                LinkedList(deckCards.filter { it.type != CardType.Student }),
+                students,
+                decks,
                 mutableListOf(),
                 0,
                 mutableListOf(),
                 mutableMapOf(),
                 mutableMapOf(),
                 GamePreset.stage[0],
-                false
+                false,
+                passiveSet,
+                tierSet
             )
         }
 

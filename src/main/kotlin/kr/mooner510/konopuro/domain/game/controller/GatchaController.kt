@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.domain.game.component.GatchaManager
-import kr.mooner510.konopuro.domain.game.data.card.entity.CardData
+import kr.mooner510.konopuro.domain.game.data.card.entity.StudentCardData
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
@@ -99,7 +99,7 @@ class GatchaController(
 
         val map = hashMapOf<Long, String>()
 
-        var cardData: CardData?
+        var studentCardData: StudentCardData?
         val gatchaLogResponses =
             (tier?.let { gatchaLogRepository.findByUserIdAndTierIn(user.id, tier.split(",").map { it.toInt() }) }
                 ?: gatchaLogRepository.findByUserId(user.id))
@@ -107,8 +107,8 @@ class GatchaController(
                     map[log.cardDataId]?.let {
                         return@mapNotNull GatchaLogResponse(it, log.tier, log.stack, log.createdAt)
                     }
-                    cardData = cardDataRepository.findByIdOrNull(log.cardDataId)
-                    cardData?.let {
+                    studentCardData = cardDataRepository.findByIdOrNull(log.cardDataId)
+                    studentCardData?.let {
                         map[log.cardDataId] = it.title
                         return@mapNotNull GatchaLogResponse(it.title, log.tier, log.stack, log.createdAt)
                     }

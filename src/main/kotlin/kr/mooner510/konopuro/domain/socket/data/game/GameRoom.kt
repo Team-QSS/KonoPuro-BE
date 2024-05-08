@@ -1,10 +1,13 @@
 package kr.mooner510.konopuro.domain.socket.data.game
 
 import com.corundumstudio.socketio.SocketIOClient
+import com.fasterxml.jackson.databind.ObjectMapper
+import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
+import kr.mooner510.konopuro.global.utils.UUIDParser
 import java.util.*
 
 data class GameRoom(
@@ -12,6 +15,10 @@ data class GameRoom(
     private val preData: Pair<Pair<UUID, UUID>, Pair<UUID, UUID>>,
     var turn: UUID? = null,
 ) {
+    companion object {
+        private val objectMapper = ObjectMapper()
+    }
+
     lateinit var firstPlayer: PlayerData
     lateinit var secondPlayer: PlayerData
 
@@ -35,20 +42,24 @@ data class GameRoom(
         return run(secondPlayer)
     }
 
-    private fun Pair<SocketIOClient, MessageManager>.self(rawProtocol: RawProtocol) {
-        this.second.send(this.self { it.client }, rawProtocol)
+    private fun Pair<SocketIOClient, MessageManager>.self(protocol: Int, vararg data: Any) {
+        this.second.send(this.self { it.client }, RawProtocol(protocol, *data))
     }
 
-    private fun Pair<SocketIOClient, MessageManager>.other(rawProtocol: RawProtocol) {
-        this.second.send(this.other { it.client }, rawProtocol)
+    private fun Pair<SocketIOClient, MessageManager>.other(protocol: Int, vararg data: Any) {
+        this.second.send(this.other { it.client }, RawProtocol(protocol, *data))
     }
 
-    private fun Pair<SocketIOClient, MessageManager>.all(rawProtocol: RawProtocol) {
-        this.second.sendRoom(id, rawProtocol)
+    private fun Pair<SocketIOClient, MessageManager>.all(protocol: Int, vararg data: Any) {
+        this.second.sendRoom(id, RawProtocol(protocol, *data))
     }
 
     private fun check(run: (PlayerData) -> Boolean): Boolean {
         return run(firstPlayer) && run(secondPlayer)
+    }
+
+    private fun <T> String.parse(clazz: Class<T>): T {
+        return objectMapper.readValue(this, clazz)
     }
 
     fun event(pairs: Pair<SocketIOClient, MessageManager>, rawData: RawData) {
@@ -58,17 +69,38 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.ADD_CARD -> {
+                pairs.self {
+                    val card = it.deckList.removeFirst()
+                    it.heldCards.add(card)
+                    pairs.other(Protocol.Game.Server.NEW_CARD, card)
+                }
+                pairs.other(Protocol.Game.Client.ADD_CARD_OTHER)
             }
 
             Protocol.Game.Client.SLEEP -> {
+                pairs.self { it.isSleep = true }
+                pairs.other(Protocol.Game.Server.SLEEP)
+            }
+
+            Protocol.Game.Client.USE_CARD -> {
+                val uuid = UUIDParser.transfer(rawData[0])
+                pairs.self { playerData ->
+                    val card = playerData.heldCards.first { it.playerCardId == uuid }
+                    pairs.other(Protocol.Game.Server.SUCCESS_CARD, card)
+                }
+            }
+
+            Protocol.Game.Client.USE_ABILITY -> {
+                val tierType = TierType.valueOf(rawData[0])
                 pairs.self {
-                    it.isSleep = true
+                    pairs.other(Protocol.Game.Server.SUCCESS_ABILITY, rawData[0])
                 }
             }
         }
         if (check { it.isSleep || it.time <= 0 }) {
             firstPlayer.time += 24
             secondPlayer.time += 24
+            pairs.other(Protocol.Game.Server.NEW_DAY)
 //            list.add(RawProtocol(Protocol.Game.Server.NEW_DAY))
 //            client.self {
 //                it.heldCards.add(it.deckList.removeFirst())

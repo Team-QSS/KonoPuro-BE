@@ -10,7 +10,6 @@ import kr.mooner510.konopuro.domain.game.data.deck.entity.Deck
 import kr.mooner510.konopuro.domain.game.data.deck.entity.DeckCard
 import kr.mooner510.konopuro.domain.game.data.deck.request.ApplyDeckRequest
 import kr.mooner510.konopuro.domain.game.data.deck.response.DeckResponse
-import kr.mooner510.konopuro.domain.game.exception.FullDeckException
 import kr.mooner510.konopuro.domain.game.repository.*
 import kr.mooner510.konopuro.domain.game.utils.PassiveTierUtils.toResponse
 import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
@@ -37,14 +36,14 @@ class InventoryController(
     fun getCards(
         @AuthenticationPrincipal user: User
     ): PlayerCardResponses {
-        val cardDataMap = hashMapOf<Long, CardData>()
+        val studentCardDataMap = hashMapOf<Long, StudentCardData>()
 
         return PlayerCardResponses(
             playerCardRepository.findByUserId(user.id).map { playerCard ->
-                val cardData = cardDataMap[playerCard.cardDataId] ?: run {
+                val cardData = studentCardDataMap[playerCard.cardDataId] ?: run {
                     val data = cardDataRepository.findById(playerCard.cardDataId).getOrNull()
                         ?: throw CardDataNotFoundException()
-                    cardDataMap[playerCard.cardDataId] = data
+                    studentCardDataMap[playerCard.cardDataId] = data
                     data
                 }
                 val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
