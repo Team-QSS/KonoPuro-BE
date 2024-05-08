@@ -1,5 +1,6 @@
 package kr.mooner510.konopuro.domain.game.component
 
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game.data.card.entity.StudentCardData
 import kr.mooner510.konopuro.domain.game.data.card.entity.Passive
@@ -19,6 +20,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.random.Random
 
 @Component
 class GatchaManager(
@@ -31,96 +33,70 @@ class GatchaManager(
     private val passiveMappingRepository: PassiveMappingRepository
 ) {
     companion object {
-        private val studentCardDataMap: HashMap<Long, StudentCardData> = HashMap()
-        private val cardMajorMap: EnumMap<MajorType, List<StudentCardType>> = EnumMap(MajorType::class.java)
+        private val cardMajorMap: EnumMap<MajorType, MutableList<StudentCardType>> = EnumMap(MajorType::class.java)
 //        private var cardPassiveMapping: HashMap<Long, List<Passive>> = HashMap()
 //        private var cardTierMapping: HashMap<Long, List<List<Tier>>> = HashMap()
 
-        fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerStudentCard {
-            val id: StudentCardType
-            val random = Math.random()
+        fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerStudentCard? {
+            val random = Random.nextDouble()
             val majorTypes = cardMajorMap.keys.filter { it != this.mainMajor }
-            val tier = when {
+            when {
                 random < stack.chance4() -> {
-                    val major = if (stack.full4 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
+                    val major = if (stack.full4 || Random.nextDouble() < 0.5) this.mainMajor else majorTypes.random()
                     stack.full4 = major != this.mainMajor
-                    id = cardMajorMap[major]?.random()
-                        ?: studentCardDataMap.keys.random()
+                    val id = cardMajorMap[major]?.random() ?: StudentCardType.entries.random()
                     println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 4 Tier! $random")
                     stack.stack4 = 0
-                    4
+                    return PlayerStudentCard(
+                        stack.userId,
+                        id,
+                        id.secondTier.random(),
+                        id.thirdPassive.random(),
+                        id.forthTier.random()
+                    )
                 }
 
                 random < stack.chance4() + stack.chance3() -> {
-                    val major = if (stack.full3 || Math.random() < 0.5) this.mainMajor else majorTypes.random()
+                    val major =
+                        if (stack.full3 || Random.nextDouble() < 0.5) this.mainMajor else if (Math.random() < 0.5) majorTypes.random() else null
                     stack.full3 = major != this.mainMajor
-                    id = cardMajorMap[major]?.random()
-                        ?: studentCardDataMap.keys.random()
-                    println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()} :: 3 Tier! $random")
+                    val id = cardMajorMap[major]?.random() ?: StudentCardType.entries.random()
                     stack.stack3 = 0
-                    3
-                }
-
-                else -> {
-                    id = studentCardDataMap.keys.random()
-                    println("4 Tier: ${stack.chance4()}, 3 Tier: ${stack.chance3()}")
-                    2
+                    return PlayerStudentCard(
+                        stack.userId,
+                        id,
+                        id.secondTier.random(),
+                        id.thirdPassive.random(),
+                        null
+                    )
                 }
             }
-            return PlayerStudentCard(
-                stack.userId,
-                id,
-                cardTierMapping[id]?.get(0)?.random()?.id,
-                if (tier >= 3) cardPassiveMapping[id]?.random()?.id else null,
-                if (tier >= 4) cardTierMapping[id]?.get(1)?.random()?.id else null
-            )
+            if (Random.nextDouble() < .25) {
+                val major = MajorType.entries.random()
+                val id = cardMajorMap[major]?.random() ?: StudentCardType.entries.random()
+                return PlayerStudentCard(
+                    stack.userId,
+                    id,
+                    id.secondTier.random(),
+                    null,
+                    null
+                )
+            }
+            return null
         }
     }
 
     init {
-        update()
         println("=========")
-        cardMajorMap.forEach { (key, value) ->
-            println("$key: $value")
-        }
-        println("=========")
-        studentCardDataMap.forEach { (key, value) ->
-            println("$key: ${value.title}")
-        }
-        println("=========")
-    }
-
-    final fun update() {
-        Runtime.getRuntime().gc()
-        cardMajorMap = EnumMap(MajorType::class.java)
-        val majorMap = EnumMap<MajorType, MutableList<Long>>(MajorType::class.java)
         MajorType.entries.forEach {
-            majorMap[it] = mutableListOf()
+            cardMajorMap[it] = mutableListOf()
         }
-        cardPassiveMapping = HashMap()
-        studentCardDataMap = HashMap()
-        cardTierMapping = HashMap()
-
-        val cardDataList = cardDataRepository.findAll()
-        cardDataList.forEach { cardData ->
-            cardData.groupSet().forEach { major ->
-                majorMap[major]?.add(cardData.id)
+        StudentCardType.entries.forEach { studentCardType ->
+            studentCardType.major.forEach {
+                cardMajorMap[it]!!.add(studentCardType)
             }
-            studentCardDataMap[cardData.id] = cardData
-            cardTierMapping[cardData.id] = mutableListOf(
-                tierRepository.findAllById(
-                    tierMappingRepository.findByCardDataIdAndTier(cardData.id, 2).map { it.tierId }
-                ).toList(),
-                tierRepository.findAllById(
-                    tierMappingRepository.findByCardDataIdAndTier(cardData.id, 4).map { it.tierId }
-                ).toList()
-            )
-            cardPassiveMapping[cardData.id] =
-                passiveRepository.findAllById(passiveMappingRepository.findByCardDataId(cardData.id).map { it.passiveId }).toList()
         }
-        majorMap.forEach { (key, value) ->
-            if (value.isNotEmpty()) cardMajorMap[key] = value
-        }
+        println("=========")
     }
 
     fun HashMap<Long, Tier>.append(key: Long): Tier {

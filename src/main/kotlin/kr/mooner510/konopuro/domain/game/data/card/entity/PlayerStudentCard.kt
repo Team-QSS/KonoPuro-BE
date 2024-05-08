@@ -2,6 +2,7 @@ package kr.mooner510.konopuro.domain.game.data.card.entity
 
 import jakarta.persistence.*
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
+import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
@@ -15,8 +16,9 @@ class PlayerStudentCard(
     @Column(nullable = false, columnDefinition = "BINARY(16)")
     val userId: UUID,
 
-    @Column(nullable = false, updatable = false)
-    val cardDataId: Long,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(15)")
+    val studentCardType: StudentCardType,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true, columnDefinition = "VARCHAR(15)")
