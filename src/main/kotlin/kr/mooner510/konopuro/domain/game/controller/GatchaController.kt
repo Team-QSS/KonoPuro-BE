@@ -3,6 +3,7 @@ package kr.mooner510.konopuro.domain.game.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
+import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game.component.GatchaManager
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
@@ -29,18 +30,9 @@ import kotlin.jvm.optionals.getOrNull
 class GatchaController(
     private val gatchaManager: GatchaManager,
     private val gatchaRepository: GatchaRepository,
-    private val gatchaStackRepository: GatchaStackRepository, private val gatchaLogRepository: GatchaLogRepository,
-    private val cardDataRepository: CardDataRepository,
+    private val gatchaStackRepository: GatchaStackRepository,
+    private val gatchaLogRepository: GatchaLogRepository,
 ) {
-
-    @Operation(summary = "가챠 새로고침", description = "그냥 새로고침임 달라지는게 있을 지는 몰루?")
-    @PostMapping
-    fun updateGatcha() {
-        thread {
-            gatchaManager.update()
-        }
-    }
-
     @Operation(summary = "가챠 배너 목록 조회", description = "가챠할 수 있는 배너 목록을 반환합니다.")
     @GetMapping("/list")
     fun gatchaList(): GatchaResponses {
@@ -95,21 +87,16 @@ class GatchaController(
             data = emptyList()
         )
 
-        val map = hashMapOf<Long, String>()
-
-        var studentCardData: StudentCardData?
         val gatchaLogResponses =
             (tier?.let { gatchaLogRepository.findByUserIdAndTierIn(user.id, tier.split(",").map { it.toInt() }) }
                 ?: gatchaLogRepository.findByUserId(user.id))
-                .mapNotNull { log ->
-                    map[log.cardDataId]?.let {
-                        return@mapNotNull GatchaLogResponse(it, log.tier, log.stack, log.createdAt)
-                    }
-                    studentCardData = cardDataRepository.findByIdOrNull(log.cardDataId)
-                    studentCardData?.let {
-                        map[log.cardDataId] = it.title
-                        return@mapNotNull GatchaLogResponse(it.title, log.tier, log.stack, log.createdAt)
-                    }
+                .map {
+                    GatchaLogResponse(
+                        it.cardType,
+                        it.tier,
+                        it.stack,
+                        it.createdAt
+                    )
                 }
         return GatchaLogDataResponse(
             gatchaLogRepository.countByUserId(user.id),

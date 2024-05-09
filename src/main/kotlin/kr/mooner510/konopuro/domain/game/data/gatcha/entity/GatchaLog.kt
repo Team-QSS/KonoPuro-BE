@@ -10,8 +10,8 @@ class GatchaLog(
     @Column(nullable = false, updatable = false, columnDefinition = "BINARY(16)")
     val userId: UUID,
 
-    @Column(nullable = false, updatable = false, columnDefinition = "BINARY(16)")
-    val cardId: UUID,
+    @Column(nullable = false, updatable = false, length = 16)
+    val cardType: String,
 
     @Column(nullable = false, updatable = false)
     val isStudent: Boolean,

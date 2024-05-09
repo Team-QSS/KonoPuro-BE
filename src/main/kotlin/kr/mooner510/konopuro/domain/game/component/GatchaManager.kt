@@ -108,7 +108,7 @@ class GatchaManager(
         gatchaLogRepository.save(
             GatchaLog(
                 stack.userId,
-                playerCard.id,
+                playerCard.cardType,
                 playerCard.isStudent,
                 playerCard.getTier(),
                 if (playerCard.getTier() == 3) stack3 else if (playerCard.getTier() == 4) stack4 else null,

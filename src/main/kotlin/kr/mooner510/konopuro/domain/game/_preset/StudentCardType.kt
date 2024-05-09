@@ -1,5 +1,7 @@
 package kr.mooner510.konopuro.domain.game._preset
 
+import kr.mooner510.konopuro.domain.game.data.card.response.StudentDataResponse
+import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import java.util.*
 
@@ -50,6 +52,19 @@ enum class StudentCardType(
         EnumSet.of(TierType.Reverse, TierType.Cooperation),
         EnumSet.of(PassiveType.Destore, PassiveType.Brocker),
         EnumSet.of(TierType.Disturbance, TierType.Reverse2)
-    )
+    );
+
+    fun toResponse(): StudentDataResponse {
+        return StudentDataResponse(
+            toString(),
+            CardType.Student,
+            major.sortedBy { it.ordinal },
+            passive.sortedBy { it.ordinal },
+            tier,
+            secondTier.sortedBy { it.ordinal },
+            thirdPassive.sortedBy { it.ordinal },
+            forthTier.sortedBy { it.ordinal }
+        )
+    }
 
 }

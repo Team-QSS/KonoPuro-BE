@@ -7,7 +7,7 @@ import java.util.*
 data class GatchaResponse(
     val id: UUID,
     val name: String,
-    val major: MajorType,
+    val major: MajorType?,
     val startAt: LocalDateTime,
     val endAt: LocalDateTime
 )

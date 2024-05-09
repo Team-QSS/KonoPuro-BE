@@ -1,5 +1,6 @@
 package kr.mooner510.konopuro.domain.game._preset
 
+import kr.mooner510.konopuro.domain.game.data.card.response.DefaultDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 
 enum class DefaultCardType(
@@ -11,5 +12,13 @@ enum class DefaultCardType(
     companion object {
         val tierOtherList = DefaultCardType.entries.filter { it.tier != 3 }
         val tier3List = DefaultCardType.entries.filter { it.tier == 3 }
+    }
+
+    fun toResponse(): DefaultDataResponse {
+        return DefaultDataResponse(
+            toString(),
+            cardType,
+            tier
+        )
     }
 }
