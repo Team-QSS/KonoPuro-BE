@@ -14,7 +14,7 @@ object GamePreset {
             MajorType.Backend to 200,
             MajorType.Design to 180,
             MajorType.Android to 120,
-            MajorType.IOS to 120,
+            MajorType.iOS to 120,
         ),
     )
 }

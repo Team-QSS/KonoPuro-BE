@@ -10,8 +10,6 @@ import kr.mooner510.konopuro.domain.game.data.card.request.PassiveRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.TierRequest
 import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.CardDataResponses
-import kr.mooner510.konopuro.domain.game.data.card.response.PassiveResponse
-import kr.mooner510.konopuro.domain.game.data.card.response.TierResponse
 import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
 import kr.mooner510.konopuro.domain.game.exception.CardNotFoundException
 import kr.mooner510.konopuro.domain.game.repository.*

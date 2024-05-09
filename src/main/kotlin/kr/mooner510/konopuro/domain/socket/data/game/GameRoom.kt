@@ -91,7 +91,7 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_ABILITY -> {
-                val tierType = TierType.valueOf(rawData[0])
+//                val tierType = TierType.valueOf(rawData[0])
                 pairs.self {
                     pairs.other(Protocol.Game.Server.SUCCESS_ABILITY, rawData[0])
                 }

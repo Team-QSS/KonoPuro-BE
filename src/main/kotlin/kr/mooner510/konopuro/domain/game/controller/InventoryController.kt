@@ -2,8 +2,6 @@ package kr.mooner510.konopuro.domain.game.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import kr.mooner510.konopuro.domain.game.data.card.entity.*
-import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
 import kr.mooner510.konopuro.domain.game.data.deck.entity.ActiveDeck
 import kr.mooner510.konopuro.domain.game.data.deck.entity.Deck
@@ -11,22 +9,16 @@ import kr.mooner510.konopuro.domain.game.data.deck.entity.DeckCard
 import kr.mooner510.konopuro.domain.game.data.deck.request.ApplyDeckRequest
 import kr.mooner510.konopuro.domain.game.data.deck.response.DeckResponse
 import kr.mooner510.konopuro.domain.game.repository.*
-import kr.mooner510.konopuro.domain.game.utils.PassiveTierUtils.toResponse
-import kr.mooner510.konopuro.domain.socket.exception.CardDataNotFoundException
 import kr.mooner510.konopuro.global.security.data.entity.User
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import kotlin.jvm.optionals.getOrNull
 
 @Tag(name = "Inventory", description = "인벤 API")
 @RestController
 @RequestMapping("/api/inventory")
 class InventoryController(
-    private val cardDataRepository: CardDataRepository,
     private val playerCardRepository: PlayerCardRepository,
-    private val passiveRepository: PassiveRepository,
-    private val tierRepository: TierRepository,
     private val activeDeckRepository: ActiveDeckRepository,
     private val deckRepository: DeckRepository,
     private val deckCardRepository: DeckCardRepository
@@ -36,29 +28,7 @@ class InventoryController(
     fun getCards(
         @AuthenticationPrincipal user: User
     ): PlayerCardResponses {
-        val studentCardDataMap = hashMapOf<Long, StudentCardData>()
-
-        return PlayerCardResponses(
-            playerCardRepository.findByUserId(user.id).map { playerCard ->
-                val cardData = studentCardDataMap[playerCard.cardDataId] ?: run {
-                    val data = cardDataRepository.findById(playerCard.cardDataId).getOrNull()
-                        ?: throw CardDataNotFoundException()
-                    studentCardDataMap[playerCard.cardDataId] = data
-                    data
-                }
-                val (passives, tiers) = playerCard.split(cardData, passiveRepository, tierRepository)
-                PlayerCardResponse(
-                    playerCard.id,
-                    cardData.title,
-                    cardData.description,
-                    cardData.groupSet().toList(),
-                    playerCard.getTier(),
-                    cardData.type,
-                    passives.toResponse(),
-                    tiers.toResponse()
-                )
-            }
-        )
+        return PlayerCardResponses(playerCardRepository.findByUserId(user.id).map { it.toResponse() })
     }
 
     @Operation(summary = "장착한 덱 조회", description = "없으면 새로운 텅 빈 defalut 덱 생성 후 반환")

@@ -1,25 +1,18 @@
 package kr.mooner510.konopuro.domain.game._preset
 
 import kr.mooner510.konopuro.domain.game.controller.CardController
-import kr.mooner510.konopuro.domain.game.data.card.entity.Passive
-import kr.mooner510.konopuro.domain.game.data.card.entity.Tier
 import kr.mooner510.konopuro.domain.game.data.card.request.CreateCardRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.PassiveRequest
 import kr.mooner510.konopuro.domain.game.data.card.request.TierRequest
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.exception.CardAlreadyExistsException
-import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
-import kr.mooner510.konopuro.domain.game.repository.PassiveRepository
-import kr.mooner510.konopuro.domain.game.repository.TierRepository
 import org.springframework.stereotype.Component
 import kotlin.jvm.optionals.getOrNull
 import kotlin.properties.Delegates
 
 @Component
 class CardPreset(
-    tierRepository: TierRepository,
-    private val passiveRepository: PassiveRepository,
     private val cardController: CardController
 
 ) {
@@ -30,12 +23,6 @@ class CardPreset(
     private var android by Delegates.notNull<Long>()
 
     init {
-        designer = (tierRepository.findByTitle("디자이너").getOrNull() ?: tierRepository.save(Tier("디자이너", "디자인 진행도를 6pt 증가시킨다.", 3))).id
-        frontend = (tierRepository.findByTitle("프론트엔드").getOrNull() ?: tierRepository.save(Tier("프론트엔드", "프론트엔드 진행도를 6pt 증가 시킨다.", 3))).id
-        backend = (tierRepository.findByTitle("백엔드").getOrNull() ?: tierRepository.save(Tier("백엔드", "백엔드 진행도를 6pt 증가 시킨다.", 3))).id
-        iOS = (tierRepository.findByTitle("iOS").getOrNull() ?: tierRepository.save(Tier("iOS", "iOS 진행도를 8pt 증가 시킨다.", 4))).id
-        android = (tierRepository.findByTitle("안드로이드").getOrNull() ?: tierRepository.save(Tier("안드로이드", "안드로이드 진행도를 8pt 증가 시킨다.", 4))).id
-
         listOf(
             CreateCardRequest(
                 "최승우",
@@ -202,7 +189,7 @@ class CardPreset(
             CreateCardRequest(
                 "박준하",
                 "",
-                listOf(MajorType.IOS),
+                listOf(MajorType.iOS),
                 CardType.Student,
                 iOS,
                 listOf(
@@ -349,9 +336,5 @@ class CardPreset(
             } catch (_: CardAlreadyExistsException) {
             }
         }
-    }
-
-    fun passive(passive: Passive): Long {
-        return passiveRepository.save(passive).id
     }
 }

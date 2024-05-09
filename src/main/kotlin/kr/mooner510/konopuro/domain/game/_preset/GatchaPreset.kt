@@ -28,7 +28,7 @@ class GatchaPreset(
             ),
             Gatcha(
                 "iOS Gatcha",
-                MajorType.IOS,
+                MajorType.iOS,
                 LocalDateTime.now().plusDays(-1).withHour(12).withMinute(0).withSecond(0).withNano(0),
                 LocalDateTime.now().plusDays(13).withHour(12).withMinute(0).withSecond(0).withNano(0)
             ),

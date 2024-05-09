@@ -19,8 +19,8 @@ class Gatcha(
     @Column(nullable = false)
     val title: String,
 
-    @Column(nullable = false)
-    val mainMajor: MajorType,
+    @Column(nullable = true)
+    val mainMajor: MajorType?,
 
     @Column(nullable = false)
     val startAt: LocalDateTime,

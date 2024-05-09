@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
 import kr.mooner510.konopuro.domain.game.component.GatchaManager
-import kr.mooner510.konopuro.domain.game.data.card.entity.StudentCardData
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
@@ -13,7 +12,6 @@ import kr.mooner510.konopuro.domain.game.data.gatcha.response.GatchaLogResponse
 import kr.mooner510.konopuro.domain.game.data.gatcha.response.GatchaResponse
 import kr.mooner510.konopuro.domain.game.data.gatcha.response.GatchaResponses
 import kr.mooner510.konopuro.domain.game.exception.GatchaNotFoundException
-import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.GatchaLogRepository
 import kr.mooner510.konopuro.domain.game.repository.GatchaRepository
 import kr.mooner510.konopuro.domain.game.repository.GatchaStackRepository

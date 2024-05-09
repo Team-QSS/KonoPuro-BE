@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game._preset.GamePreset
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
@@ -12,7 +11,6 @@ import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
-import kr.mooner510.konopuro.domain.game.repository.CardDataRepository
 import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import kr.mooner510.konopuro.domain.socket.data.Protocol
@@ -34,7 +32,6 @@ import kotlin.concurrent.thread
 @Component
 class GameManager(
     private val playerCardRepository: PlayerCardRepository,
-    private val cardDataRepository: CardDataRepository,
     private val activeDeckRepository: ActiveDeckRepository,
     private val deckCardRepository: DeckCardRepository,
     private val messageManager: MessageManager,
@@ -128,9 +125,7 @@ class GameManager(
         room.forEach { (player, client) ->
             val deckCards = activeDeckRepository.findByIdOrNull(player)?.let { activeDeck ->
                 deckCardRepository.findByDeckId(activeDeck.deckId).mapNotNull {
-                    val playerCard = playerCardRepository.findByIdOrNull(it.cardId) ?: return@mapNotNull null
-                    val cardData = cardDataRepository.findByIdOrNull(playerCard.cardDataId) ?: return@mapNotNull null
-                    GameCard.new(playerCard, cardData)
+                    playerCardRepository.findByIdOrNull(it.cardId)?.toGameCard()
                 }
             } ?: emptyList()
 
