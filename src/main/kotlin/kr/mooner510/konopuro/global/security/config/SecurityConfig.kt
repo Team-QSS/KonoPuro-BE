@@ -48,15 +48,13 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.POST, "/api/auth/sign-in").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/api/auth/sign-up").permitAll()
 
+                it.requestMatchers(HttpMethod.GET, "/api/card").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/card/all").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/card/student").permitAll()
+
                 it.requestMatchers(HttpMethod.POST, "/api/game/match").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/api/game/message").hasRole("ADMIN")
 
-                it.requestMatchers(HttpMethod.GET, "/api/card").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/card").hasRole("ADMIN")
-                it.requestMatchers(HttpMethod.GET, "/api/card/all").permitAll()
-                it.requestMatchers(HttpMethod.POST, "/api/card/passive").hasRole("ADMIN")
-                it.requestMatchers(HttpMethod.POST, "/api/card/tier").hasRole("ADMIN")
-                it.requestMatchers(HttpMethod.POST, "/api/gatcha").hasRole("ADMIN")
                 it.requestMatchers(HttpMethod.GET, "/api/gatcha/list").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/gatcha/log").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/api/gatcha/multi").authenticated()

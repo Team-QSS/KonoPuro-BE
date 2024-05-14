@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/card")
 class CardController {
     @Operation(summary = "학생 카드 데이터 조회", description = "내가 가지고 있든 말든 학생 카드 정보를 조회합니다")
-    @GetMapping
+    @GetMapping("/student")
     fun getStudentCardData(
         @RequestParam id: String
     ): StudentDataResponse {
