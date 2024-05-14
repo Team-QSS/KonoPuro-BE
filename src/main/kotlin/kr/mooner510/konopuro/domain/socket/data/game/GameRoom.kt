@@ -72,7 +72,8 @@ data class GameRoom(
                 pairs.self {
                     val card = it.deckList.removeFirst()
                     it.heldCards.add(card)
-                    pairs.other(Protocol.Game.Server.NEW_CARD, card)
+                    pairs.self(Protocol.Game.Server.NEW_CARD, card)
+                    pairs.other(Protocol.Game.Server.NEW_CARD)
                 }
                 pairs.other(Protocol.Game.Client.ADD_CARD_OTHER)
             }

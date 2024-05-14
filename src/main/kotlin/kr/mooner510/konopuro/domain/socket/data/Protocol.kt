@@ -58,6 +58,11 @@ object Protocol {
              * 필드 업데이트
              */
             const val FIELD_UPDATE = 207
+
+            /**
+             * 프로젝트 진행도 업데이트
+             */
+            const val PROJECT_UPDATE = 208
         }
     }
 }
