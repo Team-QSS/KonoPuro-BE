@@ -6,6 +6,7 @@ import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
+import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
@@ -50,30 +51,17 @@ class PlayerCard(
         }
     }
 
-    fun toGameCard(): GameCard {
-        if (isStudent) {
-            val type = StudentCardType.valueOf(cardType)
-            return GameCard(
-                id,
-                type,
-                null,
-                type.major,
-                CardType.Student,
-                EnumSet.copyOf(listOfNotNull(type.tier, tierSecond, tierForth)),
-                EnumSet.copyOf(type.passive + setOfNotNull(tierThird)),
-            )
-        } else {
-            val type = DefaultCardType.valueOf(cardType)
-            return GameCard(
-                id,
-                null,
-                type,
-                emptySet(),
-                CardType.Student,
-                EnumSet.noneOf(TierType::class.java),
-                EnumSet.noneOf(PassiveType::class.java),
-            )
-        }
+    fun toGameCard(): GameCard = GameCard(id, DefaultCardType.valueOf(cardType))
+
+    fun toGameStudentCard(): GameStudentCard {
+        val type = StudentCardType.valueOf(cardType)
+        return GameStudentCard(
+            id,
+            type,
+            type.major,
+            EnumSet.copyOf(listOfNotNull(type.tier, tierSecond, tierForth)),
+            EnumSet.copyOf(type.passive + setOfNotNull(tierThird)),
+        )
     }
 
     fun toResponse(): PlayerCardResponse {

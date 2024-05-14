@@ -9,11 +9,6 @@ import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import java.util.*
 
 data class GameCard(
-    val playerCardId: UUID,
-    val studentCardType: StudentCardType?,
-    val defaultCardType: DefaultCardType?,
-    val groups: Set<MajorType>,
-    val type: CardType,
-    val tiers: EnumSet<TierType>,
-    val passives: EnumSet<PassiveType>
+    val id: UUID,
+    val defaultCardType: DefaultCardType
 )

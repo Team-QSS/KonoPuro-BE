@@ -4,10 +4,12 @@ import jakarta.transaction.Transactional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game._preset.GamePreset
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
+import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
+import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
+import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
@@ -27,6 +29,8 @@ import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 
 @Component
@@ -124,29 +128,35 @@ class GameManager(
     fun startGame(room: GameRoom) {
         room.forEach { (player, client) ->
             val deckCards = activeDeckRepository.findByIdOrNull(player)?.let { activeDeck ->
-                deckCardRepository.findByDeckId(activeDeck.deckId).mapNotNull {
-                    playerCardRepository.findByIdOrNull(it.cardId)?.toGameCard()
-                }
+                deckCardRepository.findByDeckId(activeDeck.deckId).mapNotNull { playerCardRepository.findByIdOrNull(it.cardId) }
             } ?: emptyList()
 
-            val students = deckCards.filter { it.type == CardType.Student }.toMutableList()
-            val decks = LinkedList(deckCards.filter { it.type != CardType.Student }.shuffled())
+            val students = ArrayList<GameStudentCard>()
+            val decks = LinkedList<GameCard>()
+
             val passiveSet = EnumSet.noneOf(PassiveType::class.java)
             val tierSet = EnumSet.noneOf(TierType::class.java)
-            students.forEach {
-                passiveSet.addAll(it.passives)
-                tierSet.addAll(it.tiers)
+
+            deckCards.forEach {
+                if (it.isStudent) {
+                    val card = it.toGameStudentCard()
+                    students.add(card)
+                    passiveSet.addAll(card.passives)
+                    tierSet.addAll(card.tiers)
+                } else decks.add(it.toGameCard())
             }
+            decks.shuffle()
+
             playerMap[player] = PlayerData(
                 player,
                 client,
                 students,
                 decks,
-                mutableListOf(),
+                ArrayList(),
                 0,
-                mutableListOf(),
-                mutableMapOf(),
-                mutableMapOf(),
+                ArrayList(),
+                EnumMap(MajorType::class.java),
+                EnumMap(MajorType::class.java),
                 GamePreset.stage[0],
                 false,
                 passiveSet,

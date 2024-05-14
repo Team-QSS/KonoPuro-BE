@@ -42,7 +42,7 @@ object Protocol {
             const val SUCCESS_CARD = 201
             const val SUCCESS_ABILITY = 202
             const val NEW_DAY = 203
-            const val SLEEP = 204
+            const val OTHER_SLEEP = 204
 
             /**
              * 덱에서 서버가 카드 추가
@@ -52,17 +52,7 @@ object Protocol {
             /**
              * 패 업데이트
              */
-            const val HELD_UPDATE = 206
-
-            /**
-             * 필드 업데이트
-             */
-            const val FIELD_UPDATE = 207
-
-            /**
-             * 프로젝트 진행도 업데이트
-             */
-            const val PROJECT_UPDATE = 208
+            const val DATA_UPDATE = 206
         }
     }
 }
