@@ -10,5 +10,6 @@ import java.util.*
 
 data class GameCard(
     val id: UUID,
-    val defaultCardType: DefaultCardType
+    val defaultCardType: DefaultCardType,
+    var limit: Int = 0
 )

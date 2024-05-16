@@ -1,15 +1,24 @@
 package kr.mooner510.konopuro.domain.socket.data.game
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData.Modifier.*
+import kr.mooner510.konopuro.domain.socket.data.obj.GameCards
+import kr.mooner510.konopuro.domain.socket.data.obj.GameStudentCards
+import kr.mooner510.konopuro.domain.socket.data.type.DataKey
+import kr.mooner510.konopuro.global.utils.UUIDParser
+import org.json.JSONObject
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 data class PlayerData(
     val id: UUID,
@@ -26,6 +35,9 @@ data class PlayerData(
     val passives: EnumSet<PassiveType>,
     val tiers: EnumSet<TierType>,
 ) {
+    private val dataIntMap = EnumMap<DataKey, Int>(DataKey::class.java)
+    private val dataDoubleMap = EnumMap<DataKey, Double>(DataKey::class.java)
+
     enum class Modifier {
         Client,
         Student,
@@ -35,18 +47,47 @@ data class PlayerData(
         FieldCard,
         Project,
         Issue,
-        Sleep
+        Sleep,
+        DataInt,
+        DataDouble,
+        Students
     }
 
     class PlayerDataModifier(
-        val todayLog: List<GameLog>,
+        private val gameRoom: GameRoom,
         private val playerData: PlayerData
     ) {
+        companion object {
+            private val objectMapper = ObjectMapper()
+        }
+
         private val modifiers = EnumSet.noneOf(Modifier::class.java)
         lateinit var activeStudent: GameStudentCard
+        private var modifiedStudent: HashMap<UUID, GameStudentCard.GameStudentCardModifier> = hashMapOf()
 
         fun <T> execute(run: PlayerData.() -> T): T {
             return run(playerData)
+        }
+
+        fun modifyStudents(run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
+            modifiers.add(Students)
+            playerData.students.forEach {
+                val modifier = GameStudentCard.GameStudentCardModifier(gameRoom.date, it)
+                run(modifier)
+                modifiedStudent[it.id] = modifier
+            }
+        }
+
+        fun modifyStudent(id: UUID, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
+            run(modifiedStudent.getOrPut(id) { GameStudentCard.GameStudentCardModifier(gameRoom.date, playerData.students.find { it.id == id }!!) })
+        }
+
+        fun modifyStudent(studentCard: GameStudentCard, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
+            run(modifiedStudent.getOrPut(studentCard.id) { GameStudentCard.GameStudentCardModifier(gameRoom.date, studentCard) })
+        }
+
+        fun newDay(date: Int) = execute {
+            modifyStudents { it.removeIfEndDate(date) }
         }
 
         fun setClient(uuid: UUID) = execute {
@@ -107,8 +148,21 @@ data class PlayerData(
                     }
                 }
             }
+            addInt(majorType.dataTotalKey, value)
+            addInt(majorType.dataKey, value)
             project.merge(majorType, afterValue, Integer::sum)
             modifiers.add(Project)
+        }
+
+        fun addFieldCard(defaultCardType: DefaultCardType, limit: Int, dupe: Boolean = false) = execute {
+            if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit))
+            else {
+                fieldCards.find { it.defaultCardType == defaultCardType }?.let {
+                    it.limit = limit
+                    return@execute
+                }
+                fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit))
+            }
         }
 
         fun isDone(majorType: MajorType) = execute {
@@ -125,19 +179,93 @@ data class PlayerData(
             return@execute heldCards.removeAt(index)
         }
 
-        fun build(): RawProtocol {
+        fun useAbility(tierType: TierType): TierType? {
+            if (playerData.tiers.contains(tierType) && useTier(tierType)) return tierType
+            return null
+        }
+
+        fun setInt(key: DataKey, value: Int) = execute {
+            dataIntMap[key] = value
+            modifiers.add(DataInt)
+        }
+
+        fun setDouble(key: DataKey, value: Double) = execute {
+            dataDoubleMap[key] = value
+            modifiers.add(DataDouble)
+        }
+
+        fun addInt(key: DataKey, value: Int) {
+            modifiers.add(DataInt)
+            playerData.dataIntMap.merge(key, value, Integer::sum)
+        }
+
+        fun addDouble(key: DataKey, value: Double) {
+            modifiers.add(DataDouble)
+            playerData.dataDoubleMap.merge(key, value, java.lang.Double::sum)
+        }
+
+        fun getInt(key: DataKey): Int? = playerData.dataIntMap[key]
+
+        fun getInt(key: DataKey, default: Int): Int = playerData.dataIntMap.getOrDefault(key, default)
+
+        fun getDouble(key: DataKey): Double? = playerData.dataDoubleMap[key]
+
+        fun getDouble(key: DataKey, default: Double): Double = playerData.dataDoubleMap.getOrDefault(key, default)
+
+        fun removeInt(key: DataKey): Int? {
+            modifiers.add(DataInt)
+            return playerData.dataIntMap.remove(key)
+        }
+
+        fun removeDouble(key: DataKey): Double? {
+            modifiers.add(DataDouble)
+            return playerData.dataDoubleMap.remove(key)
+        }
+
+        fun build(): RawProtocol? {
+            if (modifiers.isEmpty()) return null
             val array = execute {
                 modifiers.mapNotNull {
                     when (it) {
                         Client -> client.toString()
-                        Student -> ""
-                        Deck -> ""
-                        HeldCard -> ""
-                        Time -> ""
-                        FieldCard -> ""
-                        Project -> ""
-                        Issue -> ""
-                        Sleep -> ""
+                        Student -> objectMapper.writeValueAsString(GameStudentCards(students))
+                        Deck -> deckList.size.toString()
+                        HeldCard -> objectMapper.writeValueAsString(GameCards(heldCards))
+                        Time -> time.toString()
+                        FieldCard -> objectMapper.writeValueAsString(GameCards(fieldCards))
+
+                        Project -> {
+                            val json = JSONObject()
+                            project.forEach { (key, value) -> json.put(key.toString(), value) }
+                            json.toString()
+                        }
+
+                        Issue -> {
+                            val json = JSONObject()
+                            issue.forEach { (key, value) -> json.put(key.toString(), value) }
+                            json.toString()
+                        }
+
+                        Sleep -> isSleep.toString()
+
+                        DataInt -> {
+                            val json = JSONObject()
+                            dataIntMap.forEach { (key, value) -> json.put(key.toString(), value) }
+                            json.toString()
+                        }
+
+                        DataDouble -> {
+                            val json = JSONObject()
+                            dataDoubleMap.forEach { (key, value) -> json.put(key.toString(), value) }
+                            json.toString()
+                        }
+
+                        Students -> {
+                            val list = modifiedStudent.mapNotNull { (_, modifier) -> modifier.build() }
+                            if (list.isEmpty()) return@mapNotNull null
+                            JSONObject().put("students", list).toString()
+                        }
+
                         null -> null
                     }
                 }.toTypedArray()
@@ -145,7 +273,7 @@ data class PlayerData(
             return RawProtocol(
                 Protocol.Game.Server.DATA_UPDATE,
                 modifiers.joinToString(separator = ",") { it.toString() },
-                *array
+                *array,
             )
         }
     }

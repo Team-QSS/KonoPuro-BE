@@ -2,20 +2,22 @@ package kr.mooner510.konopuro.domain.socket.data.game
 
 import com.corundumstudio.socketio.SocketIOClient
 import com.fasterxml.jackson.databind.ObjectMapper
+import kr.mooner510.konopuro.domain.game._preset.TierType
+import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
 import kr.mooner510.konopuro.global.utils.UUIDParser
 import java.util.*
-import kotlin.collections.ArrayList
 
 data class GameRoom(
     val id: UUID,
     private val preData: Pair<Pair<UUID, UUID>, Pair<UUID, UUID>>,
     var turn: UUID? = null,
 ) {
-    private val todayLog = ArrayList<GameLog>()
+    var date = 0
+        private set
 
     companion object {
         private val objectMapper = ObjectMapper()
@@ -81,25 +83,25 @@ data class GameRoom(
     }
 
     private fun Pair<SocketIOClient, MessageManager>.selfModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(todayLog, self())
+        val modifier = PlayerData.PlayerDataModifier(this@GameRoom, self())
         run(modifier)
-        self(Protocol.Game.Server.DATA_UPDATE, modifier.build())
+        modifier.build()?.let { self(Protocol.Game.Server.DATA_UPDATE, it) }
     }
 
     private fun Pair<SocketIOClient, MessageManager>.otherModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(todayLog, other())
+        val modifier = PlayerData.PlayerDataModifier(this@GameRoom, other())
         run(modifier)
-        other(Protocol.Game.Server.DATA_UPDATE, modifier.build())
+        modifier.build()?.let { other(Protocol.Game.Server.DATA_UPDATE, it) }
     }
 
     private fun Pair<SocketIOClient, MessageManager>.modifyAll(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier1 = PlayerData.PlayerDataModifier(todayLog, firstPlayer)
+        val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)
         run(modifier1)
-        this.second.send(firstPlayer.client, modifier1.build())
+        modifier1.build()?.let { this.second.send(firstPlayer.client, it) }
 
-        val modifier2 = PlayerData.PlayerDataModifier(todayLog, secondPlayer)
+        val modifier2 = PlayerData.PlayerDataModifier(this@GameRoom, secondPlayer)
         run(modifier2)
-        this.second.send(secondPlayer.client, modifier2.build())
+        modifier2.build()?.let { this.second.send(secondPlayer.client, it) }
     }
 
     fun event(pairs: Pair<SocketIOClient, MessageManager>, rawData: RawData) {
@@ -122,9 +124,15 @@ data class GameRoom(
                 }
 
                 if (pairs.checkAll { it.isSleep || it.time <= 0 }) {
-                    pairs.modifyAll { it.addTime(24) }
+                    date++
+                    pairs.modifyAll {
+                        it.addTime(24)
+                        MajorType.entries.forEach { major ->
+                            it.removeInt(major.dataKey)
+                        }
+                        it.newDay(date)
+                    }
                     pairs.all(Protocol.Game.Server.NEW_DAY)
-                    todayLog.clear()
                 }
             }
 
@@ -140,8 +148,10 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_ABILITY -> {
+                val tierType = TierType.valueOf(rawData[0])
                 pairs.selfModify {
-                    val card = it.
+                    val tier = it.useAbility(tierType) ?: return@selfModify
+                    pairs.other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
                 }
             }
         }

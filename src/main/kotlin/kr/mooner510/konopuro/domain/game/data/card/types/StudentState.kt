@@ -7,5 +7,7 @@ enum class StudentState {
     Cooperation,
     WakeUp,
     Concentrate,
-    SuperConcentrate
+    SuperConcentrate,
+
+    Passion, // 열기
 }

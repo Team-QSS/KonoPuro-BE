@@ -7,6 +7,8 @@ enum class DefaultCardType(
     val tier: Int,
     val cardType: CardType
 ) {
+    OnlyPower(1, CardType.Field),
+    UltimatePower(1, CardType.Field)
     ;
 
     companion object {
