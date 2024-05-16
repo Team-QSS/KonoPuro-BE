@@ -88,6 +88,9 @@ data class PlayerData(
 
         fun newDay(date: Int) = execute {
             modifyStudents { it.removeIfEndDate(date) }
+            fieldCards.mapNotNull { if (it.dayTime) it.defaultCardType else null }.toSet().forEach {
+                removeFieldCardLimit(it)
+            }
         }
 
         fun setClient(uuid: UUID) = execute {
@@ -154,15 +157,49 @@ data class PlayerData(
             modifiers.add(Project)
         }
 
-        fun addFieldCard(defaultCardType: DefaultCardType, limit: Int, dupe: Boolean = false) = execute {
-            if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit))
+        fun addFieldCard(defaultCardType: DefaultCardType, limit: Int, dupe: Boolean = false, dayTime: Boolean = false) = execute {
+            if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit, dayTime))
             else {
                 fieldCards.find { it.defaultCardType == defaultCardType }?.let {
                     it.limit = limit
                     return@execute
                 }
-                fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit))
+                fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit, dayTime))
             }
+        }
+
+        fun removeFieldCard(defaultCardType: DefaultCardType) = execute {
+            fieldCards.removeIf { it.defaultCardType == defaultCardType }
+            modifiers.add(FieldCard)
+        }
+
+        fun removeFieldCardLimit(defaultCardType: DefaultCardType, limit: Int = 1, multi: Boolean = true): Boolean = execute {
+            val iterator = fieldCards.listIterator()
+            var next: GameCard
+            if (multi) {
+                var done = false
+                while (iterator.hasNext()) {
+                    next = iterator.next()
+                    if (next.defaultCardType == defaultCardType) {
+                        done = true
+                        next.limit -= limit
+                        if (next.limit <= 0) iterator.remove()
+                        modifiers.add(FieldCard)
+                    }
+                }
+                return@execute done
+            } else {
+                while (iterator.hasNext()) {
+                    next = iterator.next()
+                    if (next.defaultCardType == defaultCardType) {
+                        next.limit -= limit
+                        if (next.limit <= 0) iterator.remove()
+                        modifiers.add(FieldCard)
+                        return@execute true
+                    }
+                }
+            }
+            return@execute false
         }
 
         fun isDone(majorType: MajorType) = execute {

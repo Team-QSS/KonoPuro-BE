@@ -8,7 +8,8 @@ enum class DefaultCardType(
     val cardType: CardType
 ) {
     OnlyPower(1, CardType.Field),
-    UltimatePower(1, CardType.Field)
+    UltimatePower(1, CardType.Field),
+    Music(1, CardType.Field),
     ;
 
     companion object {

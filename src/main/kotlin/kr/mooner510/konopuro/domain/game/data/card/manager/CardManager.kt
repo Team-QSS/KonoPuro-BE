@@ -35,12 +35,12 @@ object CardManager {
             IssueComplete -> addProject(MajorType.FrontEnd, 4 + (issue[MajorType.FrontEnd]?.size ?: 0) * 3)
             SoleDesigner -> {
                 addProject(MajorType.Design, 8)
-                addFieldCard(DefaultCardType.OnlyPower, 3, false)
+                addFieldCard(DefaultCardType.OnlyPower, 3, dayTime = true)
             }
 
             GreatDesigner -> {
                 addProject(MajorType.Design, 4)
-                addFieldCard(DefaultCardType.UltimatePower, 3, true)
+                addFieldCard(DefaultCardType.UltimatePower, 3, dupe = true, dayTime = true)
             }
 
             IssueTracker -> addProject(MajorType.FrontEnd, 9 + (issue[MajorType.FrontEnd]?.sum()?.coerceAtMost(20) ?: 0))
@@ -67,11 +67,37 @@ object CardManager {
                 addProject(MajorType.FrontEnd, getInt(DataKey.NovelTime, 0))
             }
 
-            AddBeat -> TODO()
-            BeatAddFE -> TODO()
-            BeatAddBE -> TODO()
-            MusicFocus -> TODO()
-            DJ -> TODO()
+            AddBeat -> {
+                addProject(MajorType.FrontEnd, 2)
+                addProject(MajorType.Backend, 2)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, dayTime = true)
+            }
+
+            BeatAddFE -> {
+                addProject(MajorType.FrontEnd, 8)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, dayTime = true)
+            }
+
+            BeatAddBE -> {
+                addProject(MajorType.Backend, 8)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, dayTime = true)
+            }
+
+            MusicFocus -> {
+                if (project.getOrElse(MajorType.FrontEnd) { 0 } >= project.getOrElse(MajorType.Backend) { 0 }) {
+                    if (time >= MusicFocus.time) addProject(MajorType.Backend, fieldCards.count { it.defaultCardType == DefaultCardType.Music } * 2)
+                    else addProject(MajorType.Backend, 1)
+                } else {
+                    if (time >= MusicFocus.time) addProject(MajorType.FrontEnd, fieldCards.count { it.defaultCardType == DefaultCardType.Music } * 2)
+                    else addProject(MajorType.FrontEnd, 1)
+                }
+            }
+
+            DJ -> {
+                setInt(DataKey.Music, fieldCards.count { it.defaultCardType == DefaultCardType.Music })
+                removeFieldCard(DefaultCardType.Music)
+            }
+
             RegularMeeting -> TODO()
             InfinityPassion -> TODO()
             DoItWithTime -> TODO()

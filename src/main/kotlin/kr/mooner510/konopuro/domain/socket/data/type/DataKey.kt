@@ -22,5 +22,6 @@ enum class DataKey {
 
 
     NovelTime, // 소설 시간
+    Music, // 음악
     ;
 }
