@@ -42,6 +42,7 @@ class SecurityConfig(
 
                 it.requestMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/error").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/test/**").permitAll()
 
                 it.requestMatchers(HttpMethod.PUT, "/api/auth/id").permitAll()
                 it.requestMatchers(HttpMethod.PUT, "/api/auth/password").permitAll()

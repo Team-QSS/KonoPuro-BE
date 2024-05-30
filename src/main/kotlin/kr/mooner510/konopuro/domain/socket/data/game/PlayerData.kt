@@ -35,8 +35,9 @@ data class PlayerData(
     val passives: EnumSet<PassiveType>,
     val tiers: EnumSet<TierType>,
 ) {
-    private val dataIntMap = EnumMap<DataKey, Int>(DataKey::class.java)
-    private val dataDoubleMap = EnumMap<DataKey, Double>(DataKey::class.java)
+    private val dateMap = EnumMap<DataKey, Int>(DataKey::class.java)
+    private val dataMap = EnumMap<DataKey, Int>(DataKey::class.java)
+    private val dataProjectAdditionMap = HashMap<Pair<MajorType, String>, Pair<Int, Int>>()
 
     enum class Modifier {
         Client,
@@ -48,8 +49,8 @@ data class PlayerData(
         Project,
         Issue,
         Sleep,
-        DataInt,
-        DataDouble,
+        DateData,
+        ProjectAdditionData,
         Students
     }
 
@@ -151,8 +152,8 @@ data class PlayerData(
                     }
                 }
             }
-            addInt(majorType.dataTotalKey, value)
-            addInt(majorType.dataKey, value)
+            add(majorType.dataTotalKey, value)
+            add(majorType.dataKey, value)
             project.merge(majorType, afterValue, Integer::sum)
             modifiers.add(Project)
         }
@@ -221,42 +222,118 @@ data class PlayerData(
             return null
         }
 
-        fun setInt(key: DataKey, value: Int) = execute {
-            dataIntMap[key] = value
-            modifiers.add(DataInt)
+        fun set(key: DataKey, value: Int) {
+            playerData.dataMap[key] = value
+            modifiers.add(DateData)
         }
 
-        fun setDouble(key: DataKey, value: Double) = execute {
-            dataDoubleMap[key] = value
-            modifiers.add(DataDouble)
+        fun add(key: DataKey, value: Int) {
+            playerData.dataMap.merge(key, value, Integer::sum)
+            modifiers.add(DateData)
         }
 
-        fun addInt(key: DataKey, value: Int) {
-            modifiers.add(DataInt)
-            playerData.dataIntMap.merge(key, value, Integer::sum)
+        fun get(key: DataKey, default: Int): Int {
+            return playerData.dataMap.getOrElse(key) { default }
         }
 
-        fun addDouble(key: DataKey, value: Double) {
-            modifiers.add(DataDouble)
-            playerData.dataDoubleMap.merge(key, value, java.lang.Double::sum)
+        fun get(key: DataKey): Int? {
+            return playerData.dataMap[key]
         }
 
-        fun getInt(key: DataKey): Int? = playerData.dataIntMap[key]
-
-        fun getInt(key: DataKey, default: Int): Int = playerData.dataIntMap.getOrDefault(key, default)
-
-        fun getDouble(key: DataKey): Double? = playerData.dataDoubleMap[key]
-
-        fun getDouble(key: DataKey, default: Double): Double = playerData.dataDoubleMap.getOrDefault(key, default)
-
-        fun removeInt(key: DataKey): Int? {
-            modifiers.add(DataInt)
-            return playerData.dataIntMap.remove(key)
+        fun remove(key: DataKey) {
+            playerData.dataMap.remove(key)
+            modifiers.add(DateData)
         }
 
-        fun removeDouble(key: DataKey): Double? {
-            modifiers.add(DataDouble)
-            return playerData.dataDoubleMap.remove(key)
+        fun setDate(key: DataKey, duration: Int) {
+            playerData.dateMap[key] = gameRoom.date + duration
+            modifiers.add(DateData)
+        }
+
+        fun addDate(key: DataKey, duration: Int) {
+            playerData.dateMap.merge(key, duration, Integer::sum)
+            modifiers.add(DateData)
+        }
+
+        fun removeDate(key: DataKey) {
+            playerData.dateMap.remove(key)
+            modifiers.add(DateData)
+        }
+
+        fun removeDate(key: DataKey, duration: Int) {
+            modifiers.add(DateData)
+            playerData.dateMap[key]?.let {
+                if (it - duration <= 0) {
+                    playerData.dateMap.remove(key)
+                    return
+                }
+            }
+            playerData.dateMap.merge(key, -duration, Integer::sum)
+        }
+
+        fun setMajor(major: MajorType, str: String, duration: Int, addition: Int) {
+            playerData.dataProjectAdditionMap[major to str] = gameRoom.date + duration to addition
+            modifiers.add(ProjectAdditionData)
+        }
+
+        fun addMajor(major: MajorType, str: String, duration: Int, addition: Int) {
+            playerData.dataProjectAdditionMap.merge(major to str, gameRoom.date + duration to addition) { (a, b), (c, d) ->
+                a + c - gameRoom.date to b + d
+            }
+            modifiers.add(ProjectAdditionData)
+        }
+
+        fun addMajorDuration(major: MajorType, str: String, duration: Int) {
+            addMajor(major, str, duration, 0)
+        }
+
+        fun addMajorAddition(major: MajorType, str: String, addition: Int) {
+            addMajor(major, str, 0, addition)
+        }
+
+        fun removeMajor(major: MajorType, str: String) {
+            playerData.dataProjectAdditionMap.remove(major to str)
+            modifiers.add(ProjectAdditionData)
+        }
+
+        fun setMajor(major: MajorType, passive: PassiveType, duration: Int, addition: Int) {
+            setMajor(major, passive.toString(), duration, addition)
+        }
+
+        fun addMajor(major: MajorType, passive: PassiveType, duration: Int, addition: Int) {
+            addMajor(major, passive.toString(), duration, addition)
+        }
+
+        fun addMajorDuration(major: MajorType, passive: PassiveType, duration: Int) {
+            addMajor(major, passive, duration, 0)
+        }
+
+        fun addMajorAddition(major: MajorType, passive: PassiveType, addition: Int) {
+            addMajor(major, passive, 0, addition)
+        }
+
+        fun removeMajor(major: MajorType, passive: PassiveType) {
+            removeMajor(major, passive.toString())
+        }
+
+        fun setMajor(major: MajorType, tier: TierType, duration: Int, addition: Int) {
+            setMajor(major, tier.toString(), duration, addition)
+        }
+
+        fun addMajor(major: MajorType, tier: TierType, duration: Int, addition: Int) {
+            addMajor(major, tier.toString(), duration, addition)
+        }
+
+        fun addMajorDuration(major: MajorType, tier: TierType, duration: Int) {
+            addMajor(major, tier, duration, 0)
+        }
+
+        fun addMajorAddition(major: MajorType, tier: TierType, addition: Int) {
+            addMajor(major, tier, 0, addition)
+        }
+
+        fun removeMajor(major: MajorType, tier: TierType) {
+            removeMajor(major, tier.toString())
         }
 
         fun build(): RawProtocol? {
@@ -285,15 +362,25 @@ data class PlayerData(
 
                         Sleep -> isSleep.toString()
 
-                        DataInt -> {
+                        DateData -> {
                             val json = JSONObject()
-                            dataIntMap.forEach { (key, value) -> json.put(key.toString(), value) }
+                            dateMap.forEach { (key, value) -> json.put(key.toString(), value) }
                             json.toString()
                         }
 
-                        DataDouble -> {
+                        ProjectAdditionData -> {
                             val json = JSONObject()
-                            dataDoubleMap.forEach { (key, value) -> json.put(key.toString(), value) }
+                            val map = EnumMap<MajorType, HashMap<String, Pair<Int, Int>>>(MajorType::class.java)
+                            dataProjectAdditionMap.forEach { (key, value) ->
+                                map.getOrPut(key.first) { hashMapOf() }[key.second] = value
+                            }
+                            map.forEach { (key, value) ->
+                                val inner = JSONObject()
+                                value.forEach { (key2, value2) ->
+                                    inner.put(key2, value2.toList())
+                                }
+                                json.put(key.toString(), inner)
+                            }
                             json.toString()
                         }
 

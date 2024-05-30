@@ -26,7 +26,7 @@ object CardManager {
                 }
 
             SingleFocus ->
-                if (getInt(DataKey.DesignProject, 0) > 0) {
+                if (get(DataKey.DesignProject, 0) > 0) {
                     addProject(MajorType.FrontEnd, 4)
                 } else {
                     addProject(MajorType.FrontEnd, 5)
@@ -64,7 +64,7 @@ object CardManager {
             }
 
             CustomNovelist -> {
-                addProject(MajorType.FrontEnd, getInt(DataKey.NovelTime, 0))
+//                addProject(MajorType.FrontEnd, getInt(DataKey.NovelTime, 0))
             }
 
             AddBeat -> {
@@ -94,7 +94,7 @@ object CardManager {
             }
 
             DJ -> {
-                setInt(DataKey.Music, fieldCards.count { it.defaultCardType == DefaultCardType.Music })
+                set(DataKey.Music, fieldCards.count { it.defaultCardType == DefaultCardType.Music })
                 removeFieldCard(DefaultCardType.Music)
             }
 

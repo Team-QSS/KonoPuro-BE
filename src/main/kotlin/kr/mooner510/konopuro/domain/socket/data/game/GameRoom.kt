@@ -2,6 +2,7 @@ package kr.mooner510.konopuro.domain.socket.data.game
 
 import com.corundumstudio.socketio.SocketIOClient
 import com.fasterxml.jackson.databind.ObjectMapper
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType.*
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.Protocol
@@ -122,18 +123,6 @@ data class GameRoom(
                     it.sleep()
                     pairs.other(Protocol.Game.Server.OTHER_SLEEP)
                 }
-
-                if (pairs.checkAll { it.isSleep || it.time <= 0 }) {
-                    date++
-                    pairs.modifyAll {
-                        it.addTime(24)
-                        MajorType.entries.forEach { major ->
-                            it.removeInt(major.dataKey)
-                        }
-                        it.newDay(date)
-                    }
-                    pairs.all(Protocol.Game.Server.NEW_DAY)
-                }
             }
 
             Protocol.Game.Client.USE_CARD -> {
@@ -141,7 +130,9 @@ data class GameRoom(
                 pairs.selfModify {
                     val card = it.useCard(uuid)
                     when (card.defaultCardType) {
-                        else -> {}
+                        OnlyPower -> TODO()
+                        UltimatePower -> TODO()
+                        Music -> TODO()
                     }
                     pairs.other(Protocol.Game.Server.SUCCESS_CARD, card)
                 }
@@ -154,6 +145,18 @@ data class GameRoom(
                     pairs.other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
                 }
             }
+        }
+
+        if (pairs.checkAll { it.isSleep || it.time <= 0 }) {
+            date++
+            pairs.modifyAll {
+                it.addTime(24)
+                MajorType.entries.forEach { major ->
+                    it.remove(major.dataKey)
+                }
+                it.newDay(date)
+            }
+            pairs.all(Protocol.Game.Server.NEW_DAY)
         }
     }
 }
