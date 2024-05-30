@@ -36,6 +36,8 @@ dependencies {
     implementation("com.corundumstudio.socketio:netty-socketio:2.0.9")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
+    implementation("org.json:json:20240303")
 }
 
 tasks.withType<KotlinCompile> {

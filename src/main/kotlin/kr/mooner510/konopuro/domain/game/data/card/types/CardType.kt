@@ -4,5 +4,6 @@ enum class CardType {
     Student,
     Event,
     Tool,
-    Activity
+    Activity,
+    Field,
 }
