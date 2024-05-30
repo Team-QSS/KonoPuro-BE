@@ -174,6 +174,7 @@ class GameManager(
         }
 
         messageManager.registerDelegate(room)
+        room.ready(messageManager)
         messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id))
     }
 

@@ -14,7 +14,6 @@ import com.corundumstudio.socketio.listener.DisconnectListener
 import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
-import kr.mooner510.konopuro.domain.socket.data.RawData
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.repository.UserRepository
@@ -44,7 +43,7 @@ class MessageManager(
             server.addEventInterceptor { namespaceClient, s, _, _ ->
                 println("Event Listen($s): ${namespaceClient.sessionId}")
             }
-            it.addEventListener("chat", RawData::class.java, onChatReceived())
+            it.addEventListener("chat", RawProtocol::class.java, onChatReceived())
         }
     }
 
@@ -83,8 +82,8 @@ class MessageManager(
         }
     }
 
-    private fun onChatReceived(): DataListener<RawData> {
-        return DataListener<RawData> { client: SocketIOClient, data: RawData, _: AckRequest? ->
+    private fun onChatReceived(): DataListener<RawProtocol> {
+        return DataListener<RawProtocol> { client: SocketIOClient, data: RawProtocol, _: AckRequest? ->
             println("Client[${client.sessionId}] - Received chat message '${data}'")
             namespace.broadcastOperations.sendEvent("chat", data)
         }
@@ -108,7 +107,7 @@ class MessageManager(
     fun getRoom(roomId: UUID): BroadcastOperations = namespace.getRoomOperations(roomId.toString())
 
     fun registerDelegate(room: GameRoom) {
-        namespace.addEventListener(room.id.toString(), RawData::class.java) { client, data, _ ->
+        namespace.addEventListener(room.id.toString(), RawProtocol::class.java) { client, data, _ ->
             room.event(client to this, data)
         }
     }

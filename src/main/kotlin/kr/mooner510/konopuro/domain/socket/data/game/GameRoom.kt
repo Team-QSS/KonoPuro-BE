@@ -86,31 +86,53 @@ data class GameRoom(
     private fun Pair<SocketIOClient, MessageManager>.selfModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, self())
         run(modifier)
-        modifier.build()?.let { self(Protocol.Game.Server.DATA_UPDATE, it) }
+        modifier.build()?.let {
+            self(Protocol.Game.Server.DATA_UPDATE, RawData(self = it))
+            other(Protocol.Game.Server.DATA_UPDATE, RawData(other = it))
+        }
     }
 
     private fun Pair<SocketIOClient, MessageManager>.otherModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, other())
         run(modifier)
-        modifier.build()?.let { other(Protocol.Game.Server.DATA_UPDATE, it) }
+        modifier.build()?.let {
+            self(Protocol.Game.Server.DATA_UPDATE, RawData(other = it))
+            other(Protocol.Game.Server.DATA_UPDATE, RawData(self = it))
+        }
     }
 
     private fun Pair<SocketIOClient, MessageManager>.modifyAll(run: (PlayerData.PlayerDataModifier) -> Unit) {
         val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)
         run(modifier1)
-        modifier1.build()?.let { this.second.send(firstPlayer.client, it) }
+        val build = modifier1.build()
 
         val modifier2 = PlayerData.PlayerDataModifier(this@GameRoom, secondPlayer)
         run(modifier2)
-        modifier2.build()?.let { this.second.send(secondPlayer.client, it) }
+        val build1 = modifier2.build()
+
+        this.second.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1)))
+        this.second.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build)))
     }
 
-    fun event(pairs: Pair<SocketIOClient, MessageManager>, rawData: RawData) {
-        when (rawData.protocol) {
-            Protocol.Game.Client.GAME_READY -> {
+    fun ready(manager: MessageManager) {
+        val run: (PlayerData.PlayerDataModifier) -> Unit = { modifier ->
+            repeat(5) { modifier.pickupDeck() }
+        }
 
-            }
+        val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)
+        run(modifier1)
+        val build = modifier1.build()
 
+        val modifier2 = PlayerData.PlayerDataModifier(this@GameRoom, secondPlayer)
+        run(modifier2)
+        val build1 = modifier2.build()
+
+        manager.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1)))
+        manager.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build)))
+    }
+
+    fun event(pairs: Pair<SocketIOClient, MessageManager>, rawProtocol: RawProtocol) {
+        when (rawProtocol.protocol) {
             Protocol.Game.Client.ADD_CARD -> {
                 pairs.selfModify {
                     pairs.self(Protocol.Game.Server.NEW_CARD, it.pickupDeck())
@@ -126,7 +148,7 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_CARD -> {
-                val uuid = UUIDParser.transfer(rawData[0])
+                val uuid = UUIDParser.transfer(rawProtocol[0].toString())
                 pairs.selfModify {
                     val card = it.useCard(uuid)
                     when (card.defaultCardType) {
@@ -139,7 +161,7 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_ABILITY -> {
-                val tierType = TierType.valueOf(rawData[0])
+                val tierType = TierType.valueOf(rawProtocol[0].toString())
                 pairs.selfModify {
                     val tier = it.useAbility(tierType) ?: return@selfModify
                     pairs.other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)

@@ -55,21 +55,6 @@ object Protocol {
             const val NEW_CARD = 207
 
             /**
-             * 패 업데이트
-             */
-            const val HELD_UPDATE = 208
-
-            /**
-             * 필드 업데이트
-             */
-            const val FIELD_UPDATE = 209
-
-            /**
-             * 프로젝트 진행도 업데이트
-             */
-            const val PROJECT_UPDATE = 210
-
-            /**
              * 플레이어 턴 설정
              */
             const val SET_TURN = 211

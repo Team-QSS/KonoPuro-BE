@@ -336,7 +336,7 @@ data class PlayerData(
             removeMajor(major, tier.toString())
         }
 
-        fun build(): RawProtocol? {
+        fun build(): List<String>? {
             if (modifiers.isEmpty()) return null
             val array = execute {
                 modifiers.mapNotNull {
@@ -394,8 +394,7 @@ data class PlayerData(
                     }
                 }.toTypedArray()
             }
-            return RawProtocol(
-                Protocol.Game.Server.DATA_UPDATE,
+            return listOf(
                 modifiers.joinToString(separator = ",") { it.toString() },
                 *array,
             )
