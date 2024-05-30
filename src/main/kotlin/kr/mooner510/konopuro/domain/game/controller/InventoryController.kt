@@ -48,7 +48,7 @@ class InventoryController(
     }
 
     @Operation(summary = "수정한 덱 정보 적용", description = "")
-    @PostMapping("/apply")
+    @PutMapping("/apply")
     fun applyDeck(
         @AuthenticationPrincipal user: User,
         @RequestBody req: ApplyDeckRequest
