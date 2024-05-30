@@ -46,6 +46,26 @@ class GameManager(
         private val rooms: ConcurrentHashMap<UUID, GameRoom> = ConcurrentHashMap()
         private val userRoom: ConcurrentHashMap<UUID, UUID> = ConcurrentHashMap()
         private val queue: Queue<UUID> = ConcurrentLinkedQueue()
+
+        fun findRoomByClient(client: UUID): GameRoom {
+            return rooms.values.first { value -> value.firstPlayer.client == client || value.secondPlayer.client == client }
+        }
+
+        fun findRoomByUser(user: UUID): GameRoom? {
+            return rooms.values.firstOrNull { value -> value.firstPlayer.id == user || value.secondPlayer.id == user }
+        }
+
+        fun getRoom(id: UUID): GameRoom {
+            return rooms[id] ?: throw RoomNotFoundException()
+        }
+
+        fun getRoomByPlayer(userId: UUID): GameRoom {
+            return userRoom[userId]?.let { rooms[it] } ?: throw RoomNotFoundException()
+        }
+
+        fun removeRoom(id: UUID): GameRoom? {
+            return rooms.remove(id)
+        }
     }
 
     init {
@@ -55,19 +75,8 @@ class GameManager(
     }
 
     fun matching(user: User) {
+        if (user.client == null) throw UserClientNotFoundException()
         queue.offer(user.id)
-    }
-
-    fun getRoom(id: UUID): GameRoom {
-        return rooms[id] ?: throw RoomNotFoundException()
-    }
-
-    fun getRoomByPlayer(userId: UUID): GameRoom {
-        return userRoom[userId]?.let { rooms[it] } ?: throw RoomNotFoundException()
-    }
-
-    fun removeRoom(id: UUID): GameRoom? {
-        return rooms.remove(id)
     }
 
     private fun schedule() = runBlocking {
@@ -164,6 +173,7 @@ class GameManager(
             )
         }
 
+        messageManager.registerDelegate(room)
         messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id))
     }
 

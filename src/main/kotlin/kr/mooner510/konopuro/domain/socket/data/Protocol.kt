@@ -5,6 +5,8 @@ object Protocol {
         const val ROOM_MATCH = 0
         const val ROOM_MATCH_FAILED = 1
         const val ROOM_MATCHED = 2
+        const val DISCONNECTED = 3
+        const val RECONNECTED = 4
     }
 
     object Game {

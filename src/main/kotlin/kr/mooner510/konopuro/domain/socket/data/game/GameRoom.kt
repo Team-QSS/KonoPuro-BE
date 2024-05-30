@@ -50,7 +50,7 @@ data class GameRoom(
         return run(this.self())
     }
 
-    private fun Pair<SocketIOClient, MessageManager>.all(run: (PlayerData) -> Unit) {
+    private fun all(run: (PlayerData) -> Unit) {
         run(firstPlayer)
         run(secondPlayer)
     }
