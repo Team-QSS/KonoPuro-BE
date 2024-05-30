@@ -10,7 +10,7 @@ enum class ErrorCode(
     USER_ID_ALREADY_EXISTS("해당 ID는 이미 사용 중입니다.", HttpStatus.BAD_REQUEST),
 
     EXPIRED_TOKEN("로그인이 만료되었습니다.", HttpStatus.FORBIDDEN),
-    LOGIN_FAILED("아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
+    LOGIN_FAILED("아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN("만료된 토큰입니다.", HttpStatus.FORBIDDEN),
     INVALID_UUID("%1은(는) 알 수 없는 UUID입니다.", HttpStatus.BAD_REQUEST),
     INVALID_PARAMETER("올바른 파라미터로 작성되지 않았습니다.", HttpStatus.BAD_REQUEST),

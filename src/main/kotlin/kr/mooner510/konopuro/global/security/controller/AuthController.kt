@@ -67,7 +67,7 @@ class AuthController(
     @Operation(summary = "회원가입", description = "설명 없어도 뭐 하면 되는지 알지?")
     @PostMapping("/sign-up")
     fun signUp(@RequestBody req: SignUpRequest) {
-        if (userRepository.existsByLoginId(req.id)) return
+        if (userRepository.existsByLoginId(req.id)) throw UserIdAlreadyExistsException()
         userRepository.save(
             User(
                 req.name,
