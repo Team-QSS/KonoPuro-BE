@@ -69,6 +69,7 @@ class PlayerCard(
             val type = StudentCardType.valueOf(cardType)
             return PlayerCardResponse(
                 id,
+                type.toString(),
                 type.major.toList(),
                 getTier(),
                 CardType.Student,
@@ -79,6 +80,7 @@ class PlayerCard(
             val type = DefaultCardType.valueOf(cardType)
             return PlayerCardResponse(
                 id,
+                type.toString(),
                 emptyList(),
                 getTier(),
                 type.cardType,

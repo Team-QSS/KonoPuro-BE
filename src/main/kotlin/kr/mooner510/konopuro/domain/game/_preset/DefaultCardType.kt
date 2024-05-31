@@ -5,11 +5,12 @@ import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 
 enum class DefaultCardType(
     val tier: Int,
+    val time: Int,
     val cardType: CardType
 ) {
-    OnlyPower(1, CardType.Field),
-    UltimatePower(1, CardType.Field),
-    Music(1, CardType.Field),
+    OnlyPower(1, 0, CardType.Field),
+    UltimatePower(1, 0, CardType.Field),
+    Music(1, 0, CardType.Field),
     ;
 
     companion object {

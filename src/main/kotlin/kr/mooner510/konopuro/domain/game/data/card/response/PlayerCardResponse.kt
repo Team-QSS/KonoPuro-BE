@@ -8,6 +8,7 @@ import java.util.UUID
 
 data class PlayerCardResponse(
     val id: UUID,
+    val cardType: String,
     val cardGroups: List<MajorType>,
     val tier: Int,
     val type: CardType,
