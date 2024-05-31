@@ -20,9 +20,9 @@ object CardManager {
             Android -> addProject(MajorType.Android, 8)
             MultiMajor ->
                 if (isDone(MajorType.Design)) {
-                    addProject(MajorType.Design, 11)
-                } else {
                     addProject(MajorType.FrontEnd, 7)
+                } else {
+                    addProject(MajorType.Design, 11)
                 }
 
             SingleFocus ->
