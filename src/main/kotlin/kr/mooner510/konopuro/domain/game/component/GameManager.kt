@@ -79,6 +79,11 @@ class GameManager(
         queue.offer(user.id)
     }
 
+    fun matchingCancel(user: User) {
+        if (user.client == null) throw UserClientNotFoundException()
+        queue.remove(user.id)
+    }
+
     private fun schedule() = runBlocking {
         println("matching schedule start")
         launch {

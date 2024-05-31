@@ -54,6 +54,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/card/student").permitAll()
 
                 it.requestMatchers(HttpMethod.POST, "/api/game/match").authenticated()
+                it.requestMatchers(HttpMethod.DELETE, "/api/game/match-cancel").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/api/game/message").hasRole("ADMIN")
 
                 it.requestMatchers(HttpMethod.GET, "/api/gatcha/list").permitAll()

@@ -31,6 +31,6 @@ class GameController(
     fun matchCancel(
         @AuthenticationPrincipal user: User
     ) {
-
+        gameManager.matchingCancel(user)
     }
 }
