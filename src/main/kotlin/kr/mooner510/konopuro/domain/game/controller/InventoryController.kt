@@ -53,7 +53,7 @@ class InventoryController(
         @AuthenticationPrincipal user: User,
         @RequestBody req: ApplyDeckRequest
     ) {
-        deckCardRepository.saveAll(req.addition.map { DeckCard(req.activeDeckId, it) })
-        deckCardRepository.deleteAll(req.deletion.map { DeckCard(req.activeDeckId, it) })
+        deckCardRepository.saveAll(req.addition.map { DeckCard(it, req.activeDeckId) })
+        deckCardRepository.deleteAll(req.deletion.map { DeckCard(it, req.activeDeckId) })
     }
 }

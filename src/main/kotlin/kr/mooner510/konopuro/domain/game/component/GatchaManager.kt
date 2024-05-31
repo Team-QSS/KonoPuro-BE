@@ -25,6 +25,7 @@ class GatchaManager(
         private val cardMajorMap: EnumMap<MajorType, MutableList<StudentCardType>> = EnumMap(MajorType::class.java)
 
         fun Gatcha.gatchaOnce(stack: GatchaStack): PlayerCard {
+            println(this.mainMajor)
             val random = Random.nextDouble()
             val majorTypes = cardMajorMap.keys.filter { it != this.mainMajor }
             when {
@@ -90,7 +91,11 @@ class GatchaManager(
         StudentCardType.entries.forEach { studentCardType ->
             studentCardType.major.forEach {
                 cardMajorMap[it]!!.add(studentCardType)
+                println("$studentCardType: $it")
             }
+        }
+        cardMajorMap.entries.filter { (_, value) -> value.isEmpty() }.forEach {
+            cardMajorMap.remove(it.key)
         }
     }
 
