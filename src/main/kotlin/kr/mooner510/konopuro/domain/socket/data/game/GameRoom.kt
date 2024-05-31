@@ -117,6 +117,7 @@ data class GameRoom(
     fun ready(manager: MessageManager) {
         val run: (PlayerData.PlayerDataModifier) -> Unit = { modifier ->
             repeat(5) { modifier.pickupDeck() }
+            modifier.applyStudentData()
         }
 
         val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)

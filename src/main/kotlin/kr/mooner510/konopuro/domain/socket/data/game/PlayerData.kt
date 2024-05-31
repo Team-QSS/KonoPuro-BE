@@ -8,8 +8,6 @@ import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
-import kr.mooner510.konopuro.domain.socket.data.Protocol
-import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData.Modifier.*
 import kr.mooner510.konopuro.domain.socket.data.obj.GameCards
 import kr.mooner510.konopuro.domain.socket.data.obj.GameStudentCards
@@ -68,6 +66,10 @@ data class PlayerData(
 
         fun <T> execute(run: PlayerData.() -> T): T {
             return run(playerData)
+        }
+
+        fun applyStudentData() {
+            modifiers.add(Student)
         }
 
         fun modifyStudents(run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
