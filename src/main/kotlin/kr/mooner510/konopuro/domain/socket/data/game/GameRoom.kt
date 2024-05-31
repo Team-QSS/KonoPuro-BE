@@ -155,6 +155,8 @@ data class GameRoom(
                         OnlyPower -> TODO()
                         UltimatePower -> TODO()
                         Music -> TODO()
+                        Mouse -> TODO()
+                        Keyboard -> TODO()
                     }
                     pairs.other(Protocol.Game.Server.SUCCESS_CARD, card)
                 }

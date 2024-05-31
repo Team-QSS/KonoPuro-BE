@@ -11,11 +11,13 @@ enum class DefaultCardType(
     OnlyPower(1, 0, CardType.Field),
     UltimatePower(1, 0, CardType.Field),
     Music(1, 0, CardType.Field),
+    Mouse(2, 0, CardType.Tool),
+    Keyboard(3, 0, CardType.Tool),
     ;
 
     companion object {
-        val tierOtherList = DefaultCardType.entries.filter { it.tier != 3 }
-        val tier3List = DefaultCardType.entries.filter { it.tier == 3 }
+        val tierOtherList = DefaultCardType.entries.filter { it.tier != 3 && it.cardType != CardType.Field }
+        val tier3List = DefaultCardType.entries.filter { it.tier == 3 && it.cardType != CardType.Field }
     }
 
     fun toResponse(): DefaultDataResponse {
