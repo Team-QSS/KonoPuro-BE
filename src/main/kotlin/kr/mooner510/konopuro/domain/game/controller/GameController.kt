@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.global.security.data.entity.User
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -26,7 +27,7 @@ class GameController(
     }
 
     @Operation(summary = "매칭 취소", description = "-")
-    @PostMapping("/match-cancel")
+    @DeleteMapping("/match-cancel")
     fun matchCancel(
         @AuthenticationPrincipal user: User
     ) {
