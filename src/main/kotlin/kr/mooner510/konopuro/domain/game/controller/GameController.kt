@@ -24,4 +24,12 @@ class GameController(
     ) {
         gameManager.matching(user)
     }
+
+    @Operation(summary = "매칭 취소", description = "-")
+    @PostMapping("/match-cancel")
+    fun matchCancel(
+        @AuthenticationPrincipal user: User
+    ) {
+
+    }
 }
