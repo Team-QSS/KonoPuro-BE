@@ -3,6 +3,12 @@ package kr.mooner510.konopuro.global.security.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
+import kr.mooner510.konopuro.domain.game._preset.StudentCardType
+import kr.mooner510.konopuro.domain.game.controller.InventoryController
+import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerCard
+import kr.mooner510.konopuro.domain.game.data.deck.request.ApplyDeckRequest
+import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.data.dto.TokenResponse
 import kr.mooner510.konopuro.global.security.data.entity.User
@@ -29,6 +35,8 @@ class AuthController(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: UserRepository,
     private val tokenProvider: TokenProvider,
+    private val playerCardRepository: PlayerCardRepository,
+    private val inventoryController: InventoryController
 ) {
     @Operation(summary = "로그인", description = "설명 없어도 뭐 하면 되는지 알지?")
     @PostMapping("/sign-in")
@@ -68,11 +76,45 @@ class AuthController(
     @PostMapping("/sign-up")
     fun signUp(@RequestBody req: SignUpRequest) {
         if (userRepository.existsByLoginId(req.id)) throw UserIdAlreadyExistsException()
-        userRepository.save(
+        val user = userRepository.save(
             User(
                 req.name,
                 req.id,
                 passwordEncoder.encode(req.password)
+            )
+        )
+
+        val cards = ArrayList<PlayerCard>(31)
+
+        repeat(5) {
+            cards.add(
+                PlayerCard(
+                    user.id,
+                    StudentCardType.SeungWoo.toString(),
+                    true,
+                    StudentCardType.SeungWoo.secondTier.random(),
+                    StudentCardType.SeungWoo.thirdPassive.random(),
+                    StudentCardType.SeungWoo.forthTier.random()
+                )
+            )
+        }
+
+        repeat(25) {
+            cards.add(
+                PlayerCard(
+                    user.id,
+                    DefaultCardType.Mouse.toString()
+                )
+            )
+        }
+
+        val saved = playerCardRepository.saveAll(cards)
+        val deck = inventoryController.getActiveDeck(user)
+        inventoryController.applyDeck(
+            user, ApplyDeckRequest(
+                deck.deckId,
+                saved.map { it.id },
+                emptyList()
             )
         )
     }
