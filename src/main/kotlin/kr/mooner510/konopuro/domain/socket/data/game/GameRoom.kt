@@ -11,12 +11,14 @@ import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
 import kr.mooner510.konopuro.global.utils.UUIDParser
 import java.util.*
+import kotlin.random.Random
 
 data class GameRoom(
     val id: UUID,
-    private val preData: Pair<Pair<UUID, UUID>, Pair<UUID, UUID>>,
-    var turn: UUID? = null,
+    private val preData: Pair<Pair<UUID, UUID>, Pair<UUID, UUID>>
 ) {
+    private lateinit var turn: UUID
+
     var date = 0
         private set
 
@@ -87,8 +89,8 @@ data class GameRoom(
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, self())
         run(modifier)
         modifier.build()?.let {
-            self(Protocol.Game.Server.DATA_UPDATE, RawData(self = it))
-            other(Protocol.Game.Server.DATA_UPDATE, RawData(other = it))
+            self(Protocol.Game.Server.DATA_UPDATE, RawData(self = it, isTurn = self().id == turn))
+            other(Protocol.Game.Server.DATA_UPDATE, RawData(other = it, isTurn = other().id == turn))
         }
     }
 
@@ -96,8 +98,8 @@ data class GameRoom(
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, other())
         run(modifier)
         modifier.build()?.let {
-            self(Protocol.Game.Server.DATA_UPDATE, RawData(other = it))
-            other(Protocol.Game.Server.DATA_UPDATE, RawData(self = it))
+            self(Protocol.Game.Server.DATA_UPDATE, RawData(other = it, isTurn = self().id == turn))
+            other(Protocol.Game.Server.DATA_UPDATE, RawData(self = it, isTurn = other().id == turn))
         }
     }
 
@@ -110,8 +112,10 @@ data class GameRoom(
         run(modifier2)
         val build1 = modifier2.build()
 
-        this.second.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1)))
-        this.second.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build)))
+        turn = if(Random.nextBoolean()) firstPlayer.id else secondPlayer.id
+
+        this.second.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1, firstPlayer.id == turn)))
+        this.second.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build, secondPlayer.id == turn)))
     }
 
     fun ready(manager: MessageManager) {
@@ -128,8 +132,8 @@ data class GameRoom(
         run(modifier2)
         val build1 = modifier2.build()
 
-        manager.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1)))
-        manager.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build)))
+        manager.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1, firstPlayer.id == turn)))
+        manager.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build, secondPlayer.id == turn)))
     }
 
     fun event(pairs: Pair<SocketIOClient, MessageManager>, rawProtocol: RawProtocol) {
