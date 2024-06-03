@@ -182,7 +182,8 @@ class GameManager(
                 GamePreset.stage[0],
                 false,
                 passiveSet,
-                tierSet
+                tierSet,
+                false
             )
             playerMap[player] = playerData
             playerData
