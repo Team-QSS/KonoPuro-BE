@@ -27,6 +27,11 @@ data class GameRoom(
     lateinit var firstPlayer: PlayerData
     lateinit var secondPlayer: PlayerData
 
+    fun map(run: (Pair<UUID, UUID>) -> PlayerData) {
+        firstPlayer = run(preData.first.first to preData.first.second)
+        secondPlayer = run(preData.second.first to preData.second.second)
+    }
+
     fun forEach(run: (Pair<UUID, UUID>) -> Unit) {
         run(preData.first.first to preData.first.second)
         run(preData.second.first to preData.second.second)
@@ -128,8 +133,9 @@ data class GameRoom(
         run(modifier2)
         val build1 = modifier2.build()
 
-        manager.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1)))
-        manager.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build)))
+        println("sent ${firstPlayer.client} // ${secondPlayer.client}")
+        manager.send(firstPlayer.client, RawProtocol(Protocol.Game.Server.GAME_START, RawData(build, build1)))
+        manager.send(secondPlayer.client, RawProtocol(Protocol.Game.Server.GAME_START, RawData(build1, build)))
     }
 
     fun event(pairs: Pair<SocketIOClient, MessageManager>, rawProtocol: RawProtocol) {

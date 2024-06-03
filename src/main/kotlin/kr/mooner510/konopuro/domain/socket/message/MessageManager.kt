@@ -18,6 +18,8 @@ import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.repository.UserRepository
 import kr.mooner510.konopuro.global.utils.UUIDParser
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import java.util.*
@@ -29,6 +31,7 @@ class MessageManager(
     private val tokenProvider: TokenProvider
 ) {
     private var namespace: SocketIONamespace = server.addNamespace("/socket-io")
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Bean
     fun nameSpace(): SocketIONamespace {
@@ -41,7 +44,7 @@ class MessageManager(
             it.addDisconnectListener(onDisconnected())
             it.addAuthTokenListener(onAuthToken())
             server.addEventInterceptor { namespaceClient, s, _, _ ->
-                println("Event Listen($s): ${namespaceClient.sessionId}")
+                logger.info("Event Listen($s): ${namespaceClient.sessionId}")
             }
             it.addEventListener("chat", RawProtocol::class.java, onChatReceived())
         }
@@ -52,12 +55,12 @@ class MessageManager(
         return ConnectListener { client: SocketIOClient ->
             val authorization = client.handshakeData.httpHeaders.get("Authorization", "")
             if (authorization.isBlank()) {
-                println("Auth: $authorization")
+                logger.info("Auth: $authorization")
                 client.disconnect()
                 return@ConnectListener
             }
             val handshakeData = client.handshakeData
-            println("Client[${client.sessionId}] - Connected to chat module through '${handshakeData.url}' / Authorization: $authorization with session ${client.sessionId}")
+            logger.info("Client[${client.sessionId}] - Connected to chat module through '${handshakeData.url}' / Authorization: $authorization with session ${client.sessionId}")
             val authKey = tokenProvider.getAccessKey(UUIDParser.transfer(authorization))
             userRepository.updateClientById(client.sessionId, authKey.userId)
 
@@ -76,7 +79,7 @@ class MessageManager(
         return DisconnectListener { client: SocketIOClient ->
             val authorization = client.handshakeData.httpHeaders.get("Authorization", "")
             if (authorization.isBlank()) return@DisconnectListener
-            println("Client[${client.sessionId}] - Disconnected from chat module.")
+            logger.info("Client[${client.sessionId}] - Disconnected from chat module.")
             userRepository.updateClientToNull(client.sessionId)
             send(GameManager.findRoomByClient(client.sessionId), RawProtocol(Protocol.Match.DISCONNECTED))
         }
@@ -84,14 +87,14 @@ class MessageManager(
 
     private fun onChatReceived(): DataListener<RawProtocol> {
         return DataListener<RawProtocol> { client: SocketIOClient, data: RawProtocol, _: AckRequest? ->
-            println("Client[${client.sessionId}] - Received chat message '${data}'")
+            logger.info("Client[${client.sessionId}] - Received chat message '${data}'")
             namespace.broadcastOperations.sendEvent("chat", data)
         }
     }
 
     private fun onAuthToken(): AuthTokenListener {
         return AuthTokenListener { data: Any, _: SocketIOClient ->
-            println(data)
+            logger.info(data.toString())
             AuthTokenResult.AuthTokenResultSuccess
         }
     }

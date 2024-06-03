@@ -24,13 +24,13 @@ import kr.mooner510.konopuro.global.global.error.data.GlobalError
 import kr.mooner510.konopuro.global.security.data.entity.User
 import kr.mooner510.konopuro.global.security.exception.UserNotFoundException
 import kr.mooner510.konopuro.global.security.repository.UserRepository
+import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 
 @Component
@@ -41,6 +41,8 @@ class GameManager(
     private val messageManager: MessageManager,
     private val userRepository: UserRepository,
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+    
     companion object {
         private val playerMap: ConcurrentHashMap<UUID, PlayerData> = ConcurrentHashMap()
         private val rooms: ConcurrentHashMap<UUID, GameRoom> = ConcurrentHashMap()
@@ -77,6 +79,10 @@ class GameManager(
     fun matching(user: User) {
         if (user.client == null) throw UserClientNotFoundException()
         queue.offer(user.id)
+
+        for (uuid in queue) {
+            logger.info(uuid.toString())
+        }
     }
 
     fun matchingCancel(user: User) {
@@ -85,11 +91,11 @@ class GameManager(
     }
 
     private fun schedule() = runBlocking {
-        println("matching schedule start")
+        logger.info("matching schedule start")
         launch {
             while (true) {
                 delay(5000L)
-//                println("matching queue ${LocalDateTime.now().withNano(0)}")
+//                logger.info("matching queue ${LocalDateTime.now().withNano(0)}")
                 if (queue.size >= 2) {
                     val first = queue.poll()
                     val second = queue.poll()
@@ -102,7 +108,7 @@ class GameManager(
 
                         if (firstUser.client == null || secondUser.client == null) throw UserClientNotFoundException()
 
-                        println("matching successful: $first with $second to $roomId")
+                        logger.info("matching successful: $first with $second to $roomId")
                         messageManager.joinRoom(firstUser.client!!, roomId)
                         messageManager.joinRoom(secondUser.client!!, roomId)
 
@@ -140,7 +146,7 @@ class GameManager(
     }
 
     fun startGame(room: GameRoom) {
-        room.forEach { (player, client) ->
+        room.map { (player, client) ->
             val deckCards = activeDeckRepository.findByIdOrNull(player)?.let { activeDeck ->
                 deckCardRepository.findByDeckId(activeDeck.deckId).mapNotNull { playerCardRepository.findByIdOrNull(it.cardId) }
             } ?: emptyList()
@@ -161,7 +167,9 @@ class GameManager(
             }
             decks.shuffle()
 
-            playerMap[player] = PlayerData(
+            logger.warn("player $player / client $client")
+
+            val playerData = PlayerData(
                 player,
                 client,
                 students,
@@ -176,9 +184,12 @@ class GameManager(
                 passiveSet,
                 tierSet
             )
+            playerMap[player] = playerData
+            playerData
         }
 
         messageManager.registerDelegate(room)
+        println("room : $room")
         room.ready(messageManager)
         messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id))
     }
