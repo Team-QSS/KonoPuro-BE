@@ -91,6 +91,11 @@ data class GameRoom(
     }
 
     private fun Pair<SocketIOClient, MessageManager>.selfModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
+        if(self().time < other().time)
+            turn = self().id
+        else if(self().time > other().time)
+            turn = other().id
+
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, self())
         run(modifier)
         modifier.build()?.let {
@@ -100,6 +105,11 @@ data class GameRoom(
     }
 
     private fun Pair<SocketIOClient, MessageManager>.otherModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
+        if(self().time < other().time)
+            turn = self().id
+        else if(self().time > other().time)
+            turn = other().id
+
         val modifier = PlayerData.PlayerDataModifier(this@GameRoom, other())
         run(modifier)
         modifier.build()?.let {
@@ -109,6 +119,11 @@ data class GameRoom(
     }
 
     private fun Pair<SocketIOClient, MessageManager>.modifyAll(run: (PlayerData.PlayerDataModifier) -> Unit) {
+        if(self().time < other().time)
+            turn = self().id
+        else if(self().time > other().time)
+            turn = other().id
+
         val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)
         run(modifier1)
         val build = modifier1.build()
@@ -163,13 +178,6 @@ data class GameRoom(
                 val uuid = UUIDParser.transfer(rawProtocol[0].toString())
                 pairs.selfModify {
                     val card = it.useCard(uuid)
-                    when (card.defaultCardType) {
-                        OnlyPower -> TODO()
-                        UltimatePower -> TODO()
-                        Music -> TODO()
-                        Mouse -> TODO()
-                        Keyboard -> TODO()
-                    }
                     pairs.other(Protocol.Game.Server.SUCCESS_CARD, card)
                 }
             }

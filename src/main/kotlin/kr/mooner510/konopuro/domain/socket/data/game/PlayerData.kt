@@ -2,10 +2,13 @@ package kr.mooner510.konopuro.domain.socket.data.game
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType.*
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateProject
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useDefaultCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData.Modifier.*
@@ -82,11 +85,21 @@ data class PlayerData(
         }
 
         fun modifyStudent(id: UUID, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
-            run(modifiedStudent.getOrPut(id) { GameStudentCard.GameStudentCardModifier(gameRoom.date, playerData.students.find { it.id == id }!!) })
+            run(modifiedStudent.getOrPut(id) {
+                GameStudentCard.GameStudentCardModifier(
+                    gameRoom.date,
+                    playerData.students.find { it.id == id }!!
+                )
+            })
         }
 
         fun modifyStudent(studentCard: GameStudentCard, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
-            run(modifiedStudent.getOrPut(studentCard.id) { GameStudentCard.GameStudentCardModifier(gameRoom.date, studentCard) })
+            run(modifiedStudent.getOrPut(studentCard.id) {
+                GameStudentCard.GameStudentCardModifier(
+                    gameRoom.date,
+                    studentCard
+                )
+            })
         }
 
         fun newDay(date: Int) = execute {
@@ -116,7 +129,7 @@ data class PlayerData(
         }
 
         fun removeTime(time: Int) = execute {
-            if (this.time <= 0) return@execute false
+            if (this.time < time) return@execute false
             this.time -= time
             modifiers.add(Time)
             return@execute true
@@ -138,7 +151,7 @@ data class PlayerData(
 
         fun addProject(majorType: MajorType, value: Int) = execute {
             val issueList = issue.getOrElse(majorType) { LinkedList() }
-            var afterValue = value
+            var afterValue = value + calculateProject()
             var next: Int
             if (issueList.isNotEmpty()) {
                 val iterator = issueList.listIterator()
@@ -160,7 +173,12 @@ data class PlayerData(
             modifiers.add(Project)
         }
 
-        fun addFieldCard(defaultCardType: DefaultCardType, limit: Int, dupe: Boolean = false, dayTime: Boolean = false) = execute {
+        fun addFieldCard(
+            defaultCardType: DefaultCardType,
+            limit: Int,
+            dupe: Boolean = false,
+            dayTime: Boolean = false
+        ) = execute {
             if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit, dayTime))
             else {
                 fieldCards.find { it.defaultCardType == defaultCardType }?.let {
@@ -176,34 +194,35 @@ data class PlayerData(
             modifiers.add(FieldCard)
         }
 
-        fun removeFieldCardLimit(defaultCardType: DefaultCardType, limit: Int = 1, multi: Boolean = true): Boolean = execute {
-            val iterator = fieldCards.listIterator()
-            var next: GameCard
-            if (multi) {
-                var done = false
-                while (iterator.hasNext()) {
-                    next = iterator.next()
-                    if (next.defaultCardType == defaultCardType) {
-                        done = true
-                        next.limit -= limit
-                        if (next.limit <= 0) iterator.remove()
-                        modifiers.add(FieldCard)
+        fun removeFieldCardLimit(defaultCardType: DefaultCardType, limit: Int = 1, multi: Boolean = true): Boolean =
+            execute {
+                val iterator = fieldCards.listIterator()
+                var next: GameCard
+                if (multi) {
+                    var done = false
+                    while (iterator.hasNext()) {
+                        next = iterator.next()
+                        if (next.defaultCardType == defaultCardType) {
+                            done = true
+                            next.limit -= limit
+                            if (next.limit <= 0) iterator.remove()
+                            modifiers.add(FieldCard)
+                        }
+                    }
+                    return@execute done
+                } else {
+                    while (iterator.hasNext()) {
+                        next = iterator.next()
+                        if (next.defaultCardType == defaultCardType) {
+                            next.limit -= limit
+                            if (next.limit <= 0) iterator.remove()
+                            modifiers.add(FieldCard)
+                            return@execute true
+                        }
                     }
                 }
-                return@execute done
-            } else {
-                while (iterator.hasNext()) {
-                    next = iterator.next()
-                    if (next.defaultCardType == defaultCardType) {
-                        next.limit -= limit
-                        if (next.limit <= 0) iterator.remove()
-                        modifiers.add(FieldCard)
-                        return@execute true
-                    }
-                }
+                return@execute false
             }
-            return@execute false
-        }
 
         fun isDone(majorType: MajorType) = execute {
             goal.getOrDefault(majorType, 0) <= project.getOrDefault(majorType, 0)
@@ -216,6 +235,9 @@ data class PlayerData(
 
         fun useCard(uuid: UUID) = execute {
             val index = heldCards.indexOfFirst { it.id == uuid }
+            val card = heldCards[index]
+            if(!removeTime(card.defaultCardType.time)) return@execute null
+            useDefaultCard(card.defaultCardType)
             return@execute heldCards.removeAt(index)
         }
 
@@ -279,7 +301,10 @@ data class PlayerData(
         }
 
         fun addMajor(major: MajorType, str: String, duration: Int, addition: Int) {
-            playerData.dataProjectAdditionMap.merge(major to str, gameRoom.date + duration to addition) { (a, b), (c, d) ->
+            playerData.dataProjectAdditionMap.merge(
+                major to str,
+                gameRoom.date + duration to addition
+            ) { (a, b), (c, d) ->
                 a + c - gameRoom.date to b + d
             }
             modifiers.add(ProjectAdditionData)
@@ -337,6 +362,7 @@ data class PlayerData(
         fun removeMajor(major: MajorType, tier: TierType) {
             removeMajor(major, tier.toString())
         }
+
 
         fun build(): List<String>? {
             if (modifiers.isEmpty()) return null
