@@ -183,7 +183,6 @@ class GameManager(
                 false,
                 passiveSet,
                 tierSet,
-                false
             )
             playerMap[player] = playerData
             playerData

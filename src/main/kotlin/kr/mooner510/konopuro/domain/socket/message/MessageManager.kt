@@ -43,6 +43,9 @@ class MessageManager(
             it.addConnectListener(onConnected())
             it.addDisconnectListener(onDisconnected())
             it.addAuthTokenListener(onAuthToken())
+            it.addEventInterceptor { client, eventName, args, _ ->
+                logger.info("Client[${client.sessionId}] - Received chat message on ($eventName) '${args}'")
+            }
             server.addEventInterceptor { namespaceClient, s, _, _ ->
                 logger.info("Event Listen($s): ${namespaceClient.sessionId}")
             }

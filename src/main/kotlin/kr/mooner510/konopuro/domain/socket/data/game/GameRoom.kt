@@ -117,8 +117,6 @@ data class GameRoom(
         run(modifier2)
         val build1 = modifier2.build()
 
-        turn = if(Random.nextBoolean()) firstPlayer.id else secondPlayer.id
-
         this.second.sendRoom(firstPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build, build1, firstPlayer.id == turn)))
         this.second.sendRoom(secondPlayer.client, RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(build1, build, secondPlayer.id == turn)))
     }
@@ -128,6 +126,8 @@ data class GameRoom(
             repeat(5) { modifier.pickupDeck() }
             modifier.applyStudentData()
         }
+
+        turn = firstPlayer.id
 
         val modifier1 = PlayerData.PlayerDataModifier(this@GameRoom, firstPlayer)
         run(modifier1)
@@ -158,6 +158,8 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_CARD -> {
+                println("cardUse")
+                println(rawProtocol.data[0])
                 val uuid = UUIDParser.transfer(rawProtocol[0].toString())
                 pairs.selfModify {
                     val card = it.useCard(uuid)
