@@ -15,6 +15,7 @@ import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
+import kr.mooner510.konopuro.domain.socket.data.RawProtocols
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.repository.UserRepository
 import kr.mooner510.konopuro.global.utils.UUIDParser
@@ -73,7 +74,7 @@ class MessageManager(
                 } else {
                     it.secondPlayer.client = client.sessionId
                 }
-                send(it, RawProtocol(Protocol.Match.RECONNECTED))
+                send(it, RawProtocol(Protocol.Match.RECONNECTED).toList())
             }
         }
     }
@@ -84,7 +85,7 @@ class MessageManager(
             if (authorization.isBlank()) return@DisconnectListener
             logger.info("Client[${client.sessionId}] - Disconnected from chat module.")
             userRepository.updateClientToNull(client.sessionId)
-            send(GameManager.findRoomByClient(client.sessionId), RawProtocol(Protocol.Match.DISCONNECTED))
+            send(GameManager.findRoomByClient(client.sessionId), RawProtocol(Protocol.Match.DISCONNECTED).toList())
         }
     }
 
@@ -122,19 +123,19 @@ class MessageManager(
         namespace.removeAllListeners(roomId.toString())
     }
 
-    fun <T : RawProtocol> send(operations: ClientOperations, rawData: T) = operations.sendEvent("msg", rawData)
+    fun <T : RawProtocols> send(operations: ClientOperations, rawData: T) = operations.sendEvent("msg", rawData)
 
-    fun <T : RawProtocol> send(operations: ClientOperations, key: String, rawData: T) = operations.sendEvent(key, rawData)
+    fun <T : RawProtocols> send(operations: ClientOperations, key: String, rawData: T) = operations.sendEvent(key, rawData)
 
-    fun <T : RawProtocol> sendRoom(roomId: UUID, rawData: T) = send(getRoom(roomId), rawData)
+    fun <T : RawProtocols> sendRoom(roomId: UUID, rawData: T) = send(getRoom(roomId), rawData)
 
-    fun <T : RawProtocol> sendRoom(roomId: UUID, key: String, rawData: T) = send(getRoom(roomId), key, rawData)
+    fun <T : RawProtocols> sendRoom(roomId: UUID, key: String, rawData: T) = send(getRoom(roomId), key, rawData)
 
-    fun <T : RawProtocol> send(room: GameRoom, rawData: T) = sendRoom(room.id, rawData)
+    fun <T : RawProtocols> send(room: GameRoom, rawData: T) = sendRoom(room.id, rawData)
 
-    fun <T : RawProtocol> send(room: GameRoom, key: String, rawData: T) = sendRoom(room.id, key, rawData)
+    fun <T : RawProtocols> send(room: GameRoom, key: String, rawData: T) = sendRoom(room.id, key, rawData)
 
-    fun <T : RawProtocol> send(clientId: UUID?, rawData: T) = clientId?.let { send(namespace.getClient(clientId), rawData) }
+    fun <T : RawProtocols> send(clientId: UUID?, rawData: T) = clientId?.let { send(namespace.getClient(clientId), rawData) }
 
-    fun <T : RawProtocol> send(clientId: UUID?, key: String, rawData: T) = clientId?.let { send(namespace.getClient(clientId), key, rawData) }
+    fun <T : RawProtocols> send(clientId: UUID?, key: String, rawData: T) = clientId?.let { send(namespace.getClient(clientId), key, rawData) }
 }

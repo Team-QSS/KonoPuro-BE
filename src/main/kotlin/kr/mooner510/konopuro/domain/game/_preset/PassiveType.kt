@@ -28,6 +28,8 @@ enum class PassiveType {
     Mastering,
     IssueCracker,
     Destore,
-    Brocker
+    Brocker,
 
+    //TODO: 삭제하기
+    Test,
 }

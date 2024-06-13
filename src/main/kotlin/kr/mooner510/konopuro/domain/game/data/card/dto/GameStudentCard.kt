@@ -5,8 +5,11 @@ import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import org.jetbrains.annotations.Range
 import org.json.JSONObject
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 data class GameStudentCard(
     val id: UUID,
@@ -54,7 +57,13 @@ data class GameStudentCard(
         }
 
         fun addFatigue(value: Double) {
-            gameStudentCard.fatigue += value
+            gameStudentCard.fatigue = min(6.0, gameStudentCard.fatigue + value)
+            modifier.add(Modifier.Fatigue)
+        }
+
+        fun removeFatigue(value: Double) {
+            if(gameStudentCard.fatigue <= 0) return
+            gameStudentCard.fatigue = max(0.0, gameStudentCard.fatigue - value)
             modifier.add(Modifier.Fatigue)
         }
 

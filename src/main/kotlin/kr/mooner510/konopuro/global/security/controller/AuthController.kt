@@ -103,7 +103,7 @@ class AuthController(
             cards.add(
                 PlayerCard(
                     user.id,
-                    DefaultCardType.Mouse.toString()
+                    DefaultCardType.Test.toString()
                 )
             )
         }

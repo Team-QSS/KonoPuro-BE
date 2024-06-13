@@ -122,7 +122,7 @@ class GameManager(
 
                         startGame(gameRoom)
                     } catch (e: GlobalError) {
-                        messageManager.send(firstUser.client, RawProtocol(Protocol.Match.ROOM_MATCH_FAILED, e.message!!))
+                        messageManager.send(firstUser.client, RawProtocol(Protocol.Match.ROOM_MATCH_FAILED, e.message!!).toList())
                     }
                 }
             }
@@ -175,7 +175,7 @@ class GameManager(
                 students,
                 decks,
                 ArrayList(),
-                0,
+                24,
                 ArrayList(),
                 EnumMap(MajorType::class.java),
                 EnumMap(MajorType::class.java),
@@ -191,7 +191,7 @@ class GameManager(
         messageManager.registerDelegate(room)
         println("room : $room")
         room.ready(messageManager)
-        messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id))
+        messageManager.send(room, RawProtocol(Protocol.Match.ROOM_MATCHED, room.id).toList())
     }
 
     fun endGame(room: GameRoom) {

@@ -28,7 +28,7 @@ object CardManager {
         defaultCardType.passives.forEach { usePassive(it) }
     }
 
-    fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Nothing = execute {
+    fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
             ParallelProcess -> TODO()
             IdeaDay -> TODO()
@@ -49,6 +49,7 @@ object CardManager {
             IssueCracker -> TODO()
             Destore -> TODO()
             Brocker -> TODO()
+            PassiveType.Test -> addProject(MajorType.FrontEnd, 10)
         }
     }
 

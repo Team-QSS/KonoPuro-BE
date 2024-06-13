@@ -84,7 +84,7 @@ class PlayerCard(
                 emptyList(),
                 getTier(),
                 type.cardType,
-                emptyList(),
+                type.passives.toList(),
                 emptyList()
             )
         }

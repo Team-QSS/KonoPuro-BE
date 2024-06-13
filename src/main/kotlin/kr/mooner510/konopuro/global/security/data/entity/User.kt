@@ -16,7 +16,7 @@ import java.util.*
 @Entity
 @Table(name = "user")
 class User(
-    @Column(nullable = false, length = 7)
+    @Column(nullable = false, length = 24)
     var userName: String,
 
     @Column(nullable = false)

@@ -2,7 +2,6 @@ package kr.mooner510.konopuro.domain.socket.data.game
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
-import kr.mooner510.konopuro.domain.game._preset.DefaultCardType.*
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
@@ -55,6 +54,11 @@ data class PlayerData(
         Students
     }
 
+    override fun equals(other: Any?): Boolean {
+        if(other is PlayerData) return other.id == this.id
+        return super.equals(other)
+    }
+
     class PlayerDataModifier(
         private val gameRoom: GameRoom,
         private val playerData: PlayerData
@@ -85,6 +89,7 @@ data class PlayerData(
         }
 
         fun modifyStudent(id: UUID, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
+            modifiers.add(Students)
             run(modifiedStudent.getOrPut(id) {
                 GameStudentCard.GameStudentCardModifier(
                     gameRoom.date,
@@ -94,6 +99,7 @@ data class PlayerData(
         }
 
         fun modifyStudent(studentCard: GameStudentCard, run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
+            modifiers.add(Students)
             run(modifiedStudent.getOrPut(studentCard.id) {
                 GameStudentCard.GameStudentCardModifier(
                     gameRoom.date,
@@ -103,10 +109,20 @@ data class PlayerData(
         }
 
         fun newDay(date: Int) = execute {
-            modifyStudents { it.removeIfEndDate(date) }
+            repeat(1) { pickupDeck() }
+            MajorType.entries.forEach { major ->
+                remove(major.dataKey)
+            }
+            modifyStudents {
+                it.removeIfEndDate(date)
+                it.removeFatigue(time * 0.2)
+            }
+            time = 0
+            addTime(24)
             fieldCards.mapNotNull { if (it.dayTime) it.defaultCardType else null }.toSet().forEach {
                 removeFieldCardLimit(it)
             }
+            isSleep = false
         }
 
         fun setClient(uuid: UUID) = execute {
@@ -114,7 +130,8 @@ data class PlayerData(
             modifiers.add(Client)
         }
 
-        fun pickupDeck(): GameCard = execute {
+        fun pickupDeck(): GameCard? = execute {
+            if(deckList.isEmpty()) return@execute null
             val card = deckList.removeFirst()
             heldCards.add(card)
             modifiers.add(Deck)
@@ -122,9 +139,9 @@ data class PlayerData(
             return@execute card
         }
 
-        fun addTime(time: Int) = execute {
-            if (time <= 0) return@execute
-            this.time += time
+        fun addTime(value: Int) = execute {
+            if (value <= 0) return@execute
+            this.time += value
             modifiers.add(Time)
         }
 
@@ -265,8 +282,9 @@ data class PlayerData(
         }
 
         fun remove(key: DataKey) {
-            playerData.dataMap.remove(key)
-            modifiers.add(DateData)
+            if (playerData.dataMap.remove(key) != null) {
+                modifiers.add(DateData)
+            }
         }
 
         fun setDate(key: DataKey, duration: Int) {
@@ -280,19 +298,22 @@ data class PlayerData(
         }
 
         fun removeDate(key: DataKey) {
-            playerData.dateMap.remove(key)
-            modifiers.add(DateData)
+            if (playerData.dateMap.remove(key) != null) {
+                modifiers.add(DateData)
+            }
         }
 
         fun removeDate(key: DataKey, duration: Int) {
-            modifiers.add(DateData)
             playerData.dateMap[key]?.let {
                 if (it - duration <= 0) {
-                    playerData.dateMap.remove(key)
+                    if (playerData.dateMap.remove(key) != null) {
+                        modifiers.add(DateData)
+                    }
                     return
                 }
             }
             playerData.dateMap.merge(key, -duration, Integer::sum)
+            modifiers.add(DateData)
         }
 
         fun setMajor(major: MajorType, str: String, duration: Int, addition: Int) {
@@ -414,7 +435,10 @@ data class PlayerData(
 
                         Students -> {
                             val list = modifiedStudent.mapNotNull { (_, modifier) -> modifier.build() }
-                            if (list.isEmpty()) return@mapNotNull null
+                            if (list.isEmpty()){
+                                modifiers.remove(Students)
+                                return@mapNotNull null
+                            }
                             JSONObject().put("students", list).toString()
                         }
 

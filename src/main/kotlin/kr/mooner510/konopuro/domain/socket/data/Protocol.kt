@@ -45,19 +45,14 @@ object Protocol {
             const val SUCCESS_CARD = 202
             const val SUCCESS_ABILITY = 203
             const val NEW_DAY = 204
-            const val OTHER_SLEEP = 205
+            const val DATA_UPDATE = 205
 
-            const val DATA_UPDATE = 206
+//            const val OTHER_SLEEP = 205
 
             /**
              * 덱에서 서버가 카드 추가
              */
-            const val NEW_CARD = 207
-
-            /**
-             * 플레이어 턴 설정
-             */
-            const val SET_TURN = 211
+//            const val NEW_CARD = 207
         }
     }
 }

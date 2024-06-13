@@ -13,6 +13,7 @@ enum class DefaultCardType(
     OnlyPower(1, 0, CardType.Field),
     UltimatePower(1, 0, CardType.Field),
     Music(1, 0, CardType.Field),
+    Test(1, 5, CardType.Tool, EnumSet.of(PassiveType.Test))
     ;
 
     companion object {
