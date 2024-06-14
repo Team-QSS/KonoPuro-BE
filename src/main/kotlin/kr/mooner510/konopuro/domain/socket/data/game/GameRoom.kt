@@ -129,7 +129,8 @@ data class GameRoom(
             }
 
             Protocol.Game.Client.USE_ABILITY -> {
-                val tierType = TierType.valueOf(rawProtocol[0].toString())
+                val useCardId = rawProtocol[0].toString()
+                val tierType = TierType.valueOf(rawProtocol[1].toString())
                 selfModify {
                     val tier = it.useAbility(tierType) ?: return@selfModify
                     other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
