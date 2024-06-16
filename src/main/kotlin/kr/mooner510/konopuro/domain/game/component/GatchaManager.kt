@@ -4,13 +4,13 @@ import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game.data.card.entity.PlayerCard
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
-import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.Gatcha
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaLog
 import kr.mooner510.konopuro.domain.game.data.gatcha.entity.GatchaStack
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.game.exception.GatchaExpiredException
-import kr.mooner510.konopuro.domain.game.repository.*
+import kr.mooner510.konopuro.domain.game.repository.GatchaLogRepository
+import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.util.*

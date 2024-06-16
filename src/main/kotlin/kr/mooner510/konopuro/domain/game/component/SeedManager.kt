@@ -3,19 +3,12 @@ package kr.mooner510.konopuro.domain.game.component
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kr.mooner510.konopuro.domain.game.data.deck.dto.GameDeck
-import kr.mooner510.konopuro.domain.game.data.seed.entity.Seed
-import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
-import kr.mooner510.konopuro.domain.game.repository.DeckRepository
 import kr.mooner510.konopuro.domain.game.repository.SeedRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.concurrent.thread
-import kotlin.time.Duration
 
 @Component
 class SeedManager(

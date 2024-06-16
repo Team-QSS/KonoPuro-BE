@@ -4,11 +4,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntity
-import org.hibernate.annotations.SQLDelete
-import org.hibernate.annotations.SQLRestriction
-import java.time.LocalDateTime
 import java.util.*
 
 @Entity

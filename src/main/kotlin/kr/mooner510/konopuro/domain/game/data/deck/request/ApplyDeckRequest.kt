@@ -1,7 +1,6 @@
 package kr.mooner510.konopuro.domain.game.data.deck.request
 
-import kr.mooner510.konopuro.domain.game.data.deck.response.DeckResponse
-import java.util.UUID
+import java.util.*
 
 data class ApplyDeckRequest(
     val activeDeckId: UUID,

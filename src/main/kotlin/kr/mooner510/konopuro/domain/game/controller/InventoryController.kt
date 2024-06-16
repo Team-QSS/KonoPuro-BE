@@ -8,11 +8,18 @@ import kr.mooner510.konopuro.domain.game.data.deck.entity.Deck
 import kr.mooner510.konopuro.domain.game.data.deck.entity.DeckCard
 import kr.mooner510.konopuro.domain.game.data.deck.request.ApplyDeckRequest
 import kr.mooner510.konopuro.domain.game.data.deck.response.DeckResponse
-import kr.mooner510.konopuro.domain.game.repository.*
+import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
+import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
+import kr.mooner510.konopuro.domain.game.repository.DeckRepository
+import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import kr.mooner510.konopuro.global.security.data.entity.User
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Inventory", description = "인벤 API")
 @RestController

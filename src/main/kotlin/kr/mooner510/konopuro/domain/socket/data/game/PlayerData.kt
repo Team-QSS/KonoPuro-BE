@@ -17,8 +17,6 @@ import kr.mooner510.konopuro.domain.socket.data.type.DataKey
 import kr.mooner510.konopuro.global.utils.UUIDParser
 import org.json.JSONObject
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 data class PlayerData(
     val id: UUID,
@@ -55,7 +53,7 @@ data class PlayerData(
     }
 
     override fun equals(other: Any?): Boolean {
-        if(other is PlayerData) return other.id == this.id
+        if (other is PlayerData) return other.id == this.id
         return super.equals(other)
     }
 
@@ -131,7 +129,7 @@ data class PlayerData(
         }
 
         fun pickupDeck(): GameCard? = execute {
-            if(deckList.isEmpty()) return@execute null
+            if (deckList.isEmpty()) return@execute null
             val card = deckList.removeFirst()
             heldCards.add(card)
             modifiers.add(Deck)
@@ -253,7 +251,7 @@ data class PlayerData(
         fun useCard(uuid: UUID) = execute {
             val index = heldCards.indexOfFirst { it.id == uuid }
             val card = heldCards[index]
-            if(!removeTime(card.defaultCardType.time)) return@execute null
+            if (!removeTime(card.defaultCardType.time)) return@execute null
             useDefaultCard(card.defaultCardType)
             return@execute heldCards.removeAt(index)
         }
@@ -435,7 +433,7 @@ data class PlayerData(
 
                         Students -> {
                             val list = modifiedStudent.mapNotNull { (_, modifier) -> modifier.build() }
-                            if (list.isEmpty()){
+                            if (list.isEmpty()) {
                                 modifiers.remove(Students)
                                 return@mapNotNull null
                             }

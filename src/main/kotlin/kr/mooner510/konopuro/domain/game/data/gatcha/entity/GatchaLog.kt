@@ -1,6 +1,11 @@
 package kr.mooner510.konopuro.domain.game.data.gatcha.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import kr.mooner510.konopuro.global.global.data.entity.BaseEntityCreateOnly
 import java.util.*
 

@@ -9,13 +9,13 @@ import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
-import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
-import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
 import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
+import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
+import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.socket.exception.RoomNotFoundException
 import kr.mooner510.konopuro.domain.socket.exception.UserClientNotFoundException
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 @Component

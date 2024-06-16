@@ -13,16 +13,14 @@ import com.corundumstudio.socketio.listener.DataListener
 import com.corundumstudio.socketio.listener.DisconnectListener
 import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.domain.socket.data.Protocol
-import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.data.RawProtocols
+import kr.mooner510.konopuro.domain.socket.data.game.GameRoom
 import kr.mooner510.konopuro.global.security.component.TokenProvider
 import kr.mooner510.konopuro.global.security.repository.UserRepository
 import kr.mooner510.konopuro.global.utils.UUIDParser
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
 

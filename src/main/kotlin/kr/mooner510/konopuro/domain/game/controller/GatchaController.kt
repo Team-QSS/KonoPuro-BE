@@ -3,7 +3,6 @@ package kr.mooner510.konopuro.domain.game.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.transaction.Transactional
-import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game.component.GatchaManager
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponse
 import kr.mooner510.konopuro.domain.game.data.card.response.PlayerCardResponses
@@ -19,9 +18,11 @@ import kr.mooner510.konopuro.domain.game.repository.GatchaStackRepository
 import kr.mooner510.konopuro.global.security.data.entity.User
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrNull
 
 @Tag(name = "Gatcha", description = "가챠 API")

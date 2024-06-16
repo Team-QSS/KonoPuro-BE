@@ -1,6 +1,11 @@
 package kr.mooner510.konopuro.domain.game.data.card.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
