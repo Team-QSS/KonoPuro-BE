@@ -22,6 +22,7 @@ import kr.mooner510.konopuro.global.utils.UUIDParser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -68,13 +69,18 @@ class MessageManager(
             val authKey = tokenProvider.getAccessKey(UUIDParser.transfer(authorization))
             userRepository.updateClientById(client.sessionId, authKey.userId)
 
-            GameManager.findRoomByUser(authKey.userId)?.let {
-                if (it.firstPlayer.id == authKey.userId) {
-                    it.firstPlayer.client = client.sessionId
+            GameManager.findRoomByUser(authKey.userId)?.let { room ->
+                if (room.firstPlayer.id == authKey.userId) {
+                    leaveRoom(room.firstPlayer.client, room.id)
+                    room.firstPlayer.client = client.sessionId
+                    joinRoom(room.firstPlayer.client, room.id)
                 } else {
-                    it.secondPlayer.client = client.sessionId
+                    leaveRoom(room.secondPlayer.client, room.id)
+                    room.secondPlayer.client = client.sessionId
+                    joinRoom(room.secondPlayer.client, room.id)
                 }
-                send(it, RawProtocol(Protocol.Match.RECONNECTED).toList())
+                userRepository.findByIdOrNull(authKey.userId)?.let { it.client = client.sessionId }
+                send(room, RawProtocol(Protocol.Match.RECONNECTED).toList())
             }
         }
     }
@@ -119,8 +125,8 @@ class MessageManager(
         }
     }
 
-    fun removeDelegate(roomId: UUID) {
-        namespace.removeAllListeners(roomId.toString())
+    fun removeDelegate(room: GameRoom) {
+        namespace.removeAllListeners(room.id.toString())
     }
 
     fun <T : RawProtocols> send(operations: ClientOperations, rawData: T) = operations.sendEvent("msg", rawData)

@@ -3,7 +3,7 @@ package kr.mooner510.konopuro.domain.socket.data.game
 import com.corundumstudio.socketio.SocketIOClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.domain.game._preset.TierType
-import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.domain.socket.data.*
 import kr.mooner510.konopuro.domain.socket.message.MessageManager
 import kr.mooner510.konopuro.global.utils.UUIDParser
@@ -73,6 +73,13 @@ data class GameRoom(
         return run(firstPlayer) && run(secondPlayer)
     }
 
+    private fun Pair<SocketIOClient, MessageManager>.checkIf(run: (PlayerData) -> Boolean): List<PlayerData> {
+        val list = ArrayList<PlayerData>(2)
+        if (run(firstPlayer)) list.add(firstPlayer)
+        if (run(secondPlayer)) list.add(secondPlayer)
+        return list
+    }
+
     fun ready(manager: MessageManager) {
         val run: (PlayerData.PlayerDataModifier) -> Unit = { modifier ->
             repeat(5) { modifier.pickupDeck() }
@@ -136,6 +143,21 @@ data class GameRoom(
                     other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
                 }
             }
+        }
+
+        val checkList = pairs.checkIf { data ->
+            data.goal.all { data.project.getOrDefault(it.key, 0) >= it.value }
+        }
+
+        if (checkList.isNotEmpty()) {
+            if (checkList.size == 1) {
+                all(Protocol.Game.Server.GAME_END, checkList[0].id)
+                GameManager.instance.endGame(this@GameRoom)
+                return@send
+            }
+            all(Protocol.Game.Server.GAME_END, "DRAW")
+            GameManager.instance.endGame(this@GameRoom)
+            return@send
         }
 
         if (nextTurn == null && pairs.self().time <= 0) {

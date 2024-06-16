@@ -1,6 +1,5 @@
 package kr.mooner510.konopuro.domain.game.component
 
-import jakarta.transaction.Transactional
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -42,8 +41,9 @@ class GameManager(
     private val userRepository: UserRepository,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
-    
+
     companion object {
+        lateinit var instance: GameManager private set
         private val playerMap: ConcurrentHashMap<UUID, PlayerData> = ConcurrentHashMap()
         private val rooms: ConcurrentHashMap<UUID, GameRoom> = ConcurrentHashMap()
         private val userRoom: ConcurrentHashMap<UUID, UUID> = ConcurrentHashMap()
@@ -54,15 +54,11 @@ class GameManager(
         }
 
         fun findRoomByUser(user: UUID): GameRoom? {
-            return rooms.values.firstOrNull { value -> value.firstPlayer.id == user || value.secondPlayer.id == user }
+            return userRoom[user]?.let { rooms[it] }
         }
 
         fun getRoom(id: UUID): GameRoom {
             return rooms[id] ?: throw RoomNotFoundException()
-        }
-
-        fun getRoomByPlayer(userId: UUID): GameRoom {
-            return userRoom[userId]?.let { rooms[it] } ?: throw RoomNotFoundException()
         }
 
         fun removeRoom(id: UUID): GameRoom? {
@@ -71,6 +67,7 @@ class GameManager(
     }
 
     init {
+        instance = this
         thread {
             schedule()
         }
@@ -129,22 +126,6 @@ class GameManager(
         }
     }
 
-    @Transactional
-    fun reconnect(userId: UUID, clientId: UUID) {
-        val room = getRoomByPlayer(userId)
-        if (room.firstPlayer.id == userId) {
-            messageManager.leaveRoom(room.firstPlayer.client, room.id)
-            room.firstPlayer.client = clientId
-            userRepository.findByIdOrNull(userId)?.let { it.client = clientId }
-            messageManager.joinRoom(clientId, room.id)
-        } else {
-            messageManager.leaveRoom(room.secondPlayer.client, room.id)
-            room.secondPlayer.client = clientId
-            userRepository.findByIdOrNull(userId)?.let { it.client = clientId }
-            messageManager.joinRoom(clientId, room.id)
-        }
-    }
-
     fun startGame(room: GameRoom) {
         room.map { (player, client) ->
             val deckCards = activeDeckRepository.findByIdOrNull(player)?.let { activeDeck ->
@@ -196,9 +177,12 @@ class GameManager(
 
     fun endGame(room: GameRoom) {
         room.forEach { (player, client) ->
-            messageManager.leaveRoom(room.id, client)
+            messageManager.leaveRoom(client, room.id)
             playerMap.remove(player)
+            userRoom.remove(player)
         }
+        messageManager.removeDelegate(room)
+        rooms.remove(room.id)
         removeRoom(room.id)
     }
 }
