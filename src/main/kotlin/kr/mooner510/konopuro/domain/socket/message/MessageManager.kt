@@ -79,7 +79,6 @@ class MessageManager(
                     room.secondPlayer.client = client.sessionId
                     joinRoom(room.secondPlayer.client, room.id)
                 }
-                userRepository.findByIdOrNull(authKey.userId)?.let { it.client = client.sessionId }
                 send(room, RawProtocol(Protocol.Match.RECONNECTED).toList())
             }
         }
@@ -91,7 +90,9 @@ class MessageManager(
             if (authorization.isBlank()) return@DisconnectListener
             logger.info("Client[${client.sessionId}] - Disconnected from chat module.")
             userRepository.updateClientToNull(client.sessionId)
-            send(GameManager.findRoomByClient(client.sessionId), RawProtocol(Protocol.Match.DISCONNECTED).toList())
+            GameManager.findRoomByClient(client.sessionId)?.let {
+                send(it, RawProtocol(Protocol.Match.DISCONNECTED).toList())
+            }
         }
     }
 

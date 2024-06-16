@@ -49,8 +49,8 @@ class GameManager(
         private val userRoom: ConcurrentHashMap<UUID, UUID> = ConcurrentHashMap()
         private val queue: Queue<UUID> = ConcurrentLinkedQueue()
 
-        fun findRoomByClient(client: UUID): GameRoom {
-            return rooms.values.first { value -> value.firstPlayer.client == client || value.secondPlayer.client == client }
+        fun findRoomByClient(client: UUID): GameRoom? {
+            return rooms.values.firstOrNull { value -> value.firstPlayer.client == client || value.secondPlayer.client == client }
         }
 
         fun findRoomByUser(user: UUID): GameRoom? {
