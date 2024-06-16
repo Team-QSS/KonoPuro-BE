@@ -11,19 +11,9 @@ import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.socket.data.type.DataKey
+import kotlin.math.max
 
 object CardManager {
-    fun PlayerData.PlayerDataModifier.calculateProject(): Int = execute {
-        var increment = 0
-        fieldCards.forEach {
-            when (it.defaultCardType) {
-                Music -> increment++
-                else -> return@forEach
-            }
-        }
-        return@execute increment
-    }
-
     fun PlayerData.PlayerDataModifier.useDefaultCard(defaultCardType: DefaultCardType): Unit = execute {
         defaultCardType.passives.forEach { usePassive(it) }
     }
@@ -55,7 +45,11 @@ object CardManager {
 
     fun PlayerData.PlayerDataModifier.useTier(tierType: TierType) = execute {
         activeStudent = this.students.find { it.tiers.contains(tierType) }!!
-        if (!removeTime(tierType.time)) return@execute false
+        var useTime = tierType.time
+
+        useTime -= get(DataKey.NovelTimeToday, 0)
+
+        if (!removeTime(max(0, useTime))) return@execute false
         when (tierType) {
             Designer -> addProject(MajorType.Design, 6)
             Frontend -> addProject(MajorType.FrontEnd, 6)
@@ -108,7 +102,7 @@ object CardManager {
             }
 
             CustomNovelist -> {
-//                addProject(MajorType.FrontEnd, getInt(DataKey.NovelTime, 0))
+                addProject(MajorType.FrontEnd, get(DataKey.NovelTimeTotal, 0))
             }
 
             AddBeat -> {
@@ -151,5 +145,26 @@ object CardManager {
             Reverse2 -> TODO()
         }
         return@execute true
+    }
+
+    fun PlayerData.PlayerDataModifier.onNewDay() = execute {
+        if (passives.contains(Novelist)) {
+            val timeUnit = if (passives.contains(ProNovelist) && time > 7) 2 else 1
+            time -= timeUnit
+            add(DataKey.NovelTimeTotal, timeUnit)
+            add(DataKey.NovelTimeToday, timeUnit)
+        }
+    }
+
+    fun PlayerData.PlayerDataModifier.calculateProject(majorType: MajorType): Int = execute {
+        var increment = 0
+        fieldCards.forEach {
+            when (it.defaultCardType) {
+                Music -> increment++
+                else -> return@forEach
+            }
+        }
+        if (issue[majorType]?.isNotEmpty() == true) increment += 5
+        return@execute increment
     }
 }

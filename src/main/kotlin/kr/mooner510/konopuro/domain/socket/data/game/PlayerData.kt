@@ -7,6 +7,7 @@ import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateProject
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.onNewDay
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useDefaultCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
@@ -108,9 +109,8 @@ data class PlayerData(
 
         fun newDay(date: Int) = execute {
             repeat(1) { pickupDeck() }
-            MajorType.entries.forEach { major ->
-                remove(major.dataKey)
-            }
+            DataKey.removals.forEach(::remove)
+            onNewDay()
             modifyStudents {
                 it.removeIfEndDate(date)
                 it.removeFatigue(time * 0.2)
@@ -166,7 +166,7 @@ data class PlayerData(
 
         fun addProject(majorType: MajorType, value: Int) = execute {
             val issueList = issue.getOrElse(majorType) { LinkedList() }
-            var afterValue = value + calculateProject()
+            var afterValue = value + calculateProject(majorType)
             var next: Int
             if (issueList.isNotEmpty()) {
                 val iterator = issueList.listIterator()
