@@ -64,7 +64,7 @@ class SecurityConfig(
 
                 it.requestMatchers(HttpMethod.GET, "/api/inventory").authenticated()
                 it.requestMatchers(HttpMethod.GET, "/api/inventory/active").authenticated()
-                it.requestMatchers(HttpMethod.POST, "/api/inventory/apply").authenticated()
+                it.requestMatchers(HttpMethod.PUT, "/api/inventory/apply").authenticated()
 
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
