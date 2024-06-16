@@ -154,7 +154,13 @@ data class GameRoom(
 
         if (checkList.isNotEmpty()) {
             if (checkList.size == 1) {
-                all(Protocol.Game.Server.GAME_END, checkList[0].id)
+                if (pairs.other().id == checkList[0].id) {
+                    self(Protocol.Game.Server.GAME_END, "LOSE")
+                    other(Protocol.Game.Server.GAME_END, "WIN")
+                } else {
+                    self(Protocol.Game.Server.GAME_END, "WIN")
+                    other(Protocol.Game.Server.GAME_END, "LOSE")
+                }
                 GameManager.instance.endGame(this@GameRoom)
                 return@send
             }
