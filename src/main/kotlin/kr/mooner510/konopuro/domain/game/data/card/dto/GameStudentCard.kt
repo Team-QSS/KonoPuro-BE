@@ -7,6 +7,7 @@ import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculate
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateFatigueSubtraction
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import org.json.JSONObject
 import java.util.*
 import kotlin.math.max
@@ -48,9 +49,14 @@ data class GameStudentCard(
 
     class GameStudentCardModifier(
         private val date: Int,
-        private val gameStudentCard: GameStudentCard
+        private val gameStudentCard: GameStudentCard,
+        private val ownerData: PlayerData
     ) {
         private val modifier = EnumSet.noneOf(Modifier::class.java)
+
+        fun <T> execute(run: PlayerData.() -> T): T {
+            return run(ownerData)
+        }
 
         fun setFatigue(value: Double) {
             gameStudentCard.fatigue = value

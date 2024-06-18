@@ -82,7 +82,7 @@ data class PlayerData(
         fun modifyStudents(run: (GameStudentCard.GameStudentCardModifier) -> Unit) {
             modifiers.add(Students)
             playerData.students.forEach {
-                val modifier = GameStudentCard.GameStudentCardModifier(gameRoom.date, it)
+                val modifier = GameStudentCard.GameStudentCardModifier(gameRoom.date, it, playerData)
                 run(modifier)
                 modifiedStudent[it.id] = modifier
             }
@@ -93,7 +93,8 @@ data class PlayerData(
             run(modifiedStudent.getOrPut(id) {
                 GameStudentCard.GameStudentCardModifier(
                     gameRoom.date,
-                    playerData.students.find { it.id == id }!!
+                    playerData.students.find { it.id == id }!!,
+                    playerData
                 )
             })
         }
@@ -103,7 +104,8 @@ data class PlayerData(
             run(modifiedStudent.getOrPut(studentCard.id) {
                 GameStudentCard.GameStudentCardModifier(
                     gameRoom.date,
-                    studentCard
+                    studentCard,
+                    playerData
                 )
             })
         }

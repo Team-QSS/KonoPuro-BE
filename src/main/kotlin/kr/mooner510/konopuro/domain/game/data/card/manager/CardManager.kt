@@ -184,15 +184,15 @@ object CardManager {
         return@execute increment
     }
 
-    fun GameStudentCard.GameStudentCardModifier.calculateFatigueAddition(): Double {
+    fun GameStudentCard.GameStudentCardModifier.calculateFatigueAddition(): Double = execute {
         var addition = 0.0
         // TODO: 피로도 증가 이벤트
-        return addition
+        return@execute addition
     }
 
-    fun GameStudentCard.GameStudentCardModifier.calculateFatigueSubtraction(): Double {
+    fun GameStudentCard.GameStudentCardModifier.calculateFatigueSubtraction(): Double = execute {
         var subtraction = 0.0
         // TODO: 피로도 감소 이벤트
-        return subtraction
+        return@execute subtraction
     }
 }
