@@ -80,7 +80,7 @@ class DataController(
             .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            json.put(value[0], JSONObject().put("name", value[1]).put("description", values[2]))
+            json.put(value[0], JSONObject().put("name", value[1]).put("description", value[2]))
         }
 
         return json.toString()
