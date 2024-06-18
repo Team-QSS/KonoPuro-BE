@@ -31,7 +31,7 @@ enum class StudentCardType(
     ),
     ChulSoo(
         EnumSet.of(MajorType.Backend, MajorType.FrontEnd),
-        EnumSet.of(PassiveType.MusicPlay, PassiveType.Music),
+        EnumSet.of(PassiveType.MusicPlay),
         TierType.AddBeat,
         EnumSet.of(TierType.BeatAddFE, TierType.BeatAddBE),
         EnumSet.of(PassiveType.InfinityMusic, PassiveType.RepeatMusic),

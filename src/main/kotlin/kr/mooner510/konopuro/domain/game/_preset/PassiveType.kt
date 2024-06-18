@@ -14,7 +14,6 @@ enum class PassiveType {
 
     // 철수
     MusicPlay,
-    Music,
     InfinityMusic,
     RepeatMusic,
 

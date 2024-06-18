@@ -111,15 +111,16 @@ data class PlayerData(
             repeat(1) { pickupDeck() }
             DataKey.removals.forEach(::remove)
             onNewDay()
+            fieldCards.mapNotNull { if (it.dayDuration) it.defaultCardType else null }.toSet().forEach {
+                removeFieldCardLimit(it)
+            }
+            onNewDayAfter()
             modifyStudents {
                 it.removeIfEndDate(date)
                 it.removeFatigue(time * 0.2)
             }
             time = 0
             addTime(24)
-            fieldCards.mapNotNull { if (it.dayTime) it.defaultCardType else null }.toSet().forEach {
-                removeFieldCardLimit(it)
-            }
             isSleep = false
         }
 
@@ -190,17 +191,17 @@ data class PlayerData(
 
         fun addFieldCard(
             defaultCardType: DefaultCardType,
-            limit: Int,
+            duration: Int,
             dupe: Boolean = false,
-            dayTime: Boolean = false
+            isDayDuration: Boolean = false
         ) = execute {
-            if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit, dayTime))
+            if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, duration, isDayDuration))
             else {
                 fieldCards.find { it.defaultCardType == defaultCardType }?.let {
-                    it.limit = limit
+                    it.duration = duration
                     return@execute
                 }
-                fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, limit, dayTime))
+                fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, duration, isDayDuration))
             }
         }
 
@@ -219,8 +220,8 @@ data class PlayerData(
                         next = iterator.next()
                         if (next.defaultCardType == defaultCardType) {
                             done = true
-                            next.limit -= limit
-                            if (next.limit <= 0) iterator.remove()
+                            next.duration -= limit
+                            if (next.duration <= 0) iterator.remove()
                             modifiers.add(FieldCard)
                         }
                     }
@@ -229,8 +230,8 @@ data class PlayerData(
                     while (iterator.hasNext()) {
                         next = iterator.next()
                         if (next.defaultCardType == defaultCardType) {
-                            next.limit -= limit
-                            if (next.limit <= 0) iterator.remove()
+                            next.duration -= limit
+                            if (next.duration <= 0) iterator.remove()
                             modifiers.add(FieldCard)
                             return@execute true
                         }

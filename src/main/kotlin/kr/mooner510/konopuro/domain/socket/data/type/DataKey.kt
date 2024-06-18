@@ -25,7 +25,7 @@ enum class DataKey(
 
     NovelTimeTotal, // 소설 시간
     NovelTimeToday(true), // 소설 시간
-    Music, // 음악
+    SavedMusic, // 음악
     ;
 
     companion object {

@@ -1,12 +1,8 @@
 package kr.mooner510.konopuro.domain.game.data.card.manager
 
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
-import kr.mooner510.konopuro.domain.game._preset.DefaultCardType.*
-import kr.mooner510.konopuro.domain.game._preset.DefaultCardType.Music
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
-import kr.mooner510.konopuro.domain.game._preset.PassiveType.*
 import kr.mooner510.konopuro.domain.game._preset.TierType
-import kr.mooner510.konopuro.domain.game._preset.TierType.*
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
@@ -20,25 +16,24 @@ object CardManager {
 
     fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
-            ParallelProcess -> TODO()
-            IdeaDay -> TODO()
-            Overload -> TODO()
-            APIRequired -> TODO()
-            Novelist -> TODO()
-            ProNovelist -> TODO()
-            TimeSaving -> TODO()
-            MusicPlay -> TODO()
-            PassiveType.Music -> TODO()
-            InfinityMusic -> TODO()
-            RepeatMusic -> TODO()
-            MultiDevelop -> TODO()
-            FastAction -> TODO()
-            NightCoding -> TODO()
-            BlazePassion -> TODO()
-            Mastering -> TODO()
-            IssueCracker -> TODO()
-            Destore -> TODO()
-            Brocker -> TODO()
+            PassiveType.ParallelProcess -> TODO()
+            PassiveType.IdeaDay -> TODO()
+            PassiveType.Overload -> TODO()
+            PassiveType.APIRequired -> TODO()
+            PassiveType.Novelist -> TODO()
+            PassiveType.ProNovelist -> TODO()
+            PassiveType.TimeSaving -> TODO()
+            PassiveType.MusicPlay -> TODO()
+            PassiveType.InfinityMusic -> TODO()
+            PassiveType.RepeatMusic -> TODO()
+            PassiveType.MultiDevelop -> TODO()
+            PassiveType.FastAction -> TODO()
+            PassiveType.NightCoding -> TODO()
+            PassiveType.BlazePassion -> TODO()
+            PassiveType.Mastering -> TODO()
+            PassiveType.IssueCracker -> TODO()
+            PassiveType.Destore -> TODO()
+            PassiveType.Brocker -> TODO()
             PassiveType.Test -> addProject(MajorType.FrontEnd, 10)
         }
     }
@@ -51,38 +46,38 @@ object CardManager {
 
         if (!removeTime(max(0, useTime))) return@execute false
         when (tierType) {
-            Designer -> addProject(MajorType.Design, 6)
-            Frontend -> addProject(MajorType.FrontEnd, 6)
-            Backend -> addProject(MajorType.Backend, 6)
-            iOS -> addProject(MajorType.iOS, 8)
-            Android -> addProject(MajorType.Android, 8)
-            MultiMajor ->
+            TierType.Designer -> addProject(MajorType.Design, 6)
+            TierType.Frontend -> addProject(MajorType.FrontEnd, 6)
+            TierType.Backend -> addProject(MajorType.Backend, 6)
+            TierType.iOS -> addProject(MajorType.iOS, 8)
+            TierType.Android -> addProject(MajorType.Android, 8)
+            TierType.MultiMajor ->
                 if (isDone(MajorType.Design)) {
                     addProject(MajorType.FrontEnd, 7)
                 } else {
                     addProject(MajorType.Design, 11)
                 }
 
-            SingleFocus ->
+            TierType.SingleFocus ->
                 if (get(DataKey.DesignProject, 0) > 0) {
                     addProject(MajorType.FrontEnd, 4)
                 } else {
                     addProject(MajorType.FrontEnd, 5)
                 }
 
-            IssueComplete -> addProject(MajorType.FrontEnd, 4 + (issue[MajorType.FrontEnd]?.size ?: 0) * 3)
-            SoleDesigner -> {
+            TierType.IssueComplete -> addProject(MajorType.FrontEnd, 4 + (issue[MajorType.FrontEnd]?.size ?: 0) * 3)
+            TierType.SoleDesigner -> {
                 addProject(MajorType.Design, 8)
-                addFieldCard(OnlyPower, 3, dayTime = true)
+                addFieldCard(DefaultCardType.OnlyPower, 3, isDayDuration = true)
             }
 
-            GreatDesigner -> {
+            TierType.GreatDesigner -> {
                 addProject(MajorType.Design, 4)
-                addFieldCard(UltimatePower, 3, dupe = true, dayTime = true)
+                addFieldCard(DefaultCardType.UltimatePower, 3, dupe = true, isDayDuration = true)
             }
 
-            IssueTracker -> addProject(MajorType.FrontEnd, 9 + (issue[MajorType.FrontEnd]?.sum()?.coerceAtMost(20) ?: 0))
-            AutonomyStudy -> {
+            TierType.IssueTracker -> addProject(MajorType.FrontEnd, 9 + (issue[MajorType.FrontEnd]?.sum()?.coerceAtMost(20) ?: 0))
+            TierType.AutonomyStudy -> {
                 addProject(MajorType.FrontEnd, 12)
                 val filtered = students.filter { !it.hasEndDate(StudentState.Passion) }
                 if (filtered.isEmpty()) {
@@ -97,62 +92,82 @@ object CardManager {
                 }
             }
 
-            EasyFirst -> {
+            TierType.EasyFirst -> {
                 addProject(MajorType.FrontEnd, 22)
             }
 
-            CustomNovelist -> {
+            TierType.CustomNovelist -> {
                 addProject(MajorType.FrontEnd, get(DataKey.NovelTimeTotal, 0))
             }
 
-            AddBeat -> {
+            TierType.AddBeat -> {
                 addProject(MajorType.FrontEnd, 2)
                 addProject(MajorType.Backend, 2)
-                addFieldCard(Music, 1, dupe = true, dayTime = true)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, isDayDuration = true)
             }
 
-            BeatAddFE -> {
+            TierType.BeatAddFE -> {
                 addProject(MajorType.FrontEnd, 8)
-                addFieldCard(Music, 1, dupe = true, dayTime = true)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, isDayDuration = true)
             }
 
-            BeatAddBE -> {
+            TierType.BeatAddBE -> {
                 addProject(MajorType.Backend, 8)
-                addFieldCard(Music, 1, dupe = true, dayTime = true)
+                addFieldCard(DefaultCardType.Music, 1, dupe = true, isDayDuration = true)
             }
 
-            MusicFocus -> {
+            TierType.MusicFocus -> {
                 if (project.getOrElse(MajorType.FrontEnd) { 0 } >= project.getOrElse(MajorType.Backend) { 0 }) {
-                    if (time >= MusicFocus.time) addProject(MajorType.Backend, fieldCards.count { it.defaultCardType == Music } * 2)
+                    if (time >= TierType.MusicFocus.time) addProject(
+                        MajorType.Backend,
+                        fieldCards.count { it.defaultCardType == DefaultCardType.Music } * 2)
                     else addProject(MajorType.Backend, 1)
                 } else {
-                    if (time >= MusicFocus.time) addProject(MajorType.FrontEnd, fieldCards.count { it.defaultCardType == Music } * 2)
+                    if (time >= TierType.MusicFocus.time) addProject(
+                        MajorType.FrontEnd,
+                        fieldCards.count { it.defaultCardType == DefaultCardType.Music } * 2)
                     else addProject(MajorType.FrontEnd, 1)
                 }
             }
 
-            DJ -> {
-                set(DataKey.Music, fieldCards.count { it.defaultCardType == Music })
-                removeFieldCard(Music)
+            TierType.DJ -> {
+                set(DataKey.SavedMusic, fieldCards.count { it.defaultCardType == DefaultCardType.Music })
+                removeFieldCard(DefaultCardType.Music)
             }
 
-            RegularMeeting -> TODO()
-            InfinityPassion -> TODO()
-            DoItWithTime -> TODO()
-            Reverse -> TODO()
-            Cooperation -> TODO()
-            Disturbance -> TODO()
-            Reverse2 -> TODO()
+            TierType.RegularMeeting -> TODO()
+            TierType.InfinityPassion -> TODO()
+            TierType.DoItWithTime -> TODO()
+            TierType.Reverse -> TODO()
+            TierType.Cooperation -> TODO()
+            TierType.Disturbance -> TODO()
+            TierType.Reverse2 -> TODO()
         }
         return@execute true
     }
 
     fun PlayerData.PlayerDataModifier.onNewDay() = execute {
-        if (passives.contains(Novelist)) {
-            val timeUnit = if (passives.contains(ProNovelist) && time > 7) 2 else 1
+        if (passives.contains(PassiveType.Novelist)) {
+            val timeUnit = if (passives.contains(PassiveType.ProNovelist) && time > 7) 2 else 1
             time -= timeUnit
             add(DataKey.NovelTimeTotal, timeUnit)
             add(DataKey.NovelTimeToday, timeUnit)
+        }
+        if (passives.contains(PassiveType.RepeatMusic)) {
+            if (fieldCards.any { it.defaultCardType == DefaultCardType.Music }) {
+                addFieldCard(DefaultCardType.Music, 2, true, isDayDuration = true)
+            }
+        }
+    }
+
+    fun PlayerData.PlayerDataModifier.onNewDayAfter() = execute {
+        if (passives.contains(PassiveType.MusicPlay)) {
+            addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
+            get(DataKey.SavedMusic)?.let {
+                repeat(it) {
+                    addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
+                }
+            }
         }
     }
 
@@ -160,7 +175,7 @@ object CardManager {
         var increment = 0
         fieldCards.forEach {
             when (it.defaultCardType) {
-                Music -> increment++
+                DefaultCardType.Music -> increment++
                 else -> return@forEach
             }
         }
