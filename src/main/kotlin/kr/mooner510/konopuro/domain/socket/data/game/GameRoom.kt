@@ -136,8 +136,9 @@ data class GameRoom(
                 val uuid = UUIDParser.transfer(rawProtocol[0].toString())
                 modify {
                     self {
-                        val card = it.useCard(uuid)
-                        other(Protocol.Game.Server.SUCCESS_CARD, card!!)
+                        it.useCard(uuid)?.let { card ->
+                            other(Protocol.Game.Server.SUCCESS_CARD, card)
+                        }
                     }
                 }
             }
