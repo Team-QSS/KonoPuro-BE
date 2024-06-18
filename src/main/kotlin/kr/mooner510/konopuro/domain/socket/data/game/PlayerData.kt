@@ -12,7 +12,6 @@ import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.onNewDayA
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useDefaultCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
-import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData.Modifier.*
 import kr.mooner510.konopuro.domain.socket.data.obj.GameCards
 import kr.mooner510.konopuro.domain.socket.data.obj.GameStudentCards

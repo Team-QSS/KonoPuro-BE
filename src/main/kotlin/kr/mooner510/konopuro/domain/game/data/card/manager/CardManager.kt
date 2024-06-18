@@ -8,7 +8,6 @@ import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.socket.data.type.DataKey
-import kotlin.math.absoluteValue
 import kotlin.math.max
 
 object CardManager {
