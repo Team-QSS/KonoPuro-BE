@@ -27,7 +27,7 @@ enum class DataKey(
     NovelTimeToday(true), // 소설 시간
     SavedMusic, // 음악
     ParallelProcess, // 병행 프로세스 체크
-    IdeaDayCheck, // 아이디어 샘솟는 날 체크
+    IdeaDayCheck(true), // 아이디어 샘솟는 날 체크
     ;
 
     companion object {

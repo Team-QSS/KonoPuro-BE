@@ -14,6 +14,7 @@ enum class DefaultCardType(
     UltimatePower(1, 0, CardType.Field),
     Music(1, 0, CardType.Field),
     DawnCoding(1, 0, CardType.Field),
+    Passion(1, 0, CardType.Field),
     Test(1, 5, CardType.Tool, EnumSet.of(PassiveType.Test))
     ;
 

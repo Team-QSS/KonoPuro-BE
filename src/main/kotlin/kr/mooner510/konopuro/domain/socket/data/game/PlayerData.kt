@@ -150,8 +150,8 @@ data class PlayerData(
 
         fun newDay(date: Int) = execute {
             repeat(1) { pickupDeck() }
-            DataKey.removals.forEach(::remove)
             onNewDay()
+            DataKey.removals.forEach(::remove)
             fieldCards.mapNotNull { if (it.dayDuration) it.defaultCardType else null }.toSet().forEach {
                 removeFieldCardLimit(it)
             }
@@ -206,9 +206,9 @@ data class PlayerData(
             modifiers.add(Sleep)
         }
 
-        fun addProject(majorType: MajorType, value: Int) = execute {
+        fun addProject(majorType: MajorType, value: Int, callEvent: Boolean = true) = execute {
             val issueList = issue.getOrElse(majorType) { LinkedList() }
-            var afterValue = calculateProject(majorType, value)
+            var afterValue = if(callEvent) calculateProject(majorType, value) else value
             var next: Int
             if (issueList.isNotEmpty()) {
                 val iterator = issueList.listIterator()

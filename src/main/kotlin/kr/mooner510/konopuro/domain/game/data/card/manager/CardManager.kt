@@ -29,7 +29,13 @@ object CardManager {
 
         useTime -= get(DataKey.NovelTimeToday, 0)
 
-        if (!removeTime(max(0, useTime))) return@execute false
+        if (!removeTime(max(1, useTime))) return@execute false
+        if (activeStudent.passives.contains(PassiveType.Mastering)) {
+            otherModifier.execute {
+                addProject(MajorType.iOS, -2, false)
+                addProject(MajorType.Android, -2, false)
+            }
+        }
         when (tierType) {
             TierType.Designer -> addProject(MajorType.Design, 6)
             TierType.Frontend -> addProject(MajorType.FrontEnd, 6)
@@ -136,7 +142,6 @@ object CardManager {
     }
 
     fun PlayerData.PlayerDataModifier.onNewDay() = execute {
-
         fieldCards.forEach {
             when (it.defaultCardType) {
                 DefaultCardType.DawnCoding -> TODO()
@@ -159,26 +164,42 @@ object CardManager {
                     }
                 }
 
-                PassiveType.NightCoding -> if(time > 0) addFieldCard(DefaultCardType.DawnCoding, 2, true, isDayDuration = true)
+                PassiveType.NightCoding -> if (time > 0) addFieldCard(
+                    DefaultCardType.DawnCoding,
+                    2,
+                    true,
+                    isDayDuration = true
+                )
+
+                PassiveType.ParallelProcess -> set(
+                    DataKey.ParallelProcess,
+                    if (get(DataKey.DesignProject) == null && get(DataKey.FrontEndProject) == null) 1 else 0
+                )
+
                 else -> return@forEach
             }
         }
-
-        if (get(DataKey.IdeaDayCheck, 0) == 0) {
-            set(DataKey.ParallelProcess, 1)
-        } else set(DataKey.ParallelProcess, 0)
-        set(DataKey.IdeaDayCheck, 0)
     }
 
     fun PlayerData.PlayerDataModifier.onNewDayAfter() = execute {
-        if (passives.contains(PassiveType.MusicPlay)) {
-            addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
-            get(DataKey.SavedMusic)?.let {
-                repeat(it) {
-                    addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
+        passives.forEach {
+            when (it) {
+                PassiveType.BlazePassion -> if (!(students.all { it.hasEndDate(StudentState.HalfLife) } || fieldCards.any { it.defaultCardType == DefaultCardType.Passion }) && students.any { it.getFatigue() > 1 }) {
+                    addFieldCard(DefaultCardType.Passion, 3, true, isDayDuration = true)
                 }
+
+                PassiveType.MusicPlay -> {
+                    addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
+                    get(DataKey.SavedMusic)?.let {
+                        repeat(it) {
+                            addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
+                        }
+                    }
+                    set(DataKey.SavedMusic, 0)
+                }
+
+                else -> return@forEach
             }
-            set(DataKey.SavedMusic, 0)
         }
     }
 
@@ -200,20 +221,15 @@ object CardManager {
                     else -> return@forEach
                 }
 
-                PassiveType.ParallelProcess -> if (get(
-                        DataKey.ParallelProcess,
-                        1
-                    ) == 1 && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)
-                ) increment += 2
+                PassiveType.ParallelProcess ->
+                    if (get(DataKey.ParallelProcess) != null && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)
+                    ) increment += 2
 
-                PassiveType.IdeaDay -> if (get(
-                        DataKey.IdeaDayCheck,
-                        0
-                    ) == 0 && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)
-                ) {
-                    increment += 5
-                    set(DataKey.IdeaDayCheck, 1)
-                }
+                PassiveType.IdeaDay ->
+                    if (get(DataKey.IdeaDayCheck) == null && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)) {
+                        increment += 5
+                        set(DataKey.IdeaDayCheck, 1)
+                    }
 
                 PassiveType.TimeSaving -> if (issue[majorType]?.isNotEmpty() == true) increment += 5
                 PassiveType.Overload -> if (majorType == MajorType.FrontEnd && students.count {
@@ -229,6 +245,17 @@ object CardManager {
                 ) increment += 4
 
                 else -> return@forEach
+            }
+        }
+        otherModifier.execute other@{
+            passives.forEach {
+                when (it) {
+                    PassiveType.Destore ->
+                        if (majorType == MajorType.iOS || majorType == MajorType.Android) {
+                            addProject(majorType, 2, false)
+                        }
+                    else -> return@forEach
+                }
             }
         }
         return@execute increment + value
