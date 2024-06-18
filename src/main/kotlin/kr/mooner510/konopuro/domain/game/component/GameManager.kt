@@ -9,6 +9,7 @@ import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.game.exception.AlreadyMatchQueuedException
 import kr.mooner510.konopuro.domain.game.repository.ActiveDeckRepository
 import kr.mooner510.konopuro.domain.game.repository.DeckCardRepository
 import kr.mooner510.konopuro.domain.game.repository.PlayerCardRepository
@@ -74,6 +75,7 @@ class GameManager(
 
     fun matching(user: User) {
         if (user.client == null) throw UserClientNotFoundException()
+        if (queue.contains(user.id)) throw AlreadyMatchQueuedException()
         queue.offer(user.id)
 
         for (uuid in queue) {

@@ -23,6 +23,7 @@ enum class ErrorCode(
     CARD_DATA_NOT_FOUND("카드 데이터를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     GATCHA_NOT_FOUND("가챠를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
     TIER_NOT_FOUND("티어를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
+    ALREADY_MATCH_QUEUED("이미 매칭 큐에 등록되었습니다.", HttpStatus.NOT_FOUND),
     PASSIVE_NOT_FOUND("패시브를 찾지 못했습니다.", HttpStatus.NOT_FOUND),
 
     CARD_ALREADY_EXISTS("해당 카드가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
