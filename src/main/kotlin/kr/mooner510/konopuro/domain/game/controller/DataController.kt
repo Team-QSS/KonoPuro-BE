@@ -28,12 +28,12 @@ class DataController(
     fun getTierData(): String {
         val json = JSONObject()
 
-        val values: List<List<String>> = sheets.spreadsheets().values()
+        val values: List<List<Any>> = sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
-            .execute()["values"] as List<List<String>>
+            .execute()["values"] as List<List<Any>>
 
         for (value in values) {
-            json.put(value[0], value[1])
+            json.put(value[0] as String, JSONObject().put("name", values[1]).put("time", value[2]).put("description", values[3]))
         }
 
         return json.toString()
@@ -45,12 +45,12 @@ class DataController(
     fun getPassiveData(): String {
         val json = JSONObject()
 
-        val values: List<List<String>> = sheets.spreadsheets().values()
+        val values: List<List<Any>> = sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "PassiveData")
-            .execute()["values"] as List<List<String>>
+            .execute()["values"] as List<List<Any>>
 
         for (value in values) {
-            json.put(value[0], value[1])
+            json.put(value[0] as String, JSONObject().put("name", values[1]).put("description", values[2]))
         }
 
         return json.toString()
