@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -38,7 +39,8 @@ class GatchaController(
     @GetMapping("/list")
     fun gatchaList(): GatchaResponses {
         return GatchaResponses(
-            gatchaRepository.findAll().map {
+            gatchaRepository.findAll().mapNotNull {
+                if(LocalDateTime.now() !in it.startAt .. it.endAt) return@mapNotNull null
                 GatchaResponse(
                     it.id,
                     it.title,
