@@ -3,6 +3,7 @@ package kr.mooner510.konopuro.domain.game.data.card.manager
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
+import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
@@ -181,5 +182,17 @@ object CardManager {
         }
         if (issue[majorType]?.isNotEmpty() == true) increment += 5
         return@execute increment
+    }
+
+    fun GameStudentCard.GameStudentCardModifier.calculateFatigueAddition(): Double {
+        var addition = 0.0
+        // TODO: 피로도 증가 이벤트
+        return addition
+    }
+
+    fun GameStudentCard.GameStudentCardModifier.calculateFatigueSubtraction(): Double {
+        var subtraction = 0.0
+        // TODO: 피로도 감소 이벤트
+        return subtraction
     }
 }

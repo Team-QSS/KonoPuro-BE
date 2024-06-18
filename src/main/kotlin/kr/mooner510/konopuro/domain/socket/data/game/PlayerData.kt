@@ -8,6 +8,7 @@ import kr.mooner510.konopuro.domain.game.data.card.dto.GameCard
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateProject
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.onNewDay
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.onNewDayAfter
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useDefaultCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType

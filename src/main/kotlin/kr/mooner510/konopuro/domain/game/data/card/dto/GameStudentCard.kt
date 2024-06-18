@@ -3,6 +3,8 @@ package kr.mooner510.konopuro.domain.game.data.card.dto
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateFatigueAddition
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateFatigueSubtraction
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import org.json.JSONObject
@@ -56,13 +58,13 @@ data class GameStudentCard(
         }
 
         fun addFatigue(value: Double) {
-            gameStudentCard.fatigue = min(6.0, gameStudentCard.fatigue + value)
+            gameStudentCard.fatigue = min(6.0, gameStudentCard.fatigue + max(0.0, value + calculateFatigueAddition()))
             modifier.add(Modifier.Fatigue)
         }
 
         fun removeFatigue(value: Double) {
             if (gameStudentCard.fatigue <= 0) return
-            gameStudentCard.fatigue = max(0.0, gameStudentCard.fatigue - value)
+            gameStudentCard.fatigue = max(0.0, gameStudentCard.fatigue - max(0.0, value + calculateFatigueSubtraction()))
             modifier.add(Modifier.Fatigue)
         }
 
