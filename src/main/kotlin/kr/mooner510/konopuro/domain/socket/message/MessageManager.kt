@@ -11,6 +11,7 @@ import com.corundumstudio.socketio.SocketIOServer
 import com.corundumstudio.socketio.listener.ConnectListener
 import com.corundumstudio.socketio.listener.DataListener
 import com.corundumstudio.socketio.listener.DisconnectListener
+import com.fasterxml.jackson.databind.ObjectMapper
 import kr.mooner510.konopuro.domain.game.component.GameManager
 import kr.mooner510.konopuro.domain.socket.data.Protocol
 import kr.mooner510.konopuro.domain.socket.data.RawProtocol
@@ -39,12 +40,13 @@ class MessageManager(
     }
 
     init {
+        val objectMapper = ObjectMapper()
         namespace.let {
             it.addConnectListener(onConnected())
             it.addDisconnectListener(onDisconnected())
             it.addAuthTokenListener(onAuthToken())
             it.addEventInterceptor { client, eventName, args, _ ->
-                logger.info("Client[${client.sessionId}] - Received chat message on ($eventName) '${args}'")
+                logger.info("Client[${client.sessionId}] - Received chat message on ($eventName) '${objectMapper.writeValueAsString(args)}'")
             }
             server.addEventInterceptor { namespaceClient, s, _, _ ->
                 logger.info("Event Listen($s): ${namespaceClient.sessionId}")
