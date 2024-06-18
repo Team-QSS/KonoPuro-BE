@@ -15,7 +15,11 @@ enum class DefaultCardType(
     Music(1, 0, CardType.Field),
     DawnCoding(1, 0, CardType.Field),
     Passion(1, 0, CardType.Field),
-    Test(1, 5, CardType.Tool, EnumSet.of(PassiveType.Test))
+
+    CleanCode(1, 5, CardType.Tool, EnumSet.of(PassiveType.CleanCode)),
+    Refectoring(1, 5, CardType.Event, EnumSet.of(PassiveType.Refectoring)),
+    JustRealize(1, 5, CardType.Activity, EnumSet.of(PassiveType.JustRealize)),
+    IndustrialSpy(1, 5, CardType.Activity, EnumSet.of(PassiveType.IndustrialSpy)),
     ;
 
     companion object {

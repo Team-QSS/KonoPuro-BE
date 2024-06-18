@@ -18,7 +18,6 @@ object CardManager {
 
     fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
-            PassiveType.Test -> addProject(MajorType.FrontEnd, 10)
             else -> return@execute
         }
     }
@@ -254,6 +253,7 @@ object CardManager {
                         if (majorType == MajorType.iOS || majorType == MajorType.Android) {
                             addProject(majorType, 2, false)
                         }
+
                     else -> return@forEach
                 }
             }

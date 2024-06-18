@@ -3,12 +3,14 @@ package kr.mooner510.konopuro.domain.game.controller
 import com.google.api.services.sheets.v4.Sheets
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 @Tag(name = "Resource", description = "리소스 API")
 @RestController
@@ -18,6 +20,36 @@ class DataController(
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(DataController::class.java)
+
+        private lateinit var lastUpdateTime: LocalDateTime
+
+        lateinit var updater: () -> Unit
+            private set
+    }
+
+    init {
+        lastUpdateTime = LocalDateTime.now().minusHours(1)
+
+        updater = {
+            if (lastUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
+                logger.info("Spread Sheet Update Successfully")
+
+                @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
+                    .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
+                    .execute()["values"] as List<List<String>>
+
+                for (value in values) {
+                    try {
+                        val type = TierType.valueOf(value[0])
+                        TierType.setTime(type, value[2].toInt())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+
+        updater()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -26,12 +58,12 @@ class DataController(
     fun getTierData(): String {
         val json = JSONObject()
 
-        val values: List<List<Any>> = sheets.spreadsheets().values()
+        val values: List<List<String>> = sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
-            .execute()["values"] as List<List<Any>>
+            .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            json.put(value[0] as String, JSONObject().put("name", values[1]).put("time", value[2]).put("description", values[3]))
+            json.put(value[0], JSONObject().put("name", value[1]).put("time", value[2].toInt()).put("description", value[3]))
         }
 
         return json.toString()
@@ -43,12 +75,12 @@ class DataController(
     fun getPassiveData(): String {
         val json = JSONObject()
 
-        val values: List<List<Any>> = sheets.spreadsheets().values()
+        val values: List<List<String>> = sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "PassiveData")
-            .execute()["values"] as List<List<Any>>
+            .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            json.put(value[0] as String, JSONObject().put("name", values[1]).put("description", values[2]))
+            json.put(value[0], JSONObject().put("name", value[1]).put("description", values[2]))
         }
 
         return json.toString()
@@ -60,12 +92,12 @@ class DataController(
     fun getDefaultCardData(): String {
         val json = JSONObject()
 
-        val values: List<List<Any>> = sheets.spreadsheets().values()
+        val values: List<List<String>> = sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
-            .execute()["values"] as List<List<Any>>
+            .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            json.put(value[0] as String, JSONObject().put("name", values[1]).put("time", value[2]).put("description", values[3]))
+            json.put(value[0], JSONObject().put("name", value[1]).put("time", value[2].toInt()).put("description", value[3]))
         }
 
         return json.toString()

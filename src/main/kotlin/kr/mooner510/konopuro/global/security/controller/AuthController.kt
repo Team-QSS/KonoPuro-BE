@@ -99,13 +99,17 @@ class AuthController(
             )
         }
 
-        repeat(25) {
-            cards.add(
-                PlayerCard(
-                    user.id,
-                    DefaultCardType.Test.toString()
-                )
-            )
+        repeat(6) {
+            cards.add(PlayerCard(user.id, DefaultCardType.CleanCode.toString()))
+        }
+        repeat(6) {
+            cards.add(PlayerCard(user.id, DefaultCardType.Refectoring.toString()))
+        }
+        repeat(6) {
+            cards.add(PlayerCard(user.id, DefaultCardType.JustRealize.toString()))
+        }
+        repeat(6) {
+            cards.add(PlayerCard(user.id, DefaultCardType.IndustrialSpy.toString()))
         }
 
         val saved = playerCardRepository.saveAll(cards)

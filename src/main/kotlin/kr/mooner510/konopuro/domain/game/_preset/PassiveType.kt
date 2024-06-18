@@ -29,6 +29,8 @@ enum class PassiveType {
     Destore,
     Brocker,
 
-    //TODO: 삭제하기
-    Test,
+    CleanCode,
+    Refectoring,
+    JustRealize,
+    IndustrialSpy
 }
