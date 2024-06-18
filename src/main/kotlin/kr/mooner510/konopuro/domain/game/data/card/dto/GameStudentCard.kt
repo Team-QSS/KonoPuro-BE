@@ -3,8 +3,8 @@ package kr.mooner510.konopuro.domain.game.data.card.dto
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
-import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateFatigueAddition
-import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.calculateFatigueSubtraction
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.decreaseFatigue
+import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.increaseFatigue
 import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
@@ -64,13 +64,13 @@ data class GameStudentCard(
         }
 
         fun addFatigue(value: Double) {
-            gameStudentCard.fatigue = min(6.0, gameStudentCard.fatigue + max(0.0, value + calculateFatigueAddition()))
+            gameStudentCard.fatigue = min(6.0, gameStudentCard.fatigue + max(0.0, increaseFatigue(value, gameStudentCard.fatigue)))
             modifier.add(Modifier.Fatigue)
         }
 
         fun removeFatigue(value: Double) {
             if (gameStudentCard.fatigue <= 0) return
-            gameStudentCard.fatigue = max(0.0, gameStudentCard.fatigue - max(0.0, value + calculateFatigueSubtraction()))
+            gameStudentCard.fatigue = max(0.0, gameStudentCard.fatigue - max(0.0,  decreaseFatigue(value, gameStudentCard.fatigue)))
             modifier.add(Modifier.Fatigue)
         }
 

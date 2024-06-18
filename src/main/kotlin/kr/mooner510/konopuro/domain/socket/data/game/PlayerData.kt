@@ -208,7 +208,7 @@ data class PlayerData(
 
         fun addProject(majorType: MajorType, value: Int) = execute {
             val issueList = issue.getOrElse(majorType) { LinkedList() }
-            var afterValue = value + calculateProject(majorType)
+            var afterValue = calculateProject(majorType, value)
             var next: Int
             if (issueList.isNotEmpty()) {
                 val iterator = issueList.listIterator()

@@ -8,6 +8,7 @@ import kr.mooner510.konopuro.domain.game.data.card.types.StudentState
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData
 import kr.mooner510.konopuro.domain.socket.data.type.DataKey
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 object CardManager {
@@ -17,25 +18,8 @@ object CardManager {
 
     fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
-            PassiveType.ParallelProcess -> TODO()
-            PassiveType.IdeaDay -> TODO()
-            PassiveType.Overload -> TODO()
-            PassiveType.APIRequired -> TODO()
-            PassiveType.Novelist -> TODO()
-            PassiveType.ProNovelist -> TODO()
-            PassiveType.TimeSaving -> TODO()
-            PassiveType.MusicPlay -> TODO()
-            PassiveType.InfinityMusic -> TODO()
-            PassiveType.RepeatMusic -> TODO()
-            PassiveType.MultiDevelop -> TODO()
-            PassiveType.FastAction -> TODO()
-            PassiveType.NightCoding -> TODO()
-            PassiveType.BlazePassion -> TODO()
-            PassiveType.Mastering -> TODO()
-            PassiveType.IssueCracker -> TODO()
-            PassiveType.Destore -> TODO()
-            PassiveType.Brocker -> TODO()
             PassiveType.Test -> addProject(MajorType.FrontEnd, 10)
+            else -> return@execute
         }
     }
 
@@ -77,7 +61,11 @@ object CardManager {
                 addFieldCard(DefaultCardType.UltimatePower, 3, dupe = true, isDayDuration = true)
             }
 
-            TierType.IssueTracker -> addProject(MajorType.FrontEnd, 9 + (issue[MajorType.FrontEnd]?.sum()?.coerceAtMost(20) ?: 0))
+            TierType.IssueTracker -> addProject(
+                MajorType.FrontEnd,
+                9 + (issue[MajorType.FrontEnd]?.sum()?.coerceAtMost(20) ?: 0)
+            )
+
             TierType.AutonomyStudy -> {
                 addProject(MajorType.FrontEnd, 12)
                 val filtered = students.filter { !it.hasEndDate(StudentState.Passion) }
@@ -148,17 +136,38 @@ object CardManager {
     }
 
     fun PlayerData.PlayerDataModifier.onNewDay() = execute {
-        if (passives.contains(PassiveType.Novelist)) {
-            val timeUnit = if (passives.contains(PassiveType.ProNovelist) && time > 7) 2 else 1
-            time -= timeUnit
-            add(DataKey.NovelTimeTotal, timeUnit)
-            add(DataKey.NovelTimeToday, timeUnit)
-        }
-        if (passives.contains(PassiveType.RepeatMusic)) {
-            if (fieldCards.any { it.defaultCardType == DefaultCardType.Music }) {
-                addFieldCard(DefaultCardType.Music, 2, true, isDayDuration = true)
+
+        fieldCards.forEach {
+            when (it.defaultCardType) {
+                DefaultCardType.DawnCoding -> TODO()
+                else -> return@forEach
             }
         }
+
+        passives.forEach {
+            when (it) {
+                PassiveType.Novelist -> {
+                    val timeUnit = if (passives.contains(PassiveType.ProNovelist) && time > 7) 2 else 1
+                    time -= timeUnit
+                    add(DataKey.NovelTimeTotal, timeUnit)
+                    add(DataKey.NovelTimeToday, timeUnit)
+                }
+
+                PassiveType.RepeatMusic -> {
+                    if (fieldCards.any { it.defaultCardType == DefaultCardType.Music }) {
+                        addFieldCard(DefaultCardType.Music, 2, true, isDayDuration = true)
+                    }
+                }
+
+                PassiveType.NightCoding -> if(time > 0) addFieldCard(DefaultCardType.DawnCoding, 2, true, isDayDuration = true)
+                else -> return@forEach
+            }
+        }
+
+        if (get(DataKey.IdeaDayCheck, 0) == 0) {
+            set(DataKey.ParallelProcess, 1)
+        } else set(DataKey.ParallelProcess, 0)
+        set(DataKey.IdeaDayCheck, 0)
     }
 
     fun PlayerData.PlayerDataModifier.onNewDayAfter() = execute {
@@ -169,10 +178,11 @@ object CardManager {
                     addFieldCard(DefaultCardType.Music, 1, true, isDayDuration = true)
                 }
             }
+            set(DataKey.SavedMusic, 0)
         }
     }
 
-    fun PlayerData.PlayerDataModifier.calculateProject(majorType: MajorType): Int = execute {
+    fun PlayerData.PlayerDataModifier.calculateProject(majorType: MajorType, value: Int): Int = execute {
         var increment = 0
         fieldCards.forEach {
             when (it.defaultCardType) {
@@ -180,19 +190,85 @@ object CardManager {
                 else -> return@forEach
             }
         }
-        if (issue[majorType]?.isNotEmpty() == true) increment += 5
-        return@execute increment
+        passives.forEach {
+            when (it) {
+                PassiveType.MultiDevelop -> increment += when (project[majorType]!!.toFloat() / goal[majorType]!!.toFloat()) {
+                    0.1f -> 1
+                    0.25f -> 2
+                    0.5f -> 3
+                    0.75f -> 4
+                    else -> return@forEach
+                }
+
+                PassiveType.ParallelProcess -> if (get(
+                        DataKey.ParallelProcess,
+                        1
+                    ) == 1 && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)
+                ) increment += 2
+
+                PassiveType.IdeaDay -> if (get(
+                        DataKey.IdeaDayCheck,
+                        0
+                    ) == 0 && (majorType == MajorType.Design || majorType == MajorType.FrontEnd)
+                ) {
+                    increment += 5
+                    set(DataKey.IdeaDayCheck, 1)
+                }
+
+                PassiveType.TimeSaving -> if (issue[majorType]?.isNotEmpty() == true) increment += 5
+                PassiveType.Overload -> if (majorType == MajorType.FrontEnd && students.count {
+                        it.groups.contains(
+                            MajorType.FrontEnd
+                        )
+                    } > 1) increment += 4
+
+                PassiveType.APIRequired -> if (majorType == MajorType.Backend && (get(
+                        DataKey.BackendProjectTotal,
+                        0
+                    ) < get(DataKey.FrontEndProjectTotal, 0) * 0.8f)
+                ) increment += 4
+
+                else -> return@forEach
+            }
+        }
+        return@execute increment + value
     }
 
-    fun GameStudentCard.GameStudentCardModifier.calculateFatigueAddition(): Double = execute {
-        var addition = 0.0
-        // TODO: 피로도 증가 이벤트
-        return@execute addition
-    }
+    //current fatigue = 현재 학생 카드에 쌓여있는 피로도
+    fun GameStudentCard.GameStudentCardModifier.increaseFatigue(value: Double, currentFatigue: Double): Double =
+        execute {
+            var applyValue = value;
+            fieldCards.forEach {
+                when (it.defaultCardType) {
+                    else -> return@forEach
+                }
+            }
+            passives.forEach {
+                when (it) {
+                    PassiveType.InfinityMusic -> {
+                        val count = fieldCards.count { it.defaultCardType == DefaultCardType.Music }
+                        applyValue -= value * (count.coerceAtMost(10) * .05f);
+                    }
 
-    fun GameStudentCard.GameStudentCardModifier.calculateFatigueSubtraction(): Double = execute {
-        var subtraction = 0.0
-        // TODO: 피로도 감소 이벤트
-        return@execute subtraction
-    }
+                    else -> return@forEach
+                }
+            }
+            return@execute applyValue
+        }
+
+    fun GameStudentCard.GameStudentCardModifier.decreaseFatigue(value: Double, currentFatigue: Double): Double =
+        execute {
+            var applyValue = value;
+            fieldCards.forEach {
+                when (it.defaultCardType) {
+                    else -> return@forEach
+                }
+            }
+            passives.forEach {
+                when (it) {
+                    else -> return@forEach
+                }
+            }
+            return@execute applyValue
+        }
 }
