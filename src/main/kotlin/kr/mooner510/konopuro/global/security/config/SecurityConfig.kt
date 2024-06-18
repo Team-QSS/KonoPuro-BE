@@ -66,6 +66,10 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/inventory/active").authenticated()
                 it.requestMatchers(HttpMethod.PUT, "/api/inventory/apply").authenticated()
 
+                it.requestMatchers(HttpMethod.GET, "/api/resource/tier").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/resource/passive").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/resource/card").permitAll()
+
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
 //                it.requestMatchers(HttpMethod.DELETE, "/api/test").permitAll()
