@@ -61,7 +61,8 @@ data class PlayerData(
 
     class PlayerDataModifier(
         private val gameRoom: GameRoom,
-        private val playerData: PlayerData
+        private val playerData: PlayerData,
+        private val otherPlayerData: PlayerData
     ) {
         companion object {
             private val objectMapper = ObjectMapper()
@@ -73,6 +74,10 @@ data class PlayerData(
 
         fun <T> execute(run: PlayerData.() -> T): T {
             return run(playerData)
+        }
+
+        fun <T> executeOther(run: PlayerData.() -> T): T {
+            return run(otherPlayerData)
         }
 
         fun applyStudentData() {

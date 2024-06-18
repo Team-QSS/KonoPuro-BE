@@ -50,7 +50,7 @@ class Sender(
     }
 
     fun selfModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.self())
+        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.self(), pair.other())
         run(modifier)
         modifier.build()?.let {
             pair.calcTurn()
@@ -60,7 +60,7 @@ class Sender(
     }
 
     fun otherModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.other())
+        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.other(), pair.self())
         run(modifier)
         modifier.build()?.let {
             pair.calcTurn()
@@ -70,8 +70,8 @@ class Sender(
     }
 
     fun modifyAll(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val firstBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.firstPlayer).apply { run(this) }.build()
-        val secondBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.secondPlayer).apply { run(this) }.build()
+        val firstBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.firstPlayer, gameRoom.secondPlayer).apply { run(this) }.build()
+        val secondBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.secondPlayer, gameRoom.secondPlayer).apply { run(this) }.build()
 
         pair.calcTurn()
 
