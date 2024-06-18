@@ -49,44 +49,13 @@ class Sender(
         return run(this.self())
     }
 
-    fun selfModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.self(), pair.other())
+    fun modify(run: PlayerData.PlayerDataModifierGroup.() -> Unit) {
+        val modifier = PlayerData.PlayerDataModifierGroup(gameRoom, pair.self(), pair.other())
         run(modifier)
-        modifier.build()?.let {
-            pair.calcTurn()
-            firstList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(self = it, isTurn = pair.self().id == gameRoom.turn)))
-            secondList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(other = it, isTurn = pair.other().id == gameRoom.turn)))
-        }
-    }
-
-    fun otherModify(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val modifier = PlayerData.PlayerDataModifier(gameRoom, pair.other(), pair.self())
-        run(modifier)
-        modifier.build()?.let {
-            pair.calcTurn()
-            firstList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(other = it, isTurn = pair.self().id == gameRoom.turn)))
-            secondList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(self = it, isTurn = pair.other().id == gameRoom.turn)))
-        }
-    }
-
-    fun modifyAll(run: (PlayerData.PlayerDataModifier) -> Unit) {
-        val firstBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.firstPlayer, gameRoom.secondPlayer).apply { run(this) }.build()
-        val secondBuild = PlayerData.PlayerDataModifier(gameRoom, gameRoom.secondPlayer, gameRoom.secondPlayer).apply { run(this) }.build()
-
+        val (self, other) = modifier.build()
         pair.calcTurn()
-
-        firstList.add(
-            RawProtocol(
-                Protocol.Game.Server.DATA_UPDATE,
-                RawData(self = firstBuild, other = secondBuild, gameRoom.firstPlayer.id == gameRoom.turn)
-            )
-        )
-        secondList.add(
-            RawProtocol(
-                Protocol.Game.Server.DATA_UPDATE,
-                RawData(self = secondBuild, other = firstBuild, gameRoom.secondPlayer.id == gameRoom.turn)
-            )
-        )
+        firstList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(self = self, other = other, isTurn = pair.self().id == gameRoom.turn)))
+        secondList.add(RawProtocol(Protocol.Game.Server.DATA_UPDATE, RawData(self = other, other = self, isTurn = pair.other().id == gameRoom.turn)))
     }
 
     fun all(protocol: Int, vararg data: Any) {

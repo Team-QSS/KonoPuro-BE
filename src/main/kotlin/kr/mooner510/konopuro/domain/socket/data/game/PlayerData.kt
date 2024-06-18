@@ -12,6 +12,7 @@ import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.onNewDayA
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useDefaultCard
 import kr.mooner510.konopuro.domain.game.data.card.manager.CardManager.useTier
 import kr.mooner510.konopuro.domain.game.data.global.types.MajorType
+import kr.mooner510.konopuro.domain.socket.data.RawProtocol
 import kr.mooner510.konopuro.domain.socket.data.game.PlayerData.Modifier.*
 import kr.mooner510.konopuro.domain.socket.data.obj.GameCards
 import kr.mooner510.konopuro.domain.socket.data.obj.GameStudentCards
@@ -59,14 +60,50 @@ data class PlayerData(
         return super.equals(other)
     }
 
+    class PlayerDataModifierGroup(
+        gameRoom: GameRoom,
+        selfData: PlayerData,
+        otherData: PlayerData,
+    ) {
+        private val selfModifier = PlayerDataModifier(gameRoom, selfData)
+        private val otherModifier = PlayerDataModifier(gameRoom, otherData)
+
+        init {
+            selfModifier.registerOther(otherModifier)
+            otherModifier.registerOther(selfModifier)
+        }
+
+        fun self(func: (PlayerDataModifier) -> Unit) {
+            func(selfModifier)
+        }
+
+        fun other(func: (PlayerDataModifier) -> Unit) {
+            func(otherModifier)
+        }
+
+        fun all(func: (PlayerDataModifier) -> Unit) {
+            func(selfModifier)
+            func(otherModifier)
+        }
+
+        fun build(): Pair<List<String>?, List<String>?> {
+            return selfModifier.build() to otherModifier.build()
+        }
+    }
+
     class PlayerDataModifier(
         private val gameRoom: GameRoom,
-        private val playerData: PlayerData,
-        private val otherPlayerData: PlayerData
+        private val playerData: PlayerData
     ) {
         companion object {
             private val objectMapper = ObjectMapper()
         }
+
+        fun registerOther(otherModifier: PlayerDataModifier) {
+            this.otherModifier = otherModifier
+        }
+
+        lateinit var otherModifier: PlayerDataModifier
 
         private val modifiers = EnumSet.noneOf(Modifier::class.java)
         lateinit var activeStudent: GameStudentCard
@@ -74,10 +111,6 @@ data class PlayerData(
 
         fun <T> execute(run: PlayerData.() -> T): T {
             return run(playerData)
-        }
-
-        fun <T> executeOther(run: PlayerData.() -> T): T {
-            return run(otherPlayerData)
         }
 
         fun applyStudentData() {

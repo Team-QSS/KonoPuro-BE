@@ -123,8 +123,10 @@ data class GameRoom(
 
             Protocol.Game.Client.SLEEP -> {
                 if (nextTurn == null) nextTurn = pairs.self().id
-                selfModify {
-                    it.sleep()
+                modify {
+                    self {
+                        it.sleep()
+                    }
                 }
             }
 
@@ -132,18 +134,22 @@ data class GameRoom(
                 println("cardUse")
                 println(rawProtocol.data[0])
                 val uuid = UUIDParser.transfer(rawProtocol[0].toString())
-                selfModify {
-                    val card = it.useCard(uuid)
-                    other(Protocol.Game.Server.SUCCESS_CARD, card!!)
+                modify {
+                    self {
+                        val card = it.useCard(uuid)
+                        other(Protocol.Game.Server.SUCCESS_CARD, card!!)
+                    }
                 }
             }
 
             Protocol.Game.Client.USE_ABILITY -> {
                 val useCardId = rawProtocol[0].toString()
                 val tierType = TierType.valueOf(rawProtocol[1].toString())
-                selfModify {
-                    val tier = it.useAbility(tierType) ?: return@selfModify
-                    other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
+                modify {
+                    self {
+                        val tier = it.useAbility(tierType) ?: return@self
+                        other(Protocol.Game.Server.SUCCESS_ABILITY, tier, it.activeStudent)
+                    }
                 }
             }
         }
@@ -181,8 +187,10 @@ data class GameRoom(
             turn = nextTurn!!
             nextTurn = null
             all(Protocol.Game.Server.NEW_DAY)
-            modifyAll {
-                it.newDay(date)
+            modify {
+                all {
+                    it.newDay(date)
+                }
             }
         }
     }
