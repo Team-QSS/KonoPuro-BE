@@ -86,15 +86,15 @@ class AuthController(
 
         val cards = ArrayList<PlayerCard>(31)
 
-        repeat(5) {
+        listOf(StudentCardType.SeungWoo, StudentCardType.TaeGon, StudentCardType.ChulSoo, StudentCardType.JunHa, StudentCardType.CanRobot).forEach {
             cards.add(
                 PlayerCard(
                     user.id,
-                    StudentCardType.SeungWoo.toString(),
+                    it.toString(),
                     true,
-                    StudentCardType.SeungWoo.secondTier.random(),
-                    StudentCardType.SeungWoo.thirdPassive.random(),
-                    StudentCardType.SeungWoo.forthTier.random()
+                    it.secondTier.random(),
+                    it.thirdPassive.random(),
+                    it.forthTier.random()
                 )
             )
         }
