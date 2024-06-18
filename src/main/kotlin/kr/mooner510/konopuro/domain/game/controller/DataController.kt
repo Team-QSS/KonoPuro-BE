@@ -53,6 +53,16 @@ class DataController(
     }
 
     @Suppress("UNCHECKED_CAST")
+    @Operation(summary = "버전", description = "버전 데이터를 가져옵니다.")
+    @GetMapping("/version")
+    fun getVersion(): String {
+        val version = (sheets.spreadsheets().values()
+            .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
+            .execute()["values"] as List<List<String>>)[0][0]
+        return JSONObject().put("version", version).toString()
+    }
+
+    @Suppress("UNCHECKED_CAST")
     @Operation(summary = "티어 데이터 조회", description = "티어에 대한 데이터를 가져옵니다.")
     @GetMapping("/tier")
     fun getTierData(): String {

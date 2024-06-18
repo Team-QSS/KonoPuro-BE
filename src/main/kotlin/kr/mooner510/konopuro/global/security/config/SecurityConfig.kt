@@ -69,6 +69,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/resource/tier").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/resource/passive").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/resource/card").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/resource/version").permitAll()
 
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
