@@ -57,7 +57,7 @@ class DataController(
     @GetMapping("/version")
     fun getVersion(): String {
         val version = (sheets.spreadsheets().values()
-            .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
+            .get(GoogleSpreadSheetComponent.SHEET_ID, "version")
             .execute()["values"] as List<List<String>>)[0][0]
         return JSONObject().put("version", version).toString()
     }
