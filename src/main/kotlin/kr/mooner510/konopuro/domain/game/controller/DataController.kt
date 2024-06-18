@@ -3,8 +3,6 @@ package kr.mooner510.konopuro.domain.game.controller
 import com.google.api.services.sheets.v4.Sheets
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import kr.mooner510.konopuro.domain.game._preset.PassiveType
-import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
@@ -51,6 +49,23 @@ class DataController(
 
         for (value in values) {
             json.put(value[0] as String, JSONObject().put("name", values[1]).put("description", values[2]))
+        }
+
+        return json.toString()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Operation(summary = "기본 카드 데이터 조회", description = "기본 카드에 대한 데이터를 가져옵니다.")
+    @GetMapping("/card")
+    fun getDefaultCardData(): String {
+        val json = JSONObject()
+
+        val values: List<List<Any>> = sheets.spreadsheets().values()
+            .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
+            .execute()["values"] as List<List<Any>>
+
+        for (value in values) {
+            json.put(value[0] as String, JSONObject().put("name", values[1]).put("time", value[2]).put("description", values[3]))
         }
 
         return json.toString()
