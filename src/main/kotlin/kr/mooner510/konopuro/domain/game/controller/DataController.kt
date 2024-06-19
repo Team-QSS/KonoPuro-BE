@@ -155,15 +155,14 @@ class DataController(
         val json = JSONObject()
 
         val values: List<List<String>> = sheets.spreadsheets().values()
-            .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
+            .get(GoogleSpreadSheetComponent.SHEET_ID, "StudentCardData")
             .execute()["values"] as List<List<String>>
 
         for (value in values) {
             val obj = JSONObject()
                 .put("name", value[1])
-                .put("time", value[2].toInt())
-                .put("idea", value[3])
-                .put("motive", value[4])
+                .put("idea", value[2])
+                .put("motive", value[3])
 
             try {
                 val type = StudentCardType.valueOf(value[0])
