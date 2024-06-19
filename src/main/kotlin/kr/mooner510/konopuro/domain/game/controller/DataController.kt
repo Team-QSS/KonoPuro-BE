@@ -134,7 +134,11 @@ class DataController(
             .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            val obj = JSONObject().put("tier", value[1]).put("name", value[2]).put("time", value[3].toInt()).put("description", value[4])
+            val obj = JSONObject()
+                .put("tier", value[1].toInt())
+                .put("name", value[2])
+                .put("time", value[3].toInt())
+                .put("description", value[4])
 
             try {
                 val type = DefaultCardType.valueOf(value[0])
