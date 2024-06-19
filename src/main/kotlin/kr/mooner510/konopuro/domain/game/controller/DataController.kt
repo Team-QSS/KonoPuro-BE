@@ -17,66 +17,20 @@ import java.time.LocalDateTime
 @Tag(name = "Resource", description = "리소스 API")
 @RestController
 @RequestMapping("/api/resource")
-class DataController(
-    private val sheets: Sheets
-) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(DataController::class.java)
+class DataController {
+    class DelayRunner<T : Any>(
+        private val delay: Long,
+        private val execution: () -> T
+    ) {
+        private var lastUpdateTime: LocalDateTime = LocalDateTime.now().minusHours(-delay * 2)
+        private lateinit var cache: T
 
-        private lateinit var lastTierUpdateTime: LocalDateTime
-        private lateinit var lastDefaultUpdateTime: LocalDateTime
-
-        lateinit var tierUpdater: () -> Unit
-            private set
-
-        lateinit var defaultUpdater: () -> Unit
-            private set
-    }
-
-    init {
-        lastTierUpdateTime = LocalDateTime.now().minusHours(1)
-        lastDefaultUpdateTime = LocalDateTime.now().minusHours(1)
-
-        tierUpdater = {
-            if (lastTierUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
-                logger.info("Spread Sheet Update Successfully: TierData")
-
-                @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
-                    .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
-                    .execute()["values"] as List<List<String>>
-
-                for (value in values) {
-                    try {
-                        val type = TierType.valueOf(value[0])
-                        TierType.setTime(type, value[2].toInt())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
+        fun execute(): T {
+            if (lastUpdateTime.plusHours(delay) > LocalDateTime.now()) return cache
+            lastUpdateTime = LocalDateTime.now()
+            cache = execution()
+            return cache
         }
-        tierUpdater()
-
-        defaultUpdater = {
-            if (lastDefaultUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
-                logger.info("Spread Sheet Update Successfully: DefaultCardData")
-
-                @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
-                    .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
-                    .execute()["values"] as List<List<String>>
-
-                for (value in values) {
-                    try {
-                        val type = DefaultCardType.valueOf(value[0])
-                        DefaultCardType.setTier(type, value[1].toInt())
-                        DefaultCardType.setTime(type, value[3].toInt())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
-        defaultUpdater()
     }
 
     @Suppress("UNCHECKED_CAST")

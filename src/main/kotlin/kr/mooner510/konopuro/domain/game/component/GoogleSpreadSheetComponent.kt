@@ -12,6 +12,10 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
+import kr.mooner510.konopuro.domain.game._preset.TierType
+import kr.mooner510.konopuro.domain.game.controller.DataController
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import java.io.File
@@ -28,6 +32,8 @@ class GoogleSpreadSheetComponent {
         private val JSON_FACTORY: JsonFactory = GsonFactory.getDefaultInstance()
         private val SCOPES: List<String> = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY)
         const val SHEET_ID = "12B2zVmVX0SyE38pXY_9IwsZlZ0yOv0slFPn0ZdhdiIs"
+
+        private val logger = LoggerFactory.getLogger(DataController::class.java)
     }
 
     private fun getCredentials(transport: NetHttpTransport): Credential {
@@ -42,9 +48,44 @@ class GoogleSpreadSheetComponent {
         return AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
     }
 
-    @Bean
-    fun getService(): Sheets {
-        val transport = GoogleNetHttpTransport.newTrustedTransport()
-        return Sheets.Builder(transport, JSON_FACTORY, getCredentials(transport)).setApplicationName(APPLICATION_NAME).build()
+    val sheets: Sheets =
+        Sheets.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, getCredentials(GoogleNetHttpTransport.newTrustedTransport()))
+            .setApplicationName(APPLICATION_NAME).build()
+
+    private val tierRunner = DataController.DelayRunner(12) {
+        logger.info("Spread Sheet Update Successfully: TierData")
+
+        @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
+            .get(SHEET_ID, "TierData")
+            .execute()["values"] as List<List<String>>
+
+        for (value in values) {
+            try {
+                val type = TierType.valueOf(value[0])
+                TierType.setTime(type, value[2].toInt())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
+
+    private val defaultRunner = DataController.DelayRunner(12) {
+        logger.info("Spread Sheet Update Successfully: DefaultCardData")
+
+        @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
+            .get(SHEET_ID, "DefaultCardData")
+            .execute()["values"] as List<List<String>>
+
+        for (value in values) {
+            try {
+                val type = DefaultCardType.valueOf(value[0])
+                DefaultCardType.setTier(type, value[1].toInt())
+                DefaultCardType.setTime(type, value[3].toInt())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private val versionRunner =
 }
