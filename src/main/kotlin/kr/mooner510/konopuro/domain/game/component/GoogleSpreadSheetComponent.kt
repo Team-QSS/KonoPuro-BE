@@ -50,7 +50,7 @@ class GoogleSpreadSheetComponent {
         private val delay: Long,
         private val execution: () -> T
     ) {
-        private var lastUpdateTime: LocalDateTime = LocalDateTime.now().minusHours(-delay * 2)
+        private var lastUpdateTime: LocalDateTime = LocalDateTime.now().minusHours(delay * 2)
         private lateinit var cache: T
 
         fun execute(): T {
