@@ -35,6 +35,7 @@ class DataController(
 
     init {
         lastTierUpdateTime = LocalDateTime.now().minusHours(1)
+        lastDefaultUpdateTime = LocalDateTime.now().minusHours(1)
 
         tierUpdater = {
             if (lastTierUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {

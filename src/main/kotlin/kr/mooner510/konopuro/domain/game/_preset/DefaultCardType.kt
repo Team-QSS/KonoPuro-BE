@@ -22,8 +22,21 @@ enum class DefaultCardType(
     ;
 
     companion object {
-        val tierOtherList = DefaultCardType.entries.filter { it.tier != 3 && it.cardType != CardType.Field }
-        val tier3List = DefaultCardType.entries.filter { it.tier == 3 && it.cardType != CardType.Field }
+        private var tierOtherListImpl: List<DefaultCardType>? = null
+        private var tier3ListImpl: List<DefaultCardType>? = null
+
+        val tierOtherList: List<DefaultCardType>
+            get() {
+                if (tierOtherListImpl == null) tierOtherListImpl = DefaultCardType.entries.filter { it.tier != 3 && it.cardType != CardType.Field }
+                return tierOtherListImpl!!
+            }
+
+        val tier3List: List<DefaultCardType>
+            get() {
+                if (tier3ListImpl == null) tier3ListImpl = DefaultCardType.entries.filter { it.tier == 3 && it.cardType != CardType.Field }
+                return tierOtherListImpl!!
+            }
+
 
         private val timeMap = hashMapOf<DefaultCardType, Int>()
         private val tierMap = hashMapOf<DefaultCardType, Int>()
