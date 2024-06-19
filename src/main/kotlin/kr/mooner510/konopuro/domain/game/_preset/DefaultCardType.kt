@@ -1,5 +1,6 @@
 package kr.mooner510.konopuro.domain.game._preset
 
+import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
 import kr.mooner510.konopuro.domain.game.controller.DataController
 import kr.mooner510.konopuro.domain.game.data.card.response.DefaultDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
@@ -46,7 +47,7 @@ enum class DefaultCardType(
         }
 
         fun getTime(type: DefaultCardType): Int {
-            DataController.defaultUpdater()
+            GoogleSpreadSheetComponent.instance.defaultRunner.execute()
             return timeMap.getOrDefault(type, 0)
         }
 
@@ -55,7 +56,7 @@ enum class DefaultCardType(
         }
 
         fun getTier(type: DefaultCardType): Int {
-            DataController.defaultUpdater()
+            GoogleSpreadSheetComponent.instance.defaultRunner.execute()
             return tierMap.getOrDefault(type, 1)
         }
     }

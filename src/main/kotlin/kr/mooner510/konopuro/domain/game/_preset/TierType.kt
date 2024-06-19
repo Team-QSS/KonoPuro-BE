@@ -1,6 +1,6 @@
 package kr.mooner510.konopuro.domain.game._preset
 
-import kr.mooner510.konopuro.domain.game.controller.DataController
+import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
 
 enum class TierType {
     // 기본
@@ -49,7 +49,7 @@ enum class TierType {
         }
 
         fun getTime(type: TierType): Int {
-            DataController.tierUpdater()
+            GoogleSpreadSheetComponent.instance.tierRunner.execute()
             return timeMap.getOrDefault(type, 0)
         }
     }
