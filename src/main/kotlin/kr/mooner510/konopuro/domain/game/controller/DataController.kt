@@ -39,7 +39,7 @@ class DataController(
 
         tierUpdater = {
             if (lastTierUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
-                logger.info("Spread Sheet Update Successfully")
+                logger.info("Spread Sheet Update Successfully: TierData")
 
                 @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
                     .get(GoogleSpreadSheetComponent.SHEET_ID, "TierData")
@@ -59,7 +59,7 @@ class DataController(
 
         defaultUpdater = {
             if (lastDefaultUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
-                logger.info("Spread Sheet Update Successfully")
+                logger.info("Spread Sheet Update Successfully: DefaultCardData")
 
                 @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
                     .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
