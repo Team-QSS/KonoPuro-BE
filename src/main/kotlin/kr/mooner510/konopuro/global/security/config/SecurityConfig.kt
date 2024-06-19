@@ -71,6 +71,7 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/resource/default-card").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/resource/student-card").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/resource/version").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/resource/refresh").permitAll()
 
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
