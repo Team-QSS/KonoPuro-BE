@@ -81,7 +81,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "버전", description = "버전 데이터를 가져옵니다.")
-    @GetMapping("/version")
+    @GetMapping("/version", produces = ["application/json"])
     fun getVersion(): String {
         val version = (sheets.spreadsheets().values()
             .get(GoogleSpreadSheetComponent.SHEET_ID, "version")
@@ -91,7 +91,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "티어 데이터 조회", description = "티어에 대한 데이터를 가져옵니다.")
-    @GetMapping("/tier")
+    @GetMapping("/tier", produces = ["application/json"])
     fun getTierData(): String {
         val json = JSONObject()
 
@@ -108,7 +108,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "패시브 데이터 조회", description = "패시브에 대한 데이터를 가져옵니다.")
-    @GetMapping("/passive")
+    @GetMapping("/passive", produces = ["application/json"])
     fun getPassiveData(): String {
         val json = JSONObject()
 
@@ -125,7 +125,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "기본 카드 데이터 조회", description = "기본 카드에 대한 데이터를 가져옵니다.")
-    @GetMapping("/default-card")
+    @GetMapping("/default-card", produces = ["application/json"])
     fun getDefaultCardData(): String {
         val json = JSONObject()
 
@@ -150,7 +150,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "인물 카드 데이터 조회", description = "인물 카드에 대한 데이터를 가져옵니다.")
-    @GetMapping("/student-card")
+    @GetMapping("/student-card", produces = ["application/json"])
     fun getCardData(): String {
         val json = JSONObject()
 
