@@ -2,7 +2,7 @@ package kr.mooner510.konopuro.domain.game._preset
 
 import kr.mooner510.konopuro.domain.game.controller.DataController
 
-enum class TierType() {
+enum class TierType {
     // 기본
     Designer,
     Frontend,
@@ -49,7 +49,7 @@ enum class TierType() {
         }
 
         fun getTime(type: TierType): Int {
-            DataController.updater()
+            DataController.tierUpdater()
             return timeMap.getOrDefault(type, 0)
         }
     }

@@ -1,31 +1,61 @@
 package kr.mooner510.konopuro.domain.game._preset
 
+import kr.mooner510.konopuro.domain.game.controller.DataController
 import kr.mooner510.konopuro.domain.game.data.card.response.DefaultDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import java.util.*
 
 enum class DefaultCardType(
-    val tier: Int,
-    val time: Int,
     val cardType: CardType,
     val passives: EnumSet<PassiveType> = EnumSet.noneOf(PassiveType::class.java)
 ) {
-    OnlyPower(1, 0, CardType.Field),
-    UltimatePower(1, 0, CardType.Field),
-    Music(1, 0, CardType.Field),
-    DawnCoding(1, 0, CardType.Field),
-    Passion(1, 0, CardType.Field),
+    OnlyPower(CardType.Field),
+    UltimatePower(CardType.Field),
+    Music(CardType.Field),
+    DawnCoding(CardType.Field),
+    Passion(CardType.Field),
 
-    CleanCode(1, 5, CardType.Tool, EnumSet.of(PassiveType.CleanCode)),
-    Refectoring(1, 5, CardType.Event, EnumSet.of(PassiveType.Refectoring)),
-    JustRealize(1, 5, CardType.Activity, EnumSet.of(PassiveType.JustRealize)),
-    IndustrialSpy(1, 5, CardType.Activity, EnumSet.of(PassiveType.IndustrialSpy)),
+    CleanCode(CardType.Tool, EnumSet.of(PassiveType.CleanCode)),
+    Refectoring(CardType.Event, EnumSet.of(PassiveType.Refectoring)),
+    JustRealize(CardType.Activity, EnumSet.of(PassiveType.JustRealize)),
+    IndustrialSpy(CardType.Activity, EnumSet.of(PassiveType.IndustrialSpy)),
     ;
 
     companion object {
         val tierOtherList = DefaultCardType.entries.filter { it.tier != 3 && it.cardType != CardType.Field }
         val tier3List = DefaultCardType.entries.filter { it.tier == 3 && it.cardType != CardType.Field }
+
+        private val timeMap = hashMapOf<DefaultCardType, Int>()
+        private val tierMap = hashMapOf<DefaultCardType, Int>()
+
+        fun setTime(type: DefaultCardType, time: Int) {
+            timeMap[type] = time
+        }
+
+        fun getTime(type: DefaultCardType): Int {
+            DataController.defaultUpdater()
+            return timeMap.getOrDefault(type, 0)
+        }
+
+        fun setTier(type: DefaultCardType, tier: Int) {
+            tierMap[type] = tier
+        }
+
+        fun getTier(type: DefaultCardType): Int {
+            DataController.defaultUpdater()
+            return tierMap.getOrDefault(type, 1)
+        }
     }
+
+    val time: Int
+        get() {
+            return getTime(this)
+        }
+
+    val tier: Int
+        get() {
+            return getTier(this)
+        }
 
     fun toResponse(): DefaultDataResponse {
         return DefaultDataResponse(

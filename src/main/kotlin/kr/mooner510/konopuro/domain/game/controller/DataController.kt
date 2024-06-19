@@ -3,6 +3,8 @@ package kr.mooner510.konopuro.domain.game.controller
 import com.google.api.services.sheets.v4.Sheets
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
+import kr.mooner510.konopuro.domain.game._preset.StudentCardType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
 import org.json.JSONObject
@@ -21,17 +23,21 @@ class DataController(
     companion object {
         private val logger = LoggerFactory.getLogger(DataController::class.java)
 
-        private lateinit var lastUpdateTime: LocalDateTime
+        private lateinit var lastTierUpdateTime: LocalDateTime
+        private lateinit var lastDefaultUpdateTime: LocalDateTime
 
-        lateinit var updater: () -> Unit
+        lateinit var tierUpdater: () -> Unit
+            private set
+
+        lateinit var defaultUpdater: () -> Unit
             private set
     }
 
     init {
-        lastUpdateTime = LocalDateTime.now().minusHours(1)
+        lastTierUpdateTime = LocalDateTime.now().minusHours(1)
 
-        updater = {
-            if (lastUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
+        tierUpdater = {
+            if (lastTierUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
                 logger.info("Spread Sheet Update Successfully")
 
                 @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
@@ -48,8 +54,28 @@ class DataController(
                 }
             }
         }
+        tierUpdater()
 
-        updater()
+        defaultUpdater = {
+            if (lastDefaultUpdateTime.plusMinutes(10) <= LocalDateTime.now()) {
+                logger.info("Spread Sheet Update Successfully")
+
+                @Suppress("UNCHECKED_CAST") val values: List<List<String>> = sheets.spreadsheets().values()
+                    .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
+                    .execute()["values"] as List<List<String>>
+
+                for (value in values) {
+                    try {
+                        val type = DefaultCardType.valueOf(value[0])
+                        DefaultCardType.setTier(type, value[1].toInt())
+                        DefaultCardType.setTime(type, value[3].toInt())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        defaultUpdater()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -98,7 +124,7 @@ class DataController(
 
     @Suppress("UNCHECKED_CAST")
     @Operation(summary = "기본 카드 데이터 조회", description = "기본 카드에 대한 데이터를 가져옵니다.")
-    @GetMapping("/card")
+    @GetMapping("/default-card")
     fun getDefaultCardData(): String {
         val json = JSONObject()
 
@@ -107,7 +133,49 @@ class DataController(
             .execute()["values"] as List<List<String>>
 
         for (value in values) {
-            json.put(value[0], JSONObject().put("name", value[1]).put("time", value[2].toInt()).put("description", value[3]))
+            val obj = JSONObject().put("tier", value[1]).put("name", value[2]).put("time", value[3].toInt()).put("description", value[4])
+
+            try {
+                val type = DefaultCardType.valueOf(value[0])
+                obj.put("cardType", type.cardType.toString())
+            } catch (_: IllegalArgumentException) {
+            }
+
+            json.put(value[0], obj)
+        }
+
+        return json.toString()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Operation(summary = "인물 카드 데이터 조회", description = "인물 카드에 대한 데이터를 가져옵니다.")
+    @GetMapping("/student-card")
+    fun getCardData(): String {
+        val json = JSONObject()
+
+        val values: List<List<String>> = sheets.spreadsheets().values()
+            .get(GoogleSpreadSheetComponent.SHEET_ID, "DefaultCardData")
+            .execute()["values"] as List<List<String>>
+
+        for (value in values) {
+            val obj = JSONObject()
+                .put("name", value[1])
+                .put("time", value[2].toInt())
+                .put("idea", value[3])
+                .put("motive", value[4])
+
+            try {
+                val type = StudentCardType.valueOf(value[0])
+                obj.put("majors", type.major.sortedBy { it.ordinal }.toList())
+                    .put("defaultPassives", type.passive.sortedBy { it.ordinal }.toList())
+                    .put("defaultTier", type.tier.toString())
+                    .put("second", type.secondTier.sortedBy { it.ordinal }.toList())
+                    .put("third", type.thirdPassive.sortedBy { it.ordinal }.toList())
+                    .put("forth", type.forthTier.sortedBy { it.ordinal }.toList())
+            } catch (_: IllegalArgumentException) {
+            }
+
+            json.put(value[0], obj)
         }
 
         return json.toString()
