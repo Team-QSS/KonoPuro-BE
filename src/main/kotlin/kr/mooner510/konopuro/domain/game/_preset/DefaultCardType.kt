@@ -1,7 +1,6 @@
 package kr.mooner510.konopuro.domain.game._preset
 
 import kr.mooner510.konopuro.domain.game.component.GoogleSpreadSheetComponent
-import kr.mooner510.konopuro.domain.game.controller.DataController
 import kr.mooner510.konopuro.domain.game.data.card.response.DefaultDataResponse
 import kr.mooner510.konopuro.domain.game.data.card.types.CardType
 import java.util.*
