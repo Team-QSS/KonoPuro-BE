@@ -17,6 +17,7 @@ import kr.mooner510.konopuro.domain.socket.data.obj.GameCards
 import kr.mooner510.konopuro.domain.socket.data.obj.GameStudentCards
 import kr.mooner510.konopuro.domain.socket.data.type.DataKey
 import kr.mooner510.konopuro.global.utils.UUIDParser
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
@@ -207,7 +208,7 @@ data class PlayerData(
 
         fun addProject(majorType: MajorType, value: Int, callEvent: Boolean = true) = execute {
             val issueList = issue.getOrElse(majorType) { LinkedList() }
-            var afterValue = if(callEvent) calculateProject(majorType, value) else value
+            var afterValue = if (callEvent) calculateProject(majorType, value) else value
             var next: Int
             if (issueList.isNotEmpty()) {
                 val iterator = issueList.listIterator()
@@ -473,12 +474,16 @@ data class PlayerData(
                         }
 
                         Students -> {
-                            val list = modifiedStudent.mapNotNull { (_, modifier) -> modifier.build() }
-                            if (list.isEmpty()) {
+                            val array = JSONArray()
+                            modifiedStudent
+                                .mapNotNull { (_, modifier) -> modifier.build() }
+                                .forEach { json -> array.put(json) }
+
+                            if (array.isEmpty) {
                                 modifiers.remove(Students)
                                 return@mapNotNull null
                             }
-                            JSONObject().put("students", list).toString()
+                            JSONObject().put("students", array).toString()
                         }
 
                         null -> null

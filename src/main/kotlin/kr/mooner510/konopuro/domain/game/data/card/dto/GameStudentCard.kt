@@ -94,7 +94,7 @@ data class GameStudentCard(
             modifier.add(Modifier.Int)
         }
 
-        fun build(): String? {
+        fun build(): JSONObject? {
             if (modifier.isEmpty()) return null
             val json = JSONObject().put("id", gameStudentCard.id.toString())
             if (modifier.contains(Modifier.Fatigue)) json.put("fatigue", gameStudentCard.getFatigue())
@@ -103,7 +103,7 @@ data class GameStudentCard(
                 gameStudentCard.dataInt.forEach { (key, value) -> data.put(key.toString(), value) }
                 json.put("data", data)
             }
-            return json.toString()
+            return json
         }
     }
 }

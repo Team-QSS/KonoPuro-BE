@@ -104,11 +104,11 @@ class MessageManager(
     }
 
     fun joinRoom(clientId: UUID, roomId: UUID) {
-        namespace.getClient(clientId).joinRoom(roomId.toString())
+        namespace.getClient(clientId)?.joinRoom(roomId.toString())
     }
 
     fun leaveRoom(clientId: UUID, roomId: UUID) {
-        namespace.getClient(clientId).leaveRoom(roomId.toString())
+        namespace.getClient(clientId)?.leaveRoom(roomId.toString())
     }
 
     fun getRoom(roomId: UUID): BroadcastOperations = namespace.getRoomOperations(roomId.toString())

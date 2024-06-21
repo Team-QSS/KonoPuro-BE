@@ -161,7 +161,7 @@ class GameManager(
                 ArrayList(),
                 EnumMap(MajorType::class.java),
                 EnumMap(MajorType::class.java),
-                GamePreset.stage[0],
+                GamePreset.stage[1],
                 false,
                 passiveSet,
                 tierSet,

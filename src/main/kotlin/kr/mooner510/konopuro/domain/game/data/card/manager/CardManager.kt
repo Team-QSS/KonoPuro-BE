@@ -1,6 +1,7 @@
 package kr.mooner510.konopuro.domain.game.data.card.manager
 
 import kr.mooner510.konopuro.domain.game._preset.DefaultCardType
+import kr.mooner510.konopuro.domain.game._preset.GamePreset
 import kr.mooner510.konopuro.domain.game._preset.PassiveType
 import kr.mooner510.konopuro.domain.game._preset.TierType
 import kr.mooner510.konopuro.domain.game.data.card.dto.GameStudentCard
@@ -17,6 +18,10 @@ object CardManager {
 
     fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
+            PassiveType.CleanCode -> addFieldCard(DefaultCardType.CleanCode, 3, dupe = true, isDayDuration = true)
+            PassiveType.Refectoring -> addFieldCard(DefaultCardType.Refectoring, 2, dupe = true, isDayDuration = true)
+            PassiveType.JustRealize -> addFieldCard(DefaultCardType.JustRealize, 2, dupe = true, isDayDuration = true)
+            PassiveType.IndustrialSpy -> otherModifier.execute { goal.keys.forEach { addProject(it, if(fieldCards.count() > 6) -2 else -1, false) } }
             else -> return@execute
         }
     }
@@ -211,7 +216,7 @@ object CardManager {
         }
         passives.forEach {
             when (it) {
-                PassiveType.MultiDevelop -> increment += when (project[majorType]!!.toFloat() / goal[majorType]!!.toFloat()) {
+                PassiveType.MultiDevelop -> increment += when (get(majorType.dataTotalKey, 0) / (goal[majorType]!!.toFloat())) {
                     0.1f -> 1
                     0.25f -> 2
                     0.5f -> 3

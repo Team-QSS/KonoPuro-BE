@@ -10,11 +10,11 @@ object GamePreset {
             MajorType.Design to 80
         ),
         mutableMapOf(
-            MajorType.FrontEnd to 120,
-            MajorType.Backend to 200,
-            MajorType.Design to 180,
-            MajorType.Android to 120,
-            MajorType.iOS to 120,
+            MajorType.FrontEnd to 10,
+            MajorType.Backend to 10,
+            MajorType.Design to 10,
+            MajorType.Android to 10,
+            MajorType.iOS to 10,
         ),
     )
 }
