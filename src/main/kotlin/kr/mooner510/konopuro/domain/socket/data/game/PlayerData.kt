@@ -236,6 +236,7 @@ data class PlayerData(
             dupe: Boolean = false,
             isDayDuration: Boolean = false
         ) = execute {
+            modifiers.add(FieldCard)
             if (dupe) fieldCards.add(GameCard(UUIDParser.nilUUID, defaultCardType, duration, isDayDuration))
             else {
                 fieldCards.find { it.defaultCardType == defaultCardType }?.let {
