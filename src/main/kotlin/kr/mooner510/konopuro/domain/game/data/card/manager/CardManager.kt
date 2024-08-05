@@ -134,12 +134,20 @@ object CardManager {
             }
 
             TierType.RegularMeeting -> TODO()
-            TierType.InfinityPassion -> TODO()
+            TierType.InfinityPassion -> {
+                addProject(MajorType.iOS, 20)
+            }
             TierType.DoItWithTime -> TODO()
-            TierType.Reverse -> TODO()
-            TierType.Cooperation -> TODO()
+            TierType.Reverse -> {
+                addProject(MajorType.Android, 5)
+                otherModifier.addProject(MajorType.Android, -5, false)
+            }
+            TierType.Cooperation -> {
+                addProject(MajorType.Android, 6)
+                if(students.count { it.groups.contains(MajorType.Android) } > 1) addTime(1)
+            }
             TierType.Disturbance -> TODO()
-            TierType.Reverse2 -> TODO()
+            TierType.Reverse2 -> otherModifier.addProject(MajorType.Android, -12, false)
         }
         return@execute true
     }
