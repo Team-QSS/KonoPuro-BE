@@ -117,5 +117,7 @@ class AuthController(
                 emptyList()
             )
         )
+
+        inventoryController.addGold(user.id, 4000)
     }
 }
