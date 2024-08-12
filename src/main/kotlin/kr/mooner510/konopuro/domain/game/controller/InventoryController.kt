@@ -73,10 +73,11 @@ class InventoryController(
         added: Int
     ) {
         val goldEntity = goldRepository.findByIdOrNull(userId)
-        if(goldEntity == null) {
+        if (goldEntity == null) {
             goldRepository.save(Gold(userId, added))
             return
         }
-        goldRepository.updateGoldById(goldEntity.gold + added, userId)
+        val gold = goldEntity.gold + added
+        goldRepository.updateGoldById(if(gold < 0) 0 else gold, userId)
     }
 }

@@ -252,6 +252,11 @@ data class PlayerData(
             modifiers.add(FieldCard)
         }
 
+        fun removeFieldCard(gameCard: GameCard) = execute {
+            fieldCards.remove(gameCard)
+            modifiers.add(FieldCard)
+        }
+
         fun removeFieldCardLimit(defaultCardType: DefaultCardType, limit: Int = 1, multi: Boolean = true): Boolean =
             execute {
                 val iterator = fieldCards.listIterator()

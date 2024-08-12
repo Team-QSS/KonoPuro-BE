@@ -14,6 +14,8 @@ enum class DefaultCardType(
     Music(CardType.Field),
     DawnCoding(CardType.Field),
     Passion(CardType.Field),
+    PriceOfHassle(CardType.Field),
+    ResultOfEffort(CardType.Field),
 
     CleanCode(CardType.Tool, EnumSet.of(PassiveType.CleanCode)),
     Refectoring(CardType.Event, EnumSet.of(PassiveType.Refectoring)),

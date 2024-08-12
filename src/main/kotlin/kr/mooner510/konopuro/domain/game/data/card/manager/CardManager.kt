@@ -19,9 +19,9 @@ object CardManager {
     fun PlayerData.PlayerDataModifier.usePassive(passiveType: PassiveType): Unit = execute {
         when (passiveType) {
             PassiveType.CleanCode -> addFieldCard(DefaultCardType.CleanCode, 3, dupe = true, isDayDuration = true)
-            PassiveType.Refectoring -> addFieldCard(DefaultCardType.Refectoring, 2, dupe = true, isDayDuration = true)
-            PassiveType.JustRealize -> addFieldCard(DefaultCardType.JustRealize, 2, dupe = true, isDayDuration = true)
-            PassiveType.IndustrialSpy -> otherModifier.execute { goal.keys.forEach { addProject(it, if(fieldCards.count() > 6) -2 else -1, false) } }
+            PassiveType.Refectoring -> addFieldCard(DefaultCardType.ResultOfEffort, 2, dupe = true, isDayDuration = true)
+            PassiveType.JustRealize -> addFieldCard(DefaultCardType.PriceOfHassle, 2, dupe = true, isDayDuration = true)
+            PassiveType.IndustrialSpy -> otherModifier.execute { goal.keys.forEach { addProject(it, if (fieldCards.count() > 6) -2 else -1, false) } }
             else -> return@execute
         }
     }
@@ -137,15 +137,18 @@ object CardManager {
             TierType.InfinityPassion -> {
                 addProject(MajorType.iOS, 20)
             }
+
             TierType.DoItWithTime -> TODO()
             TierType.Reverse -> {
                 addProject(MajorType.Android, 5)
                 otherModifier.addProject(MajorType.Android, -5, false)
             }
+
             TierType.Cooperation -> {
                 addProject(MajorType.Android, 6)
-                if(students.count { it.groups.contains(MajorType.Android) } > 1) addTime(1)
+                if (students.count { it.groups.contains(MajorType.Android) } > 1) addTime(1)
             }
+
             TierType.Disturbance -> TODO()
             TierType.Reverse2 -> otherModifier.addProject(MajorType.Android, -12, false)
         }
@@ -155,7 +158,13 @@ object CardManager {
     fun PlayerData.PlayerDataModifier.onNewDay() = execute {
         fieldCards.forEach {
             when (it.defaultCardType) {
-                DefaultCardType.DawnCoding -> TODO()
+                DefaultCardType.DawnCoding -> {
+                    removeFieldCard(it)
+                    addProject(goal.keys.random(), 10)
+                }
+                DefaultCardType.ResultOfEffort -> if (it.duration <= 1) goal.keys.forEach { m -> addProject(m, 16) }
+                DefaultCardType.PriceOfHassle -> if (it.duration <= 1) goal.keys.forEach { m -> addProject(m, -5, false) }
+                DefaultCardType.OnlyPower -> otherModifier.addProject(MajorType.Design, -3, false)
                 else -> return@forEach
             }
         }
@@ -219,6 +228,7 @@ object CardManager {
         fieldCards.forEach {
             when (it.defaultCardType) {
                 DefaultCardType.Music -> increment++
+                DefaultCardType.CleanCode -> increment++
                 else -> return@forEach
             }
         }
@@ -267,6 +277,20 @@ object CardManager {
                         }
 
                     else -> return@forEach
+                }
+            }
+        }
+        otherModifier.execute {
+            fieldCards.forEach { c ->
+                when (c.defaultCardType) {
+                    DefaultCardType.UltimatePower -> {
+                        if (majorType == MajorType.Design) {
+                            increment -= 4
+                            if (increment < 0) increment = 0
+                        }
+                    }
+
+                    else -> return@execute
                 }
             }
         }

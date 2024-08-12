@@ -28,6 +28,7 @@ enum class ErrorCode(
 
     CARD_ALREADY_EXISTS("해당 카드가 이미 존재합니다.", HttpStatus.BAD_REQUEST),
     GATCHA_EXPIRED_EXCEPTION("해당 가챠는 시작하지 않았거나 끝났습니다.", HttpStatus.BAD_REQUEST),
+    NO_GOLD_EXCEPTION("골드가 부족합니다.", HttpStatus.BAD_REQUEST)
     ;
 
     fun parse(vararg data: Any): String {

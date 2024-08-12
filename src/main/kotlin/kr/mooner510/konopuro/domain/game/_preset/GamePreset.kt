@@ -17,4 +17,7 @@ object GamePreset {
             MajorType.iOS to 10,
         ),
     )
+
+    val gatchaOncePrice = 100
+    val gatchaMultiPrice = 999
 }

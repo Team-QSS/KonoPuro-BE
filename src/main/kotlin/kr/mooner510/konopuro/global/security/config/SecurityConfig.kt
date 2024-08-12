@@ -73,6 +73,8 @@ class SecurityConfig(
                 it.requestMatchers(HttpMethod.GET, "/api/resource/version").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/resource/refresh").permitAll()
 
+                it.requestMatchers(HttpMethod.GET, "/api/inventory/gold").authenticated()
+
 //                it.requestMatchers("/ws/chat/**").permitAll()
 
 //                it.requestMatchers(HttpMethod.DELETE, "/api/test").permitAll()
