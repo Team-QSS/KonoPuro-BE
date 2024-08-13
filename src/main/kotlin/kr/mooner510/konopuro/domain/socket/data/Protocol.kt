@@ -37,6 +37,11 @@ object Protocol {
              * 수면
              */
             const val SLEEP = 105
+
+            /**
+             * 항복
+             */
+            const val SURRENDER = 106
         }
 
         object Server {
