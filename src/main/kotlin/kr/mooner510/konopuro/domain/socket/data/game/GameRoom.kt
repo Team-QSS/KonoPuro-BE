@@ -149,6 +149,11 @@ data class GameRoom(
                     }
                 }
             }
+
+            Protocol.Game.Client.SURRENDER -> {
+                self(Protocol.Game.Server.GAME_END, "LOSE_SURRENDER")
+                other(Protocol.Game.Server.GAME_END, "WIN_SURRENDER")
+            }
         }
 
         val checkList = pairs.checkIf { data ->
